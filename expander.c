@@ -10,83 +10,96 @@
 
 
 
-typedef struct
+typedef struct macroline
 {
-    char line[MAX_LINE_LENGTH];
     struct macroline *next;
+    char line[MAX_LINE_LENGTH];
 } macroline;
 
 
-typedef struct
+typedef struct macro
 {
     char name[MAX_LINE_LENGTH];
-    macroline *lines; /*pointer to the first line of the linked list refering to this macro name*/
     struct macro *next; /*pointer to the next macro */
+    macroline *lines; /*pointer to the first line of the linked list refering to this macro name*/
 } macro;
 
+macro *new_macro(char *name);
+macroline *search_macro(char *name, macro *head);
+macroline *add_line(macro *mac, char *line);
+void verify_name(char *name);
 
-
-
-
-int expand_macros(FILE *fp, char *fname)
+void expand_macros(FILE *fps, FILE *fpm)
 {
 
-    macro *head = new_macro("head");
-    macro *curr_macro = head;
-    macroline *curr_line = NULL;
+    macro *head;
+    macro *curr_macro;
+    macroline *curr_line;
     char buffer[MAX_LINE_LENGTH];
+    char *name;
+    /*FILE *fps; file pointer for .as file*/
+    /*FILE *fpm; file pointer for .am file*/
+    /*char *fns; file name for .as ending*/
+    /*char fnm[MAX_ARG_LENGTH]; file name for .am ending*/
     int inside_macro = ZERO;
-
-    FILE *fps = fp; /*file pointer for .as file*/
-    FILE *fpm; /*file pointer for .am file*/
-    char *fns = fname; /*file name for .as ending*/
-    char *fnm = fname; /*file name for .am ending*/
-    strcat(fns, AS_EXTENSION); /* adding the correct file ending */
-    strcat(fnm, AM_EXTENSION); /* adding the correct file ending */
+    name = "head";
+    head = new_macro(name);
+    curr_macro = head;
+    curr_line = NULL;
+    
+    
+    
+   /* fps = fps; */
+   /* strcpy(fnm, fname);*/
+    /* strcat(fns, EXT_AS);  adding the correct file ending */
+   /* strcat(fnm, EXT_AM);  adding the correct file ending */
     
 
-    fps = fopen(fns, "r");
-    if(fps==NULL) return FILE_ERROR; 
-    fpm = fopen(fnm, "w");
-    if(fpm==NULL) return FILE_ERROR; 
-
+    /* fps = fopen(fns, "r");
+    if(fps==NULL) return FILE_ERROR; */
+    /*fpm = fopen(fnm, "w");
+    if(fpm==NULL) return NULL; */
+   
 
     while(fgets(buffer, sizeof(buffer), fps) != NULL)
     {
         /* TODO: check size is correct (with /0 maybe) */
-        char *first_word, *second_word;
-        sscanf(buffer, "%s, %s", first_word, second_word);
-        
 
+        int count;
+        char first_word[MAX_ARG_LENGTH], second_word[MAX_ARG_LENGTH], junk[MAX_ARG_LENGTH];
+        count = sscanf(buffer, "%s %s %1s", first_word, second_word, junk);
+        
+        
         if(strcmp(first_word, MACRO_START)==0) /* first word of the line is 'mcro' */
         {
-            macro *temp = new_macro(second_word); /* creating a macro node */
+            macro *temp;
+            inside_macro = 1; /* TODO: change to better flag */
+            temp = new_macro(second_word); /* creating a macro node */
             curr_macro->next = temp;
             curr_macro = temp;
-            curr_macro->lines = curr_line;
-            inside_macro = ONE; /* flag representing the current macro state */
+            curr_line = NULL;
             continue;
         }
         
         if(strcmp(first_word, MACRO_END)==0)
         {
+            if(count != 1)
+               return; /* macro end is followed by extra characters */
             inside_macro = ZERO;
-            curr_macro = NULL;
             continue;
         }
 
         if(inside_macro)
-        {
-            if(curr_line==NULL)
-                curr_line = add_line(curr_macro, buffer); /* first line of the macro */
-            else
+        {       
+                macroline *temp;
+                temp = add_line(curr_macro, buffer);
+                if(curr_macro->lines==NULL)
+                    curr_macro->lines = temp;
+                else
                 {
-                    macroline *temp;
-                    temp = add_line(curr_macro, buffer);
                     curr_line->next = temp;
-                    curr_line = curr_line->next;
                 }
-
+                curr_line = temp;
             continue;
         }
 
@@ -107,7 +120,7 @@ int expand_macros(FILE *fp, char *fname)
             continue;
         }       
     }
-    return 0; /* returning 0 if the file is expanded and saved succesfully */  
+     return; /* returning 0 if the file is expanded and saved succesfully */  
 }
 
 macroline *search_macro(char *name, macro *head)
@@ -126,7 +139,7 @@ macroline *search_macro(char *name, macro *head)
 macroline *add_line(macro *mac, char *line)
 {
     macroline *new_line = (macroline *)malloc(sizeof(macroline));
-    if(line == NULL) /* TODO: make a generic global memory check */
+    if(new_line == NULL) /* TODO: make a generic global memory check */
     {
         printf("Memory alocation failed");
         exit(1); /* TODO: exit in this situation? */
@@ -138,8 +151,8 @@ macroline *add_line(macro *mac, char *line)
 
 macro *new_macro(char *name)
 {
-    verify_name(name);
     macro *new_node = (macro *)malloc(sizeof(macro));
+    verify_name(name); /* TODO: free memory */
     if(new_node == NULL)
     {
         printf("Memory alocation failed");
@@ -155,15 +168,17 @@ macro *new_macro(char *name)
 void verify_name(char *name)
 {
     int i;
+    char *temp;
     i = 0;
-    while(instructions[i].name != NULL)
+    while((temp = get_name(i++)) != NULL)
     {
-        if(strcmp(name, instructions[i].name)==0)
+        if(strcmp(name, temp)==0)
             {
                 printf("Macro name cannot be an instruction's name");
                 exit(1);
             }
     }
+    return;
     /* TODO: refine checks */
 }
 

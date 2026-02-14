@@ -1,4 +1,8 @@
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #ifndef SET_H
 #define SET_H
 #define MEM_START 100
@@ -9,18 +13,8 @@
 #define OK 1
 #define EXT_AS ".as"
 #define EXT_AM ".am"
+#define MAX_ARG_LENGTH 30
 
-extern inst instructions;
-
-typedef short word;
-
-typedef struct 
-{
-    char *name;
-    int opcode;
-    int funct;
-
-} inst;
 
 typedef struct Node
 {
@@ -31,10 +25,10 @@ typedef struct Node
 } Node;
 
 
+char *get_name(int index);
 
-
-
-
+void expand_macros(FILE *fps, FILE *fpm);
+void start_pass(FILE *fp);
 
 
 
