@@ -10,14 +10,8 @@
 
 int DC; /* data counter: .data .string */
 int IC; /* instruction counter: .text */
-struct 
-{
-    char *name;
-    int opcode;
-    int funct;
 
-} 
-instructions[] = {
+inst instructions[] = {
     {"mov", 0, 0},
     {"cmp", 1, 0},
     {"add", 2, 10},
@@ -49,23 +43,20 @@ labels[] = {
 
 int main(int argc, char *argv[])
 {
+    /* TODO: assembler command */
     int i;
-    FILE *fp;
-    int c;
-    char **files = malloc((argc) * sizeof(char*));
-    
-    if(!strcmp(argv[ZERO], "assembler")) /* TODO: do i suppose its legal */
-    
-    for(i=ONE;i<argc;i++)
+    FILE *fpas, *fpam;
+    for(i=0;i<argc;i++)
     {
-        strcpy(files[i], argv[i]);
-        strcat(files[i], EXTENTION);
-    }
+        
 
-    
+
+    }
 
 
     return 0;
 }
+
+
 
 

@@ -7,10 +7,20 @@
 #define ZERO 0
 #define ONE 1
 #define OK 1
-#define EXTENTION ".as"
+#define EXT_AS ".as"
+#define EXT_AM ".am"
+
+extern inst instructions;
 
 typedef short word;
 
+typedef struct 
+{
+    char *name;
+    int opcode;
+    int funct;
+
+} inst;
 
 typedef struct Node
 {
