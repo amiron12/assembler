@@ -1,4 +1,4 @@
-
+#include "assembler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,7 +31,7 @@ typedef struct
     {NULL, 0, 0}
 };
 
-char *get_name(int index)
+char *get_instruction_name(int index)
 {
     return instructions[index].name;
 }

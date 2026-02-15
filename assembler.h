@@ -5,35 +5,59 @@
 
 #ifndef SET_H
 #define SET_H
+#define BYTE (sizeof(unsigned char)*8)
 #define MEM_START 100
 #define MAX_LINE_LENGTH 80 /* including new-line character */
 #define MAX_FNAME 15
 #define ZERO 0
 #define ONE 1
+#define FALSE 0
+#define TRUE 1
 #define OK 1
 #define EXT_AS ".as"
 #define EXT_AM ".am"
 #define MAX_ARG_LENGTH 30
+#define LABEL_LENGTH 31
+
+extern int DC, IC;
 
 
-typedef struct Node
+typedef struct symbol
 {
-    char *name;
-    FILE *start_ptr;
-    FILE *end_ptr;
-    struct Node *next;
-} Node;
+    char name[LABEL_LENGTH];
+    int address;
+    struct symbol *next;
+} symbol;
+
+typedef struct macroline
+{
+    struct macroline *next;
+    char line[MAX_LINE_LENGTH];
+} macroline;
+
+typedef struct macro
+{
+    char name[MAX_LINE_LENGTH];
+    struct macro *next; /*pointer to the next macro */
+    struct macroline *lines; /*pointer to the first line of the linked list refering to this macro name*/
+} macro;
 
 
-char *get_name(int index);
+char *get_instruction_name(int index);
+
+void memory_check(void *ptr);
+void file_check(FILE *fp);
 
 void expand_macros(FILE *fps, FILE *fpm);
+
 void start_pass(FILE *fp);
 
+void add_symbol(char *symbol_name, symbol **curr);
+void print_symbols(symbol *head);
 
+void start(FILE *fp);
 
-
-
+int tokenize(char *line, char *args[]);
 
 
 
