@@ -60,3 +60,4 @@ static char* clean_arg(char *str)
     end[ONE] = '\0';
     return str;
 }
+

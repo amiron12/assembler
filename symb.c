@@ -3,14 +3,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+int label_exist(char *name, symbol *head)
+{
+    symbol *temp;
+    temp = head;
+    while(temp != NULL)
+    {
+        if(!strcmp(temp->name, name))
+            return TRUE;
+        temp = temp->next;
+    }
+    /* TODO: error */
+    return FALSE;
+}
 
-void add_symbol(char *symbol_name, symbol **curr)
+void add_symbol(char *symbol_name, symbol **curr, int address, attribute atr)
 {
     symbol *temp = (symbol *)malloc(sizeof(symbol));
     memory_check(temp);
     strncpy(temp->name, symbol_name, LABEL_LENGTH);
     temp->next = NULL;
-    temp->address = IC++;
+    temp->address = address;
+    temp->atr = atr;
     if(*curr == NULL)
         *curr = temp;
     else
@@ -38,3 +52,4 @@ void print_symbols(symbol *head)
         temp = temp->next;
     }
 }
+

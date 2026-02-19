@@ -4,7 +4,6 @@
 #include <string.h>
 #include <ctype.h>
 
-
 int is_label(char *str);
 
 void start(FILE *fp)
@@ -16,65 +15,61 @@ void start(FILE *fp)
     curr = NULL; 
     while(fgets(line, MAX_LINE_LENGTH, fp) != NULL)
     {
-        int argc;
+        int argc, index;
         char *label = NULL;
+        index = 0;
         argc = tokenize(line, args); /* saves all words in args, removing leading and trailing whitespaces, and trailing commas*/
+        
         if(!argc || **args==';') continue;
-        if(is_label(*args))
-        {
-            int len = strlen(*args);
-            strcpy(label, *args);
-            label[--len] = '\0';
-            if(not_reserved(label)) 
-                add_symbol(label, &curr);
-        }
-
-        
-        
-
-    }
 
 
+            if(is_label(args[index]) && !label_exist(args[index], head))
+            {
+                if(index){} /* TODO: syntax error */
+                label = clean_label(args[index]);
+                if(!not_reserved(args[index]))
+                {
+
+                    /* TODO: error */
+                }
+                index++; /* TODO: check not over argc */
+
+            }
+
+            if(is_directive(args[index]))
+            {
+                add_symbol(label, &curr, DC, DATA);
+                if(is_data(args[index]))
+                    DC+=(argc-(index+1));
+                else if(is_string(args[index]))
+                    DC+=(2+(strlen(args[index+1])));
+                continue;
+            }
+            if(is_instruction(args[index]))
+            {
+                add_symbol(label, &curr, IC, CODE);
+                IC+=get_instruction_operands(args[index]);
+                continue;
+            }
+            if(is_extern(args[index]))
+            {
+                add_symbol(label, &curr, ZERO, EXTERNAL);
+                continue;
+            }
+            /* TODO: entry */
+            
+
+    
+}
 }
 
-static int word_type(char *str)
-{
-    if(str==NULL) return NULL; /* return 0 */
 
-}
 
-static int clean_word(char *str)
-{
 
-}
 
-static int is_label(char *str)
-{
-    int len, i;
-    len = strlen(str);
-    if(str[len-1]!=':' || len>LABEL_LENGTH) return FALSE;
-    if(!isalpha(*str)) return FALSE; /* first character is non alphabetical */
-    for(i=1;i<len-1;i++)
-        if(!isalnum(str[i])) return FALSE;
-    return TRUE;
-}
 
-static int is_directive(char *str)
-{
-    (str[0]=='.')?TRUE:FALSE;
-}
 
-static int is_register(char *str)
-{
-   return (!strcmp(str, "r0") || !strcmp(str, "r1")
-    || !strcmp(str, "r2") || !strcmp(str, "r3") || !strcmp(str, "r4")
-    || !strcmp(str, "r5") || !strcmp(str, "r6") || !strcmp(str, "r7"))?TRUE:FALSE;
-}
 
-static int is_immediate(char *str)
-{
-    return (str[0]=='#')?TRUE:FALSE;
-}
 
 
 

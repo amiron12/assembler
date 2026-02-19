@@ -25,13 +25,6 @@ void file_check(FILE *fp)
 
 int not_reserved(char *str)
 {
-    int i;
-    char *temp;
-    i = 0;
-    /* checking instruction's table */
-    while((temp = get_instruction_name(i++)) != NULL)
-        if(strcmp(str, temp)==0)
-            return FALSE;
-    return TRUE;    
+    if(is_instruction(str) || is_register(str)) return FALSE;
+    return TRUE;
 }
-
