@@ -35,3 +35,4 @@ char *get_instruction_name(int index)
 {
     return instructions[index].name;
 }
+

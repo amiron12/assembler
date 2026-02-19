@@ -18,8 +18,7 @@ int main(int argc, char *argv[])
 {
     int i;
     FILE *fps, *fpm;
-    int IC = MEM_START;
-    int DC = ZERO;
+ 
     for(i=1;i<argc;i++)
         {
         char fname[100], fname2[100];

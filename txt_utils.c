@@ -3,10 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 
 
-static char* trim_space(char *str);
+
+static char* clean_arg(char *str);
+
+
 
 /*
  * Function: tokenize
@@ -24,27 +28,22 @@ int tokenize(char *line, char *args[])
     if(line == NULL)
     {
         args[i] = NULL;
-        return OK;
+        return ZERO;
     }
 
     
-    token = strtok(line, ","); 
+    token = strtok(line, " "); 
     while(token != NULL)
         {
-            args[i++] = trim_space(token); 
-            token = strtok(NULL, ",");
+            args[i++] = clean_arg(token); 
+            token = strtok(NULL, " ");
         }
     args[i]=NULL; /* end of arguments */
-    return OK;
+    return i;
 }
 
-/*
- * Function: trim_space
- * Purpose: Removes leading and trailing whitespace from a string.
- * Logic: Advances pointer past leading spaces, places null terminator after last non-space.
- * Assumptions: str is a valid string pointer.
- */
-static char* trim_space(char *str)
+
+static char* clean_arg(char *str)
 {
     char *end; /* Pointer to the end of the string */
     if(str == NULL) return NULL;
@@ -56,7 +55,7 @@ static char* trim_space(char *str)
         return str;
 
     end = str + strlen(str) - ONE;
-    while (end > str && isspace((unsigned char)*end))
+    while (end > str && (isspace((unsigned char)*end) || *end == ','))
         end--;
     end[ONE] = '\0';
     return str;

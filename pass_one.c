@@ -5,43 +5,76 @@
 #include <ctype.h>
 
 
-int symbol_check(char *token);
+int is_label(char *str);
 
 void start(FILE *fp)
 {
     char line[MAX_LINE_LENGTH];
-    char *token;
+    char *args[MAX_ARG_LENGTH];
     symbol *head, *curr;
     head = NULL;
-    curr = NULL;
+    curr = NULL; 
     while(fgets(line, MAX_LINE_LENGTH, fp) != NULL)
     {
-        token = strtok(line, " \t\n\r"); /* Get first word */
-        if(token==NULL || !symbol_check(token)) continue; /* non symbol */
-        token = strtok(token,":"); /* remove ':' */
-        add_symbol(token, &curr);
-        if(!head) head = curr; /* when head is still null */
+        int argc;
+        char *label = NULL;
+        argc = tokenize(line, args); /* saves all words in args, removing leading and trailing whitespaces, and trailing commas*/
+        if(!argc || **args==';') continue;
+        if(is_label(*args))
+        {
+            int len = strlen(*args);
+            strcpy(label, *args);
+            label[--len] = '\0';
+            if(not_reserved(label)) 
+                add_symbol(label, &curr);
+        }
+
+        
+        
+
     }
 
-    print_symbols(head);
+
 }
 
+static int word_type(char *str)
+{
+    if(str==NULL) return NULL; /* return 0 */
 
+}
 
+static int clean_word(char *str)
+{
 
+}
 
-
-int symbol_check(char *token)
+static int is_label(char *str)
 {
     int len, i;
-    if(token==NULL) return FALSE;
-    len = strlen(token);
-    if(token[len-1]!=':' || len>LABEL_LENGTH) return FALSE;
-    if(!isalpha(*token)) return FALSE; /* first character is non alphabetical */
+    len = strlen(str);
+    if(str[len-1]!=':' || len>LABEL_LENGTH) return FALSE;
+    if(!isalpha(*str)) return FALSE; /* first character is non alphabetical */
     for(i=1;i<len-1;i++)
-        if(!isalnum(token[i])) return FALSE;
-    token = strtok(token,":");
-    if(is_reserved(token)) return FALSE;
-    return OK;
+        if(!isalnum(str[i])) return FALSE;
+    return TRUE;
 }
+
+static int is_directive(char *str)
+{
+    (str[0]=='.')?TRUE:FALSE;
+}
+
+static int is_register(char *str)
+{
+   return (!strcmp(str, "r0") || !strcmp(str, "r1")
+    || !strcmp(str, "r2") || !strcmp(str, "r3") || !strcmp(str, "r4")
+    || !strcmp(str, "r5") || !strcmp(str, "r6") || !strcmp(str, "r7"))?TRUE:FALSE;
+}
+
+static int is_immediate(char *str)
+{
+    return (str[0]=='#')?TRUE:FALSE;
+}
+
+
 

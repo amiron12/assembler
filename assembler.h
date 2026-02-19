@@ -59,6 +59,9 @@ void start(FILE *fp);
 
 int tokenize(char *line, char *args[]);
 
+int not_reserved(char *str);
+
+
 
 
 

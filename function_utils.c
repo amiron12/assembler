@@ -23,7 +23,7 @@ void file_check(FILE *fp)
     return;
 }
 
-int is_reserved(char *str)
+int not_reserved(char *str)
 {
     int i;
     char *temp;
@@ -31,6 +31,7 @@ int is_reserved(char *str)
     /* checking instruction's table */
     while((temp = get_instruction_name(i++)) != NULL)
         if(strcmp(str, temp)==0)
-            return TRUE;
-    return FALSE;    
+            return FALSE;
+    return TRUE;    
 }
+
