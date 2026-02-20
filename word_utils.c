@@ -49,3 +49,13 @@ char* clean_label(char *str)
     str[--len] = '\0';
     return str;
 }
+
+int string_check(char *str)
+{
+
+}
+
+int data_check(char *str)
+{
+    
+}

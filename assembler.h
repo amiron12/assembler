@@ -19,10 +19,19 @@
 #define MAX_ARG_LENGTH 30
 #define LABEL_LENGTH 31
 #define MEMORY 4096
+#define WORD_SIZE 12
 
 extern int DC, IC;
 
-typedef enum attribute {DATA, CODE, EXTERNAL} attribute;
+typedef enum attribute {DATA, CODE, EXTERNAL, ENTRY} attribute;
+
+
+typedef struct machine_word
+{ 
+  unsigned int word : WORD_SIZE;
+  char type;
+} machine_word;
+
 
 typedef struct symbol
 {
