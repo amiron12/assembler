@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#define DEC 10
 
 
 
@@ -66,21 +67,30 @@ void clean_string(char **str)
 int get_mode(char *str)
 {
     int i = 0;
-    if(is_immediate(str)) return i++;
-    if(is_directive(str)) return i++;
-    if(is_relative(str)) return i++;
+    if(is_immediate(str)) return i;
+    i++;
+    if(is_directive(str)) return i;
+    i++;
+    if(is_relative(str)) return i;
+    i++;
     if(is_register(str)) return i;
 
     return 1;
 }
 
-
+static int is_int(char *s)
+{
+    char *e;
+    if (!s || !*s) return 0;
+    strtol(s, &e, DEC);
+    return *e == '\0';
+}
    
 
 int validate_data(char *args[])
 {
-    while(*args != NULL)
-        if(atoi((*args)++)) return FALSE;
+    while (*args)
+        if(!is_int(*args++)) return FALSE;
     return TRUE;
 }
 

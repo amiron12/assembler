@@ -10,14 +10,13 @@
 
  /* 31 chars */
 
-int DC; /* data counter: .data .string */
-int IC; /* instruction counter: .text */
-
 
 
 int main(int argc, char *argv[])
 {
     int i;
+    DC = ZERO;
+    IC = MEM_START;
     for(i=1;i<argc;i++)
     {
         char *fname;    

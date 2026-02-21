@@ -52,6 +52,9 @@ void start(file_state *fs)
             rest = strtok(NULL, "");
         }
 
+        while (*rest == ' ' || *rest == '\t') 
+           rest++;
+
         argc = tokenize(rest, args); 
         if(argc == NEG)
         {
@@ -67,7 +70,7 @@ void start(file_state *fs)
                 
                 if(is_data(curr_arg) && validate_data(args))
                     encode_data(args);        
-                if(is_string(curr_arg) && validate_string(*args))
+                else if(is_string(curr_arg) && validate_string(*args))
                     encode_string(*args);
                 break;
             }
@@ -79,8 +82,9 @@ void start(file_state *fs)
                 if(label_flag) add_symbol(label, &curr,&head, IC, code);
                 if(argc != get_instruction_operands(curr_arg)) error( fs ,"Invalid number of operands");
                 src = (i<argc)?get_mode(args[i++]):ZERO; 
-                dest = (i<argc)?get_mode(args[i--]):ZERO;
+                dest = (i<argc)?get_mode(args[i]):ZERO;
                 encode_instruction(curr_arg, src, dest);
+                i = 0;
                 while (i<argc)
                     encode_operand(args[i++]);
                 break;

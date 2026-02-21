@@ -11,6 +11,7 @@
 #define DIR 1
 #define REL 2
 #define REG 3
+#define ICINDEX (IC)-100
 
  machine_word data_image[MEMORY];
  machine_word code_image[MEMORY];
@@ -19,11 +20,12 @@
 
 void encode_instruction(char *str, int src, int dest)
 {
-    int opcode, funct;
+    int opcode, funct, val;
     opcode = get_instruction_opcode(str);
     funct = get_instruction_funct(str);
-    code_image[IC].word = (((opcode<<8) | (funct<<4) | (src<<2) | (dest)) & MASK); /* TODO: replace numbers or formula overall */
-    code_image[IC].type = 'A';
+    val = ((opcode<<8) | (funct<<4) | (src<<2) | (dest));
+    code_image[ICINDEX].word = val & MASK;
+    code_image[ICINDEX].type = ABSOLUTE;
     IC++;
 }
 
@@ -38,21 +40,21 @@ void encode_operand(char *str)
     case IMM:
         clean_string(&str);
         num = atoi(str);
-        code_image[IC].word = (num & MASK);
-        code_image[IC].type = ABSOLUTE;
+        code_image[ICINDEX].word = (num & MASK);
+        code_image[ICINDEX].type = ABSOLUTE;
         break;
 
     case REG:
         clean_string(&str);
         num = atoi(str);
         val = (1<<num);
-        code_image[IC].word = (val & MASK);
-        code_image[IC].type = ABSOLUTE;
+        code_image[ICINDEX].word = (val & MASK);
+        code_image[ICINDEX].type = ABSOLUTE;
         break;
 
      case REL|| DIR:
-        code_image[IC].word = val;
-        code_image[IC].type = '?';
+        code_image[ICINDEX].word = val;
+        code_image[ICINDEX].type = '?';
         break;
     }
     IC++;
@@ -61,8 +63,9 @@ void encode_operand(char *str)
 
 void encode_data(char *args[])
 {
-    while(*args != NULL)
-        data_image[DC++].word = (atoi((*args)++) & MASK);
+    int i = 0;
+    while(args[i] != NULL)
+        data_image[DC++].word = (atoi(args[i++]) & MASK);
 }
 
 void encode_string(char *str)

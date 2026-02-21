@@ -23,7 +23,9 @@
 #define WORD_SIZE 12
 #define FILE_NAME 30
 
-extern int DC, IC;
+int DC; /* data counter: .data .string */
+int IC; /* instruction counter: .text */
+
 
 typedef enum attribute {data, code, external, entry} attribute;
 
