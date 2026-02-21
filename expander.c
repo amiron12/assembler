@@ -94,7 +94,7 @@ void expand_macros(file_state *as_file)
                     break;
                 
                 case FALSE: /* regular line */
-                    add_standard_line(buffer, &curr_line);
+                    add_standard_line(buffer, &curr_line, as_file);
                     break;
                 }
             }

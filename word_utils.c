@@ -14,7 +14,7 @@ int is_string(char *str) {return !strcmp(str, ".string")?TRUE:FALSE;}
 int is_extern(char *str) {return !strcmp(str, ".extern")?TRUE:FALSE;}
 int is_entry(char *str) {return !strcmp(str, ".entry")?TRUE:FALSE;}
 
-static int is_label(char *str)
+int is_label(char *str)
 {
     int len, i;
     len = strlen(str);

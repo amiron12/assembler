@@ -67,6 +67,10 @@ typedef struct macro
 
 
 char *get_instruction_name(int index);
+int get_instruction_operands(char *name);
+int get_instruction_opcode(char *name);
+int get_instruction_funct(char *name);
+
 
 void memory_check(void *ptr);
 void file_check(FILE *fp);
@@ -78,7 +82,7 @@ void start_pass(file_state *fs);
 void add_symbol(char *symbol_name, symbol **curr, int address, attribute atr);
 void print_symbols(symbol *head);
 
-void start(FILE *fp);
+void start(file_state *fs);
 
 int tokenize(char *line, char *args[]);
 
@@ -89,7 +93,7 @@ int label_exist(char *name, symbol *head);
 int is_directive(char *str);
 int is_immediate(char *str);
 int is_relative(char *str);
-static int is_label(char *str);
+int is_label(char *str);
 int is_instruction(char *str);
 int is_register(char *str);
 int is_string(char *str);
@@ -121,18 +125,16 @@ int is_empty_line(char *line);
 
 
 
+char *macro_start_check(char *line);
+void expand(char *macro_name, macro *macro_head, code_line **curr_line);
+int macro_call(char *str, macro *head);
+void add_macro_line(char *line, macro **curr_macro, code_line **curr_line);
+void add_standard_line(char *line, code_line **curr, file_state *state);
+void new_macro(char *name, macro **curr_macro);
+void cleanup(macro *macro_head, code_line *lines_head);
 
 
-
-
-
-
-
-
-
-
-
-
+char *add_extention(char *file_name, char *ext);
 
 
 #endif

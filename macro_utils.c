@@ -7,7 +7,8 @@
 
 
 
-static char *macro_start_check(char *line)
+
+char *macro_start_check(char *line)
 {
     char *macro_name;
     macro_name = strtok(line, " \t");
@@ -22,7 +23,7 @@ static char *macro_start_check(char *line)
 }
 
 
-static void expand(char *macro_name, macro *macro_head, code_line **curr_line)
+void expand(char *macro_name, macro *macro_head, code_line **curr_line)
 {
     macro *ptr = macro_head;
     while(ptr != NULL)
@@ -35,7 +36,7 @@ static void expand(char *macro_name, macro *macro_head, code_line **curr_line)
     (*curr_line) = ptr->lines;
 }
 
-static int macro_call(char *str, macro *head)
+int macro_call(char *str, macro *head)
 {
     macro *temp = head;
     while(temp != NULL)
@@ -83,7 +84,7 @@ void new_macro(char *name, macro **curr_macro)
     }    
 }
 
-static void cleanup(macro *macro_head, code_line *lines_head)
+void cleanup(macro *macro_head, code_line *lines_head)
 {
     macro *temp = macro_head;
     code_line *curr = lines_head;
