@@ -15,7 +15,6 @@ int IC; /* instruction counter: .text */
 
 
 
-
 int main(int argc, char *argv[])
 {
     int i;
@@ -23,18 +22,17 @@ int main(int argc, char *argv[])
     {
         char *fname;    
         file_state am_file;
-        file_state as_file = {NULL, NULL, NULL, 0,0};
+        file_state as_file;
         fname = argv[i];
-
-        as_file.name = fname;
-        as_file.extended_name = strcat(fname, EXT_AS);
+        strncpy(as_file.name, fname, MAX_FNAME);
+        extention(&as_file, EXT_AS);
         as_file.ptr = fopen(as_file.extended_name, "r");
         file_check(as_file.ptr);
         expand_macros(&as_file);
         if(!as_file.error_flag) continue;
         /* am file was created */
-        am_file.name = fname;
-        am_file.extended_name = strcat(fname, EXT_AM);
+        strncpy(am_file.name, fname, MAX_FNAME);
+        extention(&am_file, EXT_AM);
         am_file.ptr = fopen(am_file.extended_name, "r");
         file_check(am_file.ptr);
         start(&am_file);

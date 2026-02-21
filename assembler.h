@@ -21,6 +21,7 @@
 #define LABEL_LENGTH 31
 #define MEMORY 4096
 #define WORD_SIZE 12
+#define FILE_NAME 30
 
 extern int DC, IC;
 
@@ -29,8 +30,8 @@ typedef enum attribute {data, code, external, entry} attribute;
 
 typedef struct file_state
 {
-    char *name;
-    char *extended_name;
+    char name[FILE_NAME];
+    char extended_name[FILE_NAME];
     FILE *ptr;
     int current_line;
     int error_flag;
@@ -54,7 +55,7 @@ typedef struct symbol
 typedef struct code_line
 {
     struct code_line *next;
-    char *line;
+    char line[MAX_LINE_LENGTH];
 } code_line;
 
 
@@ -79,7 +80,7 @@ void expand_macros(file_state *fs);
 
 void start_pass(file_state *fs);
 
-void add_symbol(char *symbol_name, symbol **curr, int address, attribute atr);
+void add_symbol(char *symbol_name, symbol **curr,symbol **head, int address, attribute atr);
 void print_symbols(symbol *head);
 
 void start(file_state *fs);
@@ -123,17 +124,18 @@ void error(file_state *state, char *str);
 
 int is_empty_line(char *line);
 
-
+void extention(file_state *fs, char *ext);
 
 char *macro_start_check(char *line);
 void expand(char *macro_name, macro *macro_head, code_line **curr_line);
 int macro_call(char *str, macro *head);
 void add_macro_line(char *line, macro **curr_macro, code_line **curr_line);
-void add_standard_line(char *line, code_line **curr, file_state *state);
+void add_standard_line(char *line, code_line **head, code_line **curr, file_state *state);
 void new_macro(char *name, macro **curr_macro);
 void cleanup(macro *macro_head, code_line *lines_head);
 
 
+int is_comment(char *line);
 
 
 /* TODO: delete: */

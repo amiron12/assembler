@@ -25,7 +25,6 @@ void expand_macros(file_state *as_file)
     lines_head = (code_line *)malloc(sizeof(code_line));
     memory_check(lines_head);
     lines_head->next = NULL;
-    lines_head->line = NULL;
 
     curr_line = lines_head;
     curr_macro = macro_head;
@@ -94,7 +93,7 @@ void expand_macros(file_state *as_file)
                     break;
                 
                 case FALSE: /* regular line */
-                    add_standard_line(buffer, &curr_line, as_file);
+                    add_standard_line(buffer, &lines_head ,&curr_line, as_file);
                     break;
                 }
             }
@@ -127,7 +126,5 @@ static void create_file(file_state *as_file, code_line *lines)
     }
     fclose(am_file);
 }
-
-
 
 

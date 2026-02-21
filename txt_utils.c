@@ -28,11 +28,11 @@ int tokenize(char *line, char *args[])
     if(line == NULL)
     {
         args[i] = NULL;
-        return OK;
+        return NEG;
     }
 
     if(validate_commas(line)!=OK) /* checking general input correction */
-        return !OK;
+        return NEG;
     
     token = strtok(line, ","); 
     while(token != NULL)
@@ -41,7 +41,7 @@ int tokenize(char *line, char *args[])
             token = strtok(NULL, ",");
         }
     args[i]=NULL; /* end of arguments */
-    return OK;
+    return i;
 }
 
 

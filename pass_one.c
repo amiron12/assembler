@@ -37,7 +37,7 @@ void start(file_state *fs)
         label_flag = FALSE;
         fs->current_line++;
 
-        if(!argc || **args==';') continue;
+        if(is_empty_line(line) || is_comment(line)) continue;
 
         curr_arg = strtok(line, " \t");
         rest = strtok(NULL, "");
@@ -53,12 +53,17 @@ void start(file_state *fs)
         }
 
         argc = tokenize(rest, args); 
-        
+        if(argc == NEG)
+        {
+            error(fs, "Tokenization error");
+            continue; /* TODO: change */
+        }
+
         switch(line_type(curr_arg)) /* type of sentance */
         {
             case data: 
             {
-                if(label_flag) add_symbol(label, &curr, DC, data);
+                if(label_flag) add_symbol(label, &curr, &head, DC, data);
                 
                 if(is_data(curr_arg) && validate_data(args))
                     encode_data(args);        
@@ -71,10 +76,10 @@ void start(file_state *fs)
             {
                 int src, dest, i;
                 i=0;
-                if(label_flag) add_symbol(label, &curr, IC, code);
+                if(label_flag) add_symbol(label, &curr,&head, IC, code);
                 if(argc != get_instruction_operands(curr_arg)) error( fs ,"Invalid number of operands");
-                src = (i<=argc)?get_mode(args[i++]):ZERO; 
-                dest = (i<=argc)?get_mode(args[i--]):ZERO;
+                src = (i<argc)?get_mode(args[i++]):ZERO; 
+                dest = (i<argc)?get_mode(args[i--]):ZERO;
                 encode_instruction(curr_arg, src, dest);
                 while (i<argc)
                     encode_operand(args[i++]);
@@ -92,7 +97,7 @@ void start(file_state *fs)
                     if(!isalnum(curr_arg[i])) error(fs, "Invalid label name");
                 if(label_exist(curr_arg, head)) error(fs, "Label name already exists");
                 if(!not_reserved(curr_arg)) error(fs, "Label name cannot be a reserved word");
-                add_symbol(curr_arg, &curr, 0, external);
+                add_symbol(curr_arg, &curr, &head, 0, external);
                 break;
             }
 

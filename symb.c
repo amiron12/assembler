@@ -17,7 +17,7 @@ int label_exist(char *name, symbol *head)
     return FALSE;
 }
 
-void add_symbol(char *symbol_name, symbol **curr, int address, attribute atr)
+void add_symbol(char *symbol_name, symbol **curr, symbol **head, int address, attribute atr)
 {
     symbol *temp = (symbol *)malloc(sizeof(symbol));
     memory_check(temp);
@@ -25,8 +25,8 @@ void add_symbol(char *symbol_name, symbol **curr, int address, attribute atr)
     temp->next = NULL;
     temp->address = address;
     temp->atr = atr;
-    if(*curr == NULL)
-        *curr = temp;
+    if(*head == NULL)
+        *head = temp;
     else
         (*curr)->next = temp;
     *curr = temp;

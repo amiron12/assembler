@@ -50,6 +50,15 @@ int is_empty_line(char *line)
     return TRUE;
 }
 
+int is_comment(char *line)
+{
+    if(line==NULL) return FALSE;
+    while(isspace(*line))
+       line++;
+    if(*line == ';') return TRUE;
+    return FALSE;
+}
+
 /* 
 char *add_extention(char *file_name, char *ext)
 {
@@ -61,3 +70,10 @@ char *add_extention(char *file_name, char *ext)
  */
 
 
+void extention(file_state *fs, char *ext)
+{
+    char fname[MAX_FNAME];
+    strcpy(fname, (fs)->name);
+    strcat(fname, ext);
+    strncpy((fs)->extended_name, fname, MAX_FNAME);
+}

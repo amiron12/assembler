@@ -89,6 +89,6 @@ int get_instruction_funct(char *name)
 int get_instruction_operands(char *name)
 {
     int index = get_index(name);
-    return instructions[index].operands+1;
+    return instructions[index].operands;
 }
 

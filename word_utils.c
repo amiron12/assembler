@@ -7,7 +7,10 @@
 
 
 
-int is_directive(char *str) {return (*str=='.')?TRUE:FALSE;}
+int is_directive(char *str)
+{
+    return (*str=='.')?TRUE:FALSE;
+}
 int is_immediate(char *str) {return (*str=='#')?TRUE:FALSE;}
 int is_relative(char *str) {return (*str=='%')?TRUE:FALSE;}
 int is_data(char *str) {return !strcmp(str, ".data")?TRUE:FALSE;}
@@ -26,14 +29,14 @@ int is_label(char *str)
     return TRUE;
 }
 
-int is_instruction(char *str) /* TODO: move to func utils and use for reserve check */
+int is_instruction(char *str) 
 {
     char *temp;
     int i = 0;
     while((temp = get_instruction_name(i++)) != NULL)
         if(!strcmp(str, temp))
-            return FALSE;
-    return TRUE;
+            return TRUE;
+    return FALSE;
 }
 
 
@@ -67,7 +70,8 @@ int get_mode(char *str)
     if(is_directive(str)) return i++;
     if(is_relative(str)) return i++;
     if(is_register(str)) return i;
-    return NEG;
+
+    return 1;
 }
 
 

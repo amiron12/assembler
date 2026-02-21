@@ -61,13 +61,16 @@ void add_macro_line(char *line, macro **curr_macro, code_line **curr_macro_line)
     *curr_macro_line = new_line;
 }
 
-void add_standard_line(char *line, code_line **curr, file_state *state)
+void add_standard_line(char *line,code_line **head, code_line **curr, file_state *state)
 {
     code_line *new_line = (code_line *)malloc(sizeof(code_line));
     memory_check(new_line);
     strncpy(new_line->line, line, MAX_LINE_LENGTH);
     new_line->next=NULL;
-    (*curr)->next = new_line;
+    if((*head)->line == NULL)
+        (*head)->next = new_line;
+    else
+        (*curr)->next = new_line;
     (*curr) = new_line;
 }
 
