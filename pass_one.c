@@ -6,68 +6,55 @@
 
 
 
-static attribute str_type(char *str);
+/*
+    Invalid operation names.
+    ◦ Incorrect number of operands or invalid addressing modes for a specific operation.
+    ◦ Invalid label names or duplicate
 
-void start(FILE *fp)
+*/
+
+static attribute line_type(char *str);
+
+void start(file_state *fs)
 {
+
+    FILE *fp = fs->ptr;
+
     char line[MAX_LINE_LENGTH];
     char *args[MAX_ARG_LENGTH];
+    int in_label;
+    char *curr_arg;
     symbol *head, *curr;
-    int line_count = 0;
     head = NULL;
     curr = NULL; 
+
 
     while(fgets(line, MAX_LINE_LENGTH, fp) != NULL)
     {
         int argc, index;
+        char *rest;
         char *label = NULL;
+        in_label = FALSE;
         index = 0;
-        argc = tokenize(line, args); /* saves all words in args, removing leading and trailing whitespaces, and trailing commas*/
-        line_count++;
+        fs->current_line++;
+        
         if(!argc || **args==';') continue;
 
+        curr_arg = strtok(line, " \t");
+        rest = strtok(NULL, "\n");
 
-            if(is_label(args[index]) && !label_exist(args[index], head))
-            {
-                if(index){} /* TODO: syntax error */
-                label = clean_label(args[index]);
-                if(!not_reserved(args[index]))
-                {
+        if(is_label(curr_arg) && !label_exist(curr_arg, head))
+        {
+            label = clean_label(curr_arg);
+            if(!not_reserved(label)) {}
+            in_label = TRUE;
+            curr_arg = strtok(rest, " \t");
+            rest = strtok(NULL, "\n");
+        }
 
-                    /* TODO: error */
-                }
-                index++; /* TODO: check not over argc */
-
-            }
-
-
-            switch (str_type(args[index]))
-            {
-            case (DATA):
-                add_symbol(label, &curr, DC, DATA);
-                if(is_data(args[index]))
-                    DC+=(argc-(index+1));
-                else if(is_string(args[index]))
-                    DC+=(2+(strlen(args[index+1])));
-                break;
+        argc = tokenize(rest, args); 
+        
             
-            case (CODE):
-                add_symbol(label, &curr, IC, CODE);
-                IC+=get_instruction_operands(args[index]);
-                break;
-            
-            case (EXTERNAL):
-                add_symbol(label, &curr, ZERO, EXTERNAL);
-                break;
-            
-            case (ENTRY):
-                add_symbol(label, &curr, ZERO, ENTRY);
-                break;
-                
-            default:
-                /* TODO: error */
-                break;
-            }
     
         }
 
@@ -75,14 +62,53 @@ void start(FILE *fp)
 
 
 
-static attribute str_type(char *str)
+
+
+
+
+
+static void instruction(char *inst, char *args[], int argc, file_state *state)
 {
-    if(is_directive(str)) return DATA;
-    if(is_instruction(str)) return CODE;
-    if(is_extern(str)) return EXTERNAL;
-    if(is_entry(str)) return ENTRY;
+    int src, dest;
+    int i = 0;
+    if(argc != get_instruction_operands(inst)) error( state ,"Invalid number of operands");
+    
+    /* instruction has 0 - 2 operands, this makes the address 0 if no operand */
+    src = (i<=argc)?get_mode(args[i++]):ZERO; 
+    dest = (i<=argc)?get_mode(args[i--]):ZERO;
+
+    encode_instruction(inst, src, dest);
+    while (i<argc)
+        encode_operand(args[i++]);
+}
+
+
+
+static int data(char *args[], char *directive, int argc)
+{
+
+    if(is_data(directive))
+        if(validate_data(args))
+            encode_data(args);        
+    if(is_string(directive))
+        if(validate_string(args))
+            encode_string(args);
+    return OK;
+}
+
+static attribute line_type(char *str)
+{
+    if(is_directive(str)) return data;
+    if(is_instruction(str)) return code;
+    if(is_extern(str)) return external;
+    if(is_entry(str)) return entry;
     return NULL;
 }
+
+
+
+
+
 
 
 

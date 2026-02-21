@@ -4,15 +4,14 @@
 #include <string.h>
 
 
-typedef struct reg
+typedef struct address_mode
 {   
-    int *ptr;
     char *name;
-} reg;
+    int mode;
+} address_mode;
 
 
-
-typedef struct 
+typedef struct inst
 {
     char *name;
     int opcode;
@@ -21,7 +20,26 @@ typedef struct
     
 } inst;
 
-    inst instructions[] = {
+
+
+
+  static const address_mode modes[] = {
+    {"immediate", 0},
+    {"direct", 1},
+    {"relative", 2},
+    {"register", 3},
+    {NULL, 0}
+};
+
+
+
+
+
+
+
+
+
+    static const inst instructions[] = {
     {"mov", 0, 0, 2},
     {"cmp", 1, 0, 2},
     {"add", 2, 10, 2},
@@ -40,6 +58,10 @@ typedef struct
     {"stop", 15, 0, 0},
     {NULL, 0, 0, 0}
 };
+
+
+
+
 
 char *get_instruction_name(int index)
 {
@@ -63,7 +85,6 @@ int get_instruction_operands(char *name)
     int index = get_index(name);
     return instructions[index].operands+1;
 }
-
 
 static int get_index(char *str)
 {

@@ -41,3 +41,4 @@ void dec_to_bin(char str[]) /* Function that receives a char array that simulate
             printf("%d",(tmp==0)?0:1);
     }
 }
+

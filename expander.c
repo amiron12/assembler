@@ -6,151 +6,123 @@
 
 #define MACRO_START "mcro"
 #define MACRO_END "mcroend"
-#define FILE_ERROR 1
-#define TRUE 1
-#define FALSE 0
 
-
-
-
-macro *new_macro(char *name);
-macroline *search_macro(char *name, macro *head);
-macroline *add_line(macro *mac, char *line);
-
-void expand_macros(FILE *fps, FILE *fpm)
+void expand_macros(file_state *as_file)
 {
-
-    macro *head;
-    macro *curr_macro;
-    macroline *curr_line;
+    FILE *fps;
+    macro *macro_head, *curr_macro;
+    code_line *lines_head, *curr_macro_line, *curr_line;
     char buffer[MAX_LINE_LENGTH];
     char *name;
-    /*FILE *fps; file pointer for .as file*/
-    /*FILE *fpm; file pointer for .am file*/
-    /*char *fns; file name for .as ending*/
-    /*char fnm[MAX_ARG_LENGTH]; file name for .am ending*/
     int inside_macro = FALSE;
-    name = "head";
-    head = new_macro(name);
-    curr_macro = head;
-    curr_line = NULL;
-    
-    
-    
-   /* fps = fps; */
-   /* strcpy(fnm, fname);*/
-    /* strcat(fns, EXT_AS);  adding the correct file ending */
-   /* strcat(fnm, EXT_AM);  adding the correct file ending */
-    
 
-    /* fps = fopen(fns, "r");
-    if(fps==NULL) return FILE_ERROR; */
-    /*fpm = fopen(fnm, "w");
-    if(fpm==NULL) return NULL; */
-   
+    macro_head = (macro *)malloc(sizeof(macro));
+    memory_check(macro_head);
+    macro_head->next = NULL;
+    macro_head->lines = NULL;
+
+    lines_head = (code_line *)malloc(sizeof(code_line));
+    memory_check(lines_head);
+    lines_head->next = NULL;
+    lines_head->line = NULL;
+
+    curr_line = lines_head;
+    curr_macro = macro_head;
+
+
+
+    fps = as_file->ptr; /* was opened in main */
 
     while(fgets(buffer, sizeof(buffer), fps) != NULL)
     {
         /* TODO: check size is correct (with /0 maybe) */
+        char *arg, *rest;
+        char line[MAX_LINE_LENGTH];
+        strcpy(line, buffer);
 
-        int count;
-        char first_word[MAX_ARG_LENGTH], second_word[MAX_ARG_LENGTH], junk[MAX_ARG_LENGTH];
-        count = sscanf(buffer, "%s %s %1s", first_word, second_word, junk);
-        
-        
-        if(strcmp(first_word, MACRO_START)==0) /* first word of the line is 'mcro' */
+        arg = strtok(line, " \t");
+        rest = strtok(NULL, "\n");
+
+        /* Found a macro start */
+        if(!strcmp(arg, MACRO_START)) 
         {
             macro *temp;
-            if(count != 2)
-                {
-                    printf("macro statment incorrect\n");
-                    exit(1);
-                }
+            char *name;
+            char *err = macro_start_check(rest);
+            if(err != NULL)
+            {
+                error(as_file, err);
+                cleanup(macro_head, lines_head);
+                return;
+            }
+
             inside_macro = TRUE;
-            temp = new_macro(second_word); /* creating a macro node */
-            curr_macro->next = temp;
-            curr_macro = temp;
-            curr_line = NULL;
+            name = strtok(rest, " \t");
+            new_macro(name, &curr_macro); /* creating a macro node */
             continue;
         }
         
-        if(strcmp(first_word, MACRO_END)==0)
+        /* Found a macro end */
+        if(!strcmp(arg, MACRO_END))
         {
-            if(count != 1)
-               return; /* macro end is followed by extra characters */
-            inside_macro = FALSE;
-            continue;
+            if(is_empty_line(rest))
+            {
+                inside_macro = FALSE;
+                continue;
+            }
+            error(as_file, "Extraneous text after macro end statement");
+            cleanup(macro_head, lines_head);
+            return;
         }
 
-        if(inside_macro)
-        {       
-                macroline *temp;
-                temp = add_line(curr_macro, buffer);
-                if(curr_macro->lines==NULL)
-                    curr_macro->lines = temp;
-                else
+        /* standard line */
+        switch (inside_macro)
+        {
+            case TRUE: /* link line to the macro list */
+            {
+                add_macro_line(buffer, &curr_macro, &curr_line);
+                break;
+            }
+
+            case FALSE: /* link line to the standard list */
+            {
+
+                switch (macro_call(arg, macro_head))
                 {
-                    curr_line->next = temp;
+                case TRUE: /* macro reference */
+                    expand(arg, macro_head, &curr_line);
+                    break;
+                
+                case FALSE: /* regular line */
+                    add_standard_line(buffer, &curr_line);
+                    break;
                 }
-                curr_line = temp;
-            continue;
-        }
-
-        else if(!inside_macro)
-        {
-            macroline *line_ptr = search_macro(first_word, head);
-            if(line_ptr != NULL) 
-               {
-                    while(line_ptr != NULL) 
-                    {
-                        fputs(line_ptr->line, fpm); /* expanding a macro */
-                        line_ptr = line_ptr->next;
-                    }
-                }
-            else
-                fputs(buffer, fpm); /* regular line to copy */
-
-            continue;
+            }
         }       
     }
+
+    /* finished reading the file */
+    
+    create_file(as_file, lines_head);
+    cleanup(macro_head, lines_head);
 }
 
-macroline *search_macro(char *name, macro *head)
+
+static void create_file(file_state *as_file, code_line *lines)
 {
-    macro *ptr = head;
-    while(ptr != NULL)
+    FILE *am_file;
+    char *fname = add_extention(as_file->name, EXT_AM);
+    am_file = fopen(fname, "w+");
+    file_check(am_file);
+    code_line *curr = lines;
+    while(curr != NULL)
     {
-        if(strcmp(ptr->name, name)==0)
-            return ptr->lines;
-        ptr = ptr->next;
+        fputs(curr->line, am_file);
+        curr = curr->next;
     }
-    return NULL;
+    fclose(am_file);
 }
 
 
-macroline *add_line(macro *mac, char *line)
-{
-    macroline *new_line = (macroline *)malloc(sizeof(macroline));
-    memory_check(new_line);
-    strncpy(new_line->line, line, MAX_LINE_LENGTH);
-    new_line->next=NULL;
-    return new_line;
-}
-
-macro *new_macro(char *name)
-{
-    macro *new_node = (macro *)malloc(sizeof(macro));
-    memory_check(new_node);
-    if(is_reserved(name))
-    {
-        free(new_node);
-        return NULL;
-    }
-    strncpy(new_node->name, name, MAX_LINE_LENGTH);
-    new_node->lines = NULL;
-    new_node->next = NULL;
-    return new_node;
-}
 
 
-/* TODO: free memory function after the whole proccess */

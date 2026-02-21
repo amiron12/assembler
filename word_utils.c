@@ -8,7 +8,7 @@
 
 int is_directive(char *str) {(*str=='.')?TRUE:FALSE;}
 int is_immediate(char *str) {return (*str=='#')?TRUE:FALSE;}
-int is_relative_label(char *str) {return (*str=='%')?TRUE:FALSE;}
+int is_relative(char *str) {return (*str=='%')?TRUE:FALSE;}
 int is_data(char *str) {return !strcmp(str, ".data")?TRUE:FALSE;}
 int is_string(char *str) {return !strcmp(str, ".string")?TRUE:FALSE;}
 int is_extern(char *str) {return !strcmp(str, ".extern")?TRUE:FALSE;}
@@ -42,20 +42,55 @@ int is_register(char *str)
     return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE;
 }
 
-char* clean_label(char *str)
-{
-    if(str==NULL) return NULL;
-    int len = strlen(str);
-    str[--len] = '\0';
-    return str;
-}
-
-int string_check(char *str)
+/*removing non alpha-numeric characters in the begining or end of the string*/
+void clean_string(char **str)
 {
 
-}
+    int len = strlen(*str);
+    while (len > 0 && !isalnum((unsigned char)(*str)[len - 1])) {
+        (*str)[len - 1] = '\0';
+        len--;
+    }
 
-int data_check(char *str)
-{
     
+    while ((*str)[0] != '\0' && !isalnum((unsigned char)(*str)[0])) {
+        (*str)++;
+    }
 }
+
+
+int get_mode(char *str)
+{
+    int i = 0;
+    if(is_immediate(str)) return i++;
+    if(is_directive(str)) return i++;
+    if(is_relative(str)) return i++;
+    if(is_register(str)) return i;
+    return NEG;
+}
+
+
+   
+
+int validate_data(char *args[])
+{
+    while(*args != NULL)
+        if(atoi((*args)++)) return FALSE;
+    return TRUE;
+}
+
+int validate_string(char *str)
+{
+    if(str[0] == '\"' && str[strlen(str)-1] == '\"')
+        return TRUE;
+    return FALSE;
+}
+
+
+
+
+
+
+
+
+

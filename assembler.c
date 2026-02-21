@@ -20,20 +20,28 @@ int main(int argc, char *argv[])
     FILE *fps, *fpm;
  
     for(i=1;i<argc;i++)
-        {
-        char fname[100], fname2[100];
-        strcpy(fname, argv[i]);
-        strcpy(fname2, argv[i]);
-        strcat(fname, EXT_AS);
-        strcat(fname2, EXT_AM);
-        fps = fopen(fname, "r");
-        file_check(fps);
-        fpm = fopen(fname2, "w+");
-        file_check(fpm);
-        expand_macros(fps, fpm);
+    {
+        char *fname;    
+        file_state am_file;
+        file_state as_file = {NULL, NULL, NULL, 0,0};
+        fname = argv[i];
+
+        as_file.name = fname;
+        as_file.extended_name = add_extention(fname, EXT_AS);
+        as_file.ptr = fopen(as_file.extended_name, "r");
+        file_check(as_file.ptr);
+        expand_macros(&as_file);
+        if(!as_file.error_flag) continue;
+        /* am file was created */
+        am_file.name = fname;
+        am_file.extended_name = add_extention(fname, EXT_AM);
+        am_file.ptr = fopen(am_file.extended_name, "r");
+        file_check(am_file.ptr);
+
+        start(&am_file);
+
         rewind(fpm);
         file_check(fpm);
-        start(fpm);
         fclose(fps);
         fclose(fpm);
         }
