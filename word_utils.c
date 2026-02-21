@@ -3,10 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 
 
-int is_directive(char *str) {(*str=='.')?TRUE:FALSE;}
+int is_directive(char *str) {return (*str=='.')?TRUE:FALSE;}
 int is_immediate(char *str) {return (*str=='#')?TRUE:FALSE;}
 int is_relative(char *str) {return (*str=='%')?TRUE:FALSE;}
 int is_data(char *str) {return !strcmp(str, ".data")?TRUE:FALSE;}

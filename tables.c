@@ -4,13 +4,13 @@
 #include <string.h>
 
 
-typedef struct address_mode
+/* typedef struct address_mode
 {   
     char *name;
     int mode;
 } address_mode;
 
-
+ */
 typedef struct inst
 {
     char *name;
@@ -21,7 +21,7 @@ typedef struct inst
 } inst;
 
 
-
+/* 
 
   static const address_mode modes[] = {
     {"immediate", 0},
@@ -30,12 +30,7 @@ typedef struct inst
     {"register", 3},
     {NULL, 0}
 };
-
-
-
-
-
-
+ */
 
 
 
@@ -60,7 +55,18 @@ typedef struct inst
 };
 
 
-
+static int get_index(char *str)
+{
+    int i = 0;
+    if(!is_instruction(str)) exit(1); /* TODO: error */
+    while(instructions[i].name != NULL)
+       {
+        if(!strcmp(str, instructions[i].name))
+            break;
+        i++;
+       }
+    return i;
+}
 
 
 char *get_instruction_name(int index)
@@ -86,15 +92,3 @@ int get_instruction_operands(char *name)
     return instructions[index].operands+1;
 }
 
-static int get_index(char *str)
-{
-    int i = 0;
-    if(!is_instruction(str)) exit(1); /* TODO: error */
-    while(instructions[i].name != NULL)
-       {
-        if(!strcmp(str, instructions[i].name))
-            break;
-        i++;
-       }
-    return i;
-}

@@ -42,14 +42,5 @@ void free_symbols(symbol *head)
     }
 }
 
-void print_symbols(symbol *head)
-{
-    symbol *temp;
-    temp = head;
-    while(temp != NULL)
-    {
-        printf("%s\n", temp->name);
-        temp = temp->next;
-    }
-}
+
 

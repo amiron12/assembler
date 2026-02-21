@@ -50,7 +50,7 @@ int is_empty_line(char *line)
     return TRUE;
 }
 
-
+/* 
 char *add_extention(char *file_name, char *ext)
 {
     char new_file[MAX_FNAME];
@@ -58,6 +58,6 @@ char *add_extention(char *file_name, char *ext)
     strcat(new_file, ext);
     return new_file;
 }
-
+ */
 
 

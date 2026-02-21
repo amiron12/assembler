@@ -7,13 +7,14 @@
 #define MACRO_START "mcro"
 #define MACRO_END "mcroend"
 
+static void create_file(file_state *as_file, code_line *lines);
+
 void expand_macros(file_state *as_file)
 {
     FILE *fps;
     macro *macro_head, *curr_macro;
     code_line *lines_head, *curr_macro_line, *curr_line;
     char buffer[MAX_LINE_LENGTH];
-    char *name;
     int inside_macro = FALSE;
 
     macro_head = (macro *)malloc(sizeof(macro));
@@ -46,7 +47,6 @@ void expand_macros(file_state *as_file)
         /* Found a macro start */
         if(!strcmp(arg, MACRO_START)) 
         {
-            macro *temp;
             char *name;
             char *err = macro_start_check(rest);
             if(err != NULL)
@@ -80,7 +80,7 @@ void expand_macros(file_state *as_file)
         {
             case TRUE: /* link line to the macro list */
             {
-                add_macro_line(buffer, &curr_macro, &curr_line);
+                add_macro_line(buffer, &curr_macro, &curr_macro_line);
                 break;
             }
 
@@ -103,6 +103,9 @@ void expand_macros(file_state *as_file)
 
     /* finished reading the file */
     
+
+
+    print_machine_images();
     create_file(as_file, lines_head);
     cleanup(macro_head, lines_head);
 }
@@ -111,10 +114,12 @@ void expand_macros(file_state *as_file)
 static void create_file(file_state *as_file, code_line *lines)
 {
     FILE *am_file;
-    char *fname = add_extention(as_file->name, EXT_AM);
+    code_line *curr;
+    char *fname = as_file->name;
+    fname = strcat(fname, EXT_AM);
     am_file = fopen(fname, "w+");
     file_check(am_file);
-    code_line *curr = lines;
+    curr = lines;
     while(curr != NULL)
     {
         fputs(curr->line, am_file);

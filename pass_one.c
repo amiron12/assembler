@@ -99,7 +99,9 @@ void start(file_state *fs)
             case entry:
             break;
         }
+
     }
+    print_symbol_table(head);/* TODO: delete */
 }
 
 

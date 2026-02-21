@@ -48,17 +48,17 @@ int macro_call(char *str, macro *head)
     return FALSE;
 }
 
-void add_macro_line(char *line, macro **curr_macro, code_line **curr_line)
+void add_macro_line(char *line, macro **curr_macro, code_line **curr_macro_line)
 {
     code_line *new_line = (code_line *)malloc(sizeof(code_line));
     memory_check(new_line);
     strncpy(new_line->line, line, MAX_LINE_LENGTH);
     new_line->next=NULL;
-    if(*curr_line==NULL)
+    if((*curr_macro)->lines == NULL)
         (*curr_macro)->lines = new_line;
     else
-        (*curr_line)->next = new_line;
-    *curr_line = new_line;
+        (*curr_macro_line)->next = new_line;
+    *curr_macro_line = new_line;
 }
 
 void add_standard_line(char *line, code_line **curr, file_state *state)

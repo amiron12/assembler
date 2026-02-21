@@ -134,7 +134,16 @@ void new_macro(char *name, macro **curr_macro);
 void cleanup(macro *macro_head, code_line *lines_head);
 
 
-char *add_extention(char *file_name, char *ext);
+
+
+/* TODO: delete: */
+void print_symbols(symbol *head);
+void print_symbol_table(symbol *head);
+void print_machine_images();
+
+extern machine_word code_image[MEMORY];
+extern machine_word data_image[MEMORY];
+
 
 
 #endif

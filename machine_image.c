@@ -5,8 +5,8 @@
 #include <string.h>
 #define MASK 0xFFF
 
-static machine_word data_image[MEMORY];
-static machine_word code_image[MEMORY];
+ machine_word data_image[MEMORY];
+ machine_word code_image[MEMORY];
 
 
 
@@ -28,7 +28,8 @@ void encode_operand(char *str)
     int mode = (get_mode(str));
     clean_string(&str);
     num = atoi(str);
-    c = (mode==0 || mode==3)?'A': NULL;
+
+    c = (mode==0 || mode==3)? 'A': '0';
     code_image[IC].word = (num & MASK);
     code_image[IC].type = c;
     IC++;
@@ -48,8 +49,6 @@ void encode_string(char *str)
         data_image[DC++].word = (*str++ & MASK);
     data_image[DC++].word = ZERO;
 }
-
-
 
 
 
