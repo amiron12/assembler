@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
         expand_macros(&as_file);
         if(!as_file.error_flag) continue;
         /* am file was created */
+        exit(0);
         strncpy(am_file.name, fname, MAX_FNAME);
         extention(&am_file, EXT_AM);
         am_file.ptr = fopen(am_file.extended_name, "r");

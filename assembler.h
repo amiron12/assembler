@@ -57,15 +57,22 @@ typedef struct symbol
 typedef struct code_line
 {
     struct code_line *next;
-    char line[MAX_LINE_LENGTH];
+    struct code_line *tail;
+    char text[MAX_LINE_LENGTH];
 } code_line;
 
+typedef struct code_file
+{
+    struct code_line *head;
+    struct code_line *tail;
+} code_file;
 
 typedef struct macro
 {
     char name[MAX_LINE_LENGTH];
     struct macro *next; /*pointer to the next macro */
-    struct code_line *lines; /*pointer to the first line of the linked list refering to this macro name*/
+    struct code_file content; /*pointer to the first line of the linked list refering to this macro name*/
+    struct macro *tail;
 } macro;
 
 
@@ -129,12 +136,12 @@ int is_empty_line(char *line);
 void extention(file_state *fs, char *ext);
 
 char *macro_start_check(char *line);
-void expand(char *macro_name, macro *macro_head, code_line **curr_line);
+void expand(char *macro_name, macro *macro_head, code_file *expanded_file);
 int macro_call(char *str, macro *head);
-void add_macro_line(char *line, macro **curr_macro, code_line **curr_line);
-void add_standard_line(char *line, code_line **head, code_line **curr, file_state *state);
+void add_macro_line(char *line, macro **curr_macro);
+void add_standard_line(char *line, code_file *expanded_file);
 void new_macro(char *name, macro **curr_macro);
-void cleanup(macro *macro_head, code_line *lines_head);
+void cleanup(macro *macro_head, code_file *expanded_file);
 
 
 int is_comment(char *line);

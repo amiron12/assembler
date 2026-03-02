@@ -7,42 +7,30 @@
 #define MACRO_START "mcro"
 #define MACRO_END "mcroend"
 
-static void create_file(file_state *as_file, code_line *lines);
+static void create_file(file_state *as_file, code_file **lines);
 
 void expand_macros(file_state *as_file)
 {
-    FILE *fps;
-    macro *macro_head, *curr_macro;
-    code_line *lines_head, *curr_macro_line, *curr_line;
+    macro *file_macros;
+    code_file *exp_file;
     char buffer[MAX_LINE_LENGTH];
     int inside_macro = FALSE;
 
-    macro_head = (macro *)malloc(sizeof(macro));
-    memory_check(macro_head);
-    macro_head->next = NULL;
-    macro_head->lines = NULL;
+    exp_file = (code_file *)malloc(sizeof(code_file));
+    exp_file->head = NULL;
+    exp_file->tail = NULL;
+    file_macros = NULL;
 
-    lines_head = (code_line *)malloc(sizeof(code_line));
-    memory_check(lines_head);
-    lines_head->next = NULL;
-
-    curr_line = lines_head;
-    curr_macro = macro_head;
-
-
-
-    fps = as_file->ptr; /* was opened in main */
-
-    while(fgets(buffer, sizeof(buffer), fps) != NULL)
+    while(fgets(buffer, sizeof(buffer), as_file->ptr) != NULL)
     {
         /* TODO: check size is correct (with /0 maybe) */
         char *arg, *rest;
         char line[MAX_LINE_LENGTH];
         strcpy(line, buffer);
 
-        arg = strtok(line, " \t");
+        arg = strtok(line, " \t\n\r");
         rest = strtok(NULL, "\n");
-
+        
         /* Found a macro start */
         if(!strcmp(arg, MACRO_START)) 
         {
@@ -51,13 +39,13 @@ void expand_macros(file_state *as_file)
             if(err != NULL)
             {
                 error(as_file, err);
-                cleanup(macro_head, lines_head);
+                cleanup(file_macros, exp_file);
                 return;
             }
 
             inside_macro = TRUE;
             name = strtok(rest, " \t");
-            new_macro(name, &curr_macro); /* creating a macro node */
+            new_macro(name, &file_macros); /* creating a macro node */
             continue;
         }
         
@@ -70,47 +58,27 @@ void expand_macros(file_state *as_file)
                 continue;
             }
             error(as_file, "Extraneous text after macro end statement");
-            cleanup(macro_head, lines_head);
+            cleanup(file_macros, exp_file);
             return;
         }
 
         /* standard line */
-        switch (inside_macro)
-        {
-            case TRUE: /* link line to the macro list */
-            {
-                add_macro_line(buffer, &curr_macro, &curr_macro_line);
-                break;
-            }
-
-            case FALSE: /* link line to the standard list */
-            {
-
-                switch (macro_call(arg, macro_head))
-                {
-                case TRUE: /* macro reference */
-                    expand(arg, macro_head, &curr_line);
-                    break;
-                
-                case FALSE: /* regular line */
-                    add_standard_line(buffer, &lines_head ,&curr_line, as_file);
-                    break;
-                }
-            }
-        }       
+        if(inside_macro)
+            add_macro_line(buffer, &file_macros);
+        else
+            if(macro_call(arg, file_macros))
+                expand(arg, file_macros, exp_file);
+            else
+                add_standard_line(buffer, exp_file);
     }
 
     /* finished reading the file */
-    
-
-
-    print_machine_images();
-    create_file(as_file, lines_head);
-    cleanup(macro_head, lines_head);
+    create_file(as_file, &exp_file);
+    cleanup(file_macros, exp_file);
 }
 
 
-static void create_file(file_state *as_file, code_line *lines)
+static void create_file(file_state *as_file, code_file **expanded_file)
 {
     FILE *am_file;
     code_line *curr;
@@ -118,10 +86,10 @@ static void create_file(file_state *as_file, code_line *lines)
     fname = strcat(fname, EXT_AM);
     am_file = fopen(fname, "w+");
     file_check(am_file);
-    curr = lines;
+    curr = (*expanded_file)->head;
     while(curr != NULL)
     {
-        fputs(curr->line, am_file);
+        fputs(curr->text, am_file);
         curr = curr->next;
     }
     fclose(am_file);

@@ -6,7 +6,24 @@
 #include <ctype.h>
 
 
+void new_macro(char *name, macro **file_macros)
+{
+    {
+        macro *new_node = (macro *)malloc(sizeof(macro));
+        memory_check(new_node);
+        strncpy(new_node->name, name, MAX_LINE_LENGTH);
+        new_node->content.head = NULL;
+        new_node->content.tail = NULL;
+        new_node->next = NULL;
 
+        if(*file_macros == NULL) 
+            *file_macros = new_node; /* first macro */
+        else
+            (*file_macros)->tail->next = new_node;
+
+        (*file_macros)->tail = new_node;
+    }    
+}
 
 char *macro_start_check(char *line)
 {
@@ -23,17 +40,21 @@ char *macro_start_check(char *line)
 }
 
 
-void expand(char *macro_name, macro *macro_head, code_line **curr_line)
+void expand(char *macro_name, macro *macro_head, code_file *expanded_file)
 {
     macro *ptr = macro_head;
-    while(ptr != NULL)
-    {
-        if(strcmp(ptr->name, macro_name))
-            break;
+    while(ptr != NULL && strcmp(ptr->name, macro_name) != 0)
         ptr = ptr->next;
+    
+    if (ptr) 
+    {
+        code_line *curr = ptr->content.head;
+        while (curr != NULL) 
+        {
+            add_standard_line(curr->text, expanded_file); 
+            curr = curr->next;
+        }
     }
-    (*curr_line)->next = ptr->lines;
-    (*curr_line) = ptr->lines;
 }
 
 int macro_call(char *str, macro *head)
@@ -48,59 +69,67 @@ int macro_call(char *str, macro *head)
     return FALSE;
 }
 
-void add_macro_line(char *line, macro **curr_macro, code_line **curr_macro_line)
+void add_macro_line(char *line, macro **file_macros)
+{
+
+    macro *curr_macro = (*file_macros)->tail;
+    code_line *new_line = (code_line *)malloc(sizeof(code_line));
+    memory_check(new_line);
+    strncpy(new_line->text, line, MAX_LINE_LENGTH);
+    new_line->next=NULL;
+
+
+    if(curr_macro->content.head == NULL)
+        curr_macro->content.head = new_line;
+    else
+        curr_macro->content.tail->next = new_line;
+    curr_macro->content.tail = new_line;
+}
+
+void add_standard_line(char *line, code_file *expanded_file)
 {
     code_line *new_line = (code_line *)malloc(sizeof(code_line));
     memory_check(new_line);
-    strncpy(new_line->line, line, MAX_LINE_LENGTH);
+    strncpy(new_line->text, line, MAX_LINE_LENGTH);
     new_line->next=NULL;
-    if((*curr_macro)->lines == NULL)
-        (*curr_macro)->lines = new_line;
+
+    
+
+
+    if(expanded_file->head == NULL) /* first line */
+        expanded_file->head = new_line;
     else
-        (*curr_macro_line)->next = new_line;
-    *curr_macro_line = new_line;
+        expanded_file->tail->next = new_line;
+    expanded_file->tail = new_line;
 }
 
-void add_standard_line(char *line,code_line **head, code_line **curr, file_state *state)
+void cleanup(macro *macro_head, code_file *expanded_file)
 {
-    code_line *new_line = (code_line *)malloc(sizeof(code_line));
-    memory_check(new_line);
-    strncpy(new_line->line, line, MAX_LINE_LENGTH);
-    new_line->next=NULL;
-    if((*head)->line == NULL)
-        (*head)->next = new_line;
-    else
-        (*curr)->next = new_line;
-    (*curr) = new_line;
-}
-
-void new_macro(char *name, macro **curr_macro)
-{
+    macro *m_curr = macro_head;
+    while (m_curr != NULL)
     {
-        macro *new_node = (macro *)malloc(sizeof(macro));
-        memory_check(new_node);
-        strncpy(new_node->name, name, MAX_LINE_LENGTH);
-        new_node->lines = NULL;
-        new_node->next = NULL;
-        (*curr_macro)->next = new_node;
-        (*curr_macro) = new_node;
-    }    
-}
-
-void cleanup(macro *macro_head, code_line *lines_head)
-{
-    macro *temp = macro_head;
-    code_line *curr = lines_head;
-    while(temp != NULL)
-    {
-        macro *next = temp->next;
-        free(temp);
-        temp = next;
+        macro *m_next = m_curr->next;
+        code_line *l_curr = m_curr->content.head;
+        
+        while (l_curr != NULL)
+        {
+            code_line *l_next = l_curr->next;
+            free(l_curr);
+            l_curr = l_next;
+        }
+        free(m_curr);
+        m_curr = m_next;
     }
-    while(curr != NULL)
+
+    if (expanded_file != NULL)
     {
-        code_line *next = curr->next;
-        free(curr);
-        curr = next;
+        code_line *line_curr = expanded_file->head;
+        while (line_curr != NULL)
+        {
+            code_line *line_next = line_curr->next;
+            free(line_curr);
+            line_curr = line_next;
+        }
+        free(expanded_file);
     }
 }
