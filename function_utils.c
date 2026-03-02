@@ -39,14 +39,15 @@ void error(file_state *state, char *str)
 }
 
 
-int is_empty_line(char *line)
+int is_empty_line(char *buff)
 {
-    if(line==NULL) return TRUE;
-    while(*line != '\0')
-    {
-        if(!isspace(*line)) return FALSE;
-        line++;
-    }
+    int i;
+    char line[MAX_LINE_LENGTH];
+    if(buff==NULL) return TRUE;
+    strcpy(line, buff);
+    i=0;
+    while(line[i] != '\0')
+        if(!isspace(line[i++])) return FALSE;
     return TRUE;
 }
 
@@ -58,17 +59,6 @@ int is_comment(char *line)
     if(*line == ';') return TRUE;
     return FALSE;
 }
-
-/* 
-char *add_extention(char *file_name, char *ext)
-{
-    char new_file[MAX_FNAME];
-    strcpy(new_file, file_name);
-    strcat(new_file, ext);
-    return new_file;
-}
- */
-
 
 void extention(file_state *fs, char *ext)
 {

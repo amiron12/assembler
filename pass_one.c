@@ -12,7 +12,6 @@
     ◦ Invalid label names or duplicate
 
 */
-
 static attribute line_type(char *str);
 
 void start(file_state *fs)
@@ -23,7 +22,6 @@ void start(file_state *fs)
     char line[MAX_LINE_LENGTH];
     char *args[MAX_ARG_LENGTH];
     int label_flag;
-    char *curr_arg;
     symbol *head, *curr;
     head = NULL;
     curr = NULL; 
@@ -31,46 +29,41 @@ void start(file_state *fs)
 
     while(fgets(line, MAX_LINE_LENGTH, fp) != NULL)
     {
-        int argc;
-        char *rest;
+        char *arg_string;
+        char *token;
         char *label = NULL;
+        int argc;
         label_flag = FALSE;
         fs->current_line++;
 
         if(is_empty_line(line) || is_comment(line)) continue;
 
-        curr_arg = strtok(line, " \t");
-        rest = strtok(NULL, "");
+        token = strtok(line, " \t\n");
+        if (!token) continue;
 
-        if(is_label(curr_arg) && !label_exist(curr_arg, head))
+        if(is_label(token)) 
         {
-            label = curr_arg;
-            clean_string(&label);
-            if(!not_reserved(label)) {}
+            label = token; 
+            clean_string(&label); 
+            token = strtok(NULL, " \t\n");
             label_flag = TRUE;
-            curr_arg = strtok(rest, " \t");
-            rest = strtok(NULL, "");
         }
 
-        while (*rest == ' ' || *rest == '\t') 
-           rest++;
-
-        argc = tokenize(rest, args); 
-        if(argc == NEG)
-        {
-            error(fs, "Tokenization error");
-            continue; /* TODO: change */
-        }
-
-        switch(line_type(curr_arg)) /* type of sentance */
+        arg_string = strtok(NULL, "\n");
+    
+        argc = 0;
+        if (arg_string) 
+            argc = tokenize(arg_string, args);
+    
+        switch(line_type(token)) /* type of sentance */
         {
             case data: 
             {
                 if(label_flag) add_symbol(label, &curr, &head, DC, data);
                 
-                if(is_data(curr_arg) && validate_data(args))
+                if(is_data(token) && validate_data(args))
                     encode_data(args);        
-                else if(is_string(curr_arg) && validate_string(*args))
+                else if(is_string(token) && validate_string(*args))
                     encode_string(*args);
                 break;
             }
@@ -80,10 +73,10 @@ void start(file_state *fs)
                 int src, dest, i;
                 i=0;
                 if(label_flag) add_symbol(label, &curr,&head, IC, code);
-                if(argc != get_instruction_operands(curr_arg)) error( fs ,"Invalid number of operands");
+                if(argc != get_instruction_operands(token)) error( fs ,"Invalid number of operands");
                 src = (i<argc)?get_mode(args[i++]):ZERO; 
                 dest = (i<argc)?get_mode(args[i]):ZERO;
-                encode_instruction(curr_arg, src, dest);
+                encode_instruction(token, src, dest);
                 i = 0;
                 while (i<argc)
                     encode_operand(args[i++]);
@@ -94,14 +87,14 @@ void start(file_state *fs)
             {
                 int i,len;
                 if(argc!=1) error(fs, "Extraneous text after external value");
-                if(!isalpha(*curr_arg)) error(fs, "Invalid label name"); /* first character is non alphabetical */
-                len = strlen(curr_arg);
+                if(!isalpha(*token)) error(fs, "Invalid label name"); /* first character is non alphabetical */
+                len = strlen(token);
                 if((len--)>LABEL_LENGTH) error(fs, "Label name is too long");
                 for(i=1;i<len;i++)
-                    if(!isalnum(curr_arg[i])) error(fs, "Invalid label name");
-                if(label_exist(curr_arg, head)) error(fs, "Label name already exists");
-                if(!not_reserved(curr_arg)) error(fs, "Label name cannot be a reserved word");
-                add_symbol(curr_arg, &curr, &head, 0, external);
+                    if(!isalnum(token[i])) error(fs, "Invalid label name");
+                if(label_exist(token, head)) error(fs, "Label name already exists");
+                if(!not_reserved(token)) error(fs, "Label name cannot be a reserved word");
+                add_symbol(token, &curr, &head, 0, external);
                 break;
             }
 
@@ -110,7 +103,18 @@ void start(file_state *fs)
         }
 
     }
+    
+    
+    /* finished file */
+    
+    
+    
     print_symbol_table(head);/* TODO: delete */
+}
+
+void update_symbols(symbol *head)
+{
+    
 }
 
 

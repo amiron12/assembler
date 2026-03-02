@@ -18,7 +18,7 @@
 #define EXT_AS ".as"
 #define EXT_AM ".am"
 #define MAX_ARG_LENGTH 30
-#define LABEL_LENGTH 31
+#define LABEL_LENGTH 31 /* TODO: make sure its the right length with \n and so */
 #define MEMORY 4096
 #define WORD_SIZE 12
 #define FILE_NAME 30

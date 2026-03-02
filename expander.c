@@ -27,7 +27,10 @@ void expand_macros(file_state *as_file)
         char *arg, *rest;
         char line[MAX_LINE_LENGTH];
         strcpy(line, buffer);
-
+        as_file->current_line++;
+        
+        if(is_empty_line(line))
+            goto standard_line;
         arg = strtok(line, " \t\n\r");
         rest = strtok(NULL, "\n");
         
@@ -62,7 +65,7 @@ void expand_macros(file_state *as_file)
             return;
         }
 
-        /* standard line */
+        standard_line:
         if(inside_macro)
             add_macro_line(buffer, &file_macros);
         else
