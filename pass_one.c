@@ -13,12 +13,12 @@
 
 */
 static attribute line_type(char *str);
+static void update_symbols(symbol *head, int ICF);
 
 void start(file_state *fs)
 {
 
     FILE *fp = fs->ptr;
-
     char line[MAX_LINE_LENGTH];
     char *args[MAX_ARG_LENGTH];
     int label_flag;
@@ -103,18 +103,20 @@ void start(file_state *fs)
         }
 
     }
-    
-    
     /* finished file */
-    
-    
-    
+    update_symbols(head, IC);
     print_symbol_table(head);/* TODO: delete */
 }
 
-void update_symbols(symbol *head)
+static void update_symbols(symbol *head, int ICF)
 {
-    
+    symbol *temp = head;
+    while(temp != NULL)
+    {
+        if(temp->atr == data)
+            temp->address += ICF;
+        temp = temp->next;
+    }
 }
 
 

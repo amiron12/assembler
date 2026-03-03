@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
 
 
 
-
         print_machine_images();
         printf("finished\n"); 
         }
