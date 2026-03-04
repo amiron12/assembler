@@ -17,6 +17,20 @@ int label_exist(char *name, symbol *head)
     return FALSE;
 }
 
+symbol* get_symbol(char *name, symbol *head)
+{
+    symbol *temp;
+    temp = head;
+    while(temp != NULL)
+    {
+        if(!strcmp(temp->name, name))
+            return temp;
+        temp = temp->next;
+    }
+    /* TODO: error */
+    return NULL;
+}
+
 void add_symbol(char *symbol_name, symbol **curr, symbol **head, int address, attribute atr)
 {
     symbol *temp = (symbol *)malloc(sizeof(symbol));

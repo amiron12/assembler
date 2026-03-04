@@ -15,10 +15,8 @@
 static attribute line_type(char *str);
 static void update_symbols(symbol *head, int ICF);
 
-void start(file_state *fs)
+void start(file_state *am_file)
 {
-
-    FILE *fp = fs->ptr;
     char line[MAX_LINE_LENGTH];
     char *args[MAX_ARG_LENGTH];
     int label_flag;
@@ -27,14 +25,14 @@ void start(file_state *fs)
     curr = NULL; 
 
 
-    while(fgets(line, MAX_LINE_LENGTH, fp) != NULL)
+    while(fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *arg_string;
         char *token;
         char *label = NULL;
         int argc;
         label_flag = FALSE;
-        fs->current_line++;
+        am_file->current_line++;
 
         if(is_empty_line(line) || is_comment(line)) continue;
 
@@ -73,7 +71,7 @@ void start(file_state *fs)
                 int src, dest, i;
                 i=0;
                 if(label_flag) add_symbol(label, &curr,&head, IC, code);
-                if(argc != get_instruction_operands(token)) error( fs ,"Invalid number of operands");
+                if(argc != get_instruction_operands(token)) error( am_file ,"Invalid number of operands");
                 src = (i<argc)?get_mode(args[i++]):ZERO; 
                 dest = (i<argc)?get_mode(args[i]):ZERO;
                 encode_instruction(token, src, dest);
@@ -86,14 +84,14 @@ void start(file_state *fs)
             case external:
             {
                 int i,len;
-                if(argc!=1) error(fs, "Extraneous text after external value");
-                if(!isalpha(*token)) error(fs, "Invalid label name"); /* first character is non alphabetical */
+                if(argc!=1) error(am_file, "Extraneous text after external value");
+                if(!isalpha(*token)) error(am_file, "Invalid label name"); /* first character is non alphabetical */
                 len = strlen(token);
-                if((len--)>LABEL_LENGTH) error(fs, "Label name is too long");
+                if((len--)>LABEL_LENGTH) error(am_file, "Label name is too long");
                 for(i=1;i<len;i++)
-                    if(!isalnum(token[i])) error(fs, "Invalid label name");
-                if(label_exist(token, head)) error(fs, "Label name already exists");
-                if(!not_reserved(token)) error(fs, "Label name cannot be a reserved word");
+                    if(!isalnum(token[i])) error(am_file, "Invalid label name");
+                if(label_exist(token, head)) error(am_file, "Label name already exists");
+                if(!not_reserved(token)) error(am_file, "Label name cannot be a reserved word");
                 add_symbol(token, &curr, &head, 0, external);
                 break;
             }
@@ -105,6 +103,9 @@ void start(file_state *fs)
     }
     /* finished file */
     update_symbols(head, IC);
+
+
+
     print_symbol_table(head);/* TODO: delete */
 }
 
@@ -131,7 +132,7 @@ static attribute line_type(char *str)
 
 
 
-
+static 
 
 
 

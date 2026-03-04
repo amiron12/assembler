@@ -28,6 +28,7 @@ int IC; /* instruction counter: .text */
 
 
 typedef enum attribute {data, code, external, entry} attribute;
+typedef enum line_type {empty, comment, directive, instruction} line_type;
 
 
 typedef struct file_state
@@ -144,6 +145,9 @@ void new_macro(char *name, macro **curr_macro);
 void cleanup(macro *macro_head, code_file *expanded_file);
 
 
+void second_pass(file_state *fs, symbol *head);
+
+symbol* get_symbol(char *name, symbol *head);
 int is_comment(char *line);
 
 
