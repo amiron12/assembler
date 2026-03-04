@@ -4,13 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #define MASK 0xFFF
-#define ABSOLUTE 'A'
-#define RELATIVE 'R'
-#define EXTERNAL 'E'
-#define IMM 0
-#define DIR 1
-#define REL 2
-#define REG 3
 #define ICINDEX (IC)-100
 
  machine_word data_image[MEMORY];
@@ -23,7 +16,7 @@ void encode_instruction(char *str, int src, int dest)
     int opcode, funct, val;
     opcode = get_instruction_opcode(str);
     funct = get_instruction_funct(str);
-    val = ((opcode<<8) | (funct<<4) | (src<<2) | (dest));
+    val = ((opcode<<8) | (funct<<4) | (src<<2) | (dest)); /* TODO: refine, not use nums */
     code_image[ICINDEX].word = val & MASK;
     code_image[ICINDEX].type = ABSOLUTE;
     IC++;
@@ -54,7 +47,7 @@ void encode_operand(char *str)
 
      case REL|| DIR:
         code_image[ICINDEX].word = val;
-        code_image[ICINDEX].type = '?';
+        code_image[ICINDEX].type = UNKNOWN;
         break;
     }
     IC++;

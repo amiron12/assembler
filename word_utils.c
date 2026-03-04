@@ -64,18 +64,15 @@ void clean_string(char **str)
 }
 
 
-int get_mode(char *str)
+op_mode get_mode(char *str)
 {
-    int i = 0;
-    if(is_immediate(str)) return i;
-    i++;
-    if(is_directive(str)) return i;
-    i++;
-    if(is_relative(str)) return i;
-    i++;
-    if(is_register(str)) return i;
 
-    return 1;
+    if(is_immediate(str)) return IMM;
+    if(is_directive(str)) return DIR;
+    if(is_relative(str)) return REL;
+    if(is_register(str)) return REG;
+
+    return 1; /* TODO: refine */
 }
 
 static int is_int(char *s)
@@ -105,7 +102,20 @@ int validate_string(char *str)
 
 
 
+line_type sentence_type(char *str)
+{
+    if(is_directive(str)) return directive;
+    if(is_instruction(str)) return instruction;
+    /* TODO: error */
+}
 
+attribute dir_type(char *str)
+{
+    if(is_data(str)) return data;
+    if(is_extern(str)) return external;
+    if(is_entry(str)) return entry;
+    /* TODO: error */
+}
 
 
 

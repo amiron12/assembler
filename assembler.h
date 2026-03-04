@@ -22,14 +22,19 @@
 #define MEMORY 4096
 #define WORD_SIZE 12
 #define FILE_NAME 30
+#define UNKNOWN '?'
+#define ABSOLUTE 'A'
+#define RELATIVE 'R'
+#define EXTERNAL 'E'
 
 int DC; /* data counter: .data .string */
 int IC; /* instruction counter: .text */
 
 
 typedef enum attribute {data, code, external, entry} attribute;
-typedef enum line_type {empty, comment, directive, instruction} line_type;
-
+typedef enum line_type {directive, instruction} line_type;
+typedef enum op_mode {IMM, DIR, REL, REG} op_mode;
+/* TODO: is it ok to use these? */
 
 typedef struct file_state
 {
@@ -115,7 +120,7 @@ int is_entry(char *str);
 void clean_string(char **str);
 
 
-int get_mode(char *str);
+op_mode get_mode(char *str);
 
 
 int validate_data(char *args[]);
@@ -149,6 +154,9 @@ void second_pass(file_state *fs, symbol *head);
 
 symbol* get_symbol(char *name, symbol *head);
 int is_comment(char *line);
+
+line_type sentence_type(char *str);
+attribute dir_type(char *str);
 
 
 /* TODO: delete: */

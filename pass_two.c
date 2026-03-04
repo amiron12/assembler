@@ -7,7 +7,7 @@
 void second_pass(file_state *am_file, symbol *head)
 {
     char line[MAX_LINE_LENGTH];
-    char *args[MAX_ARG_LENGTH];
+    char *operands[MAX_ARG_LENGTH];
     symbol *head, *curr;
     head = NULL;
     curr = NULL; 
@@ -19,7 +19,7 @@ void second_pass(file_state *am_file, symbol *head)
         char *arg_string;
         char *argument;
         char *label = NULL;
-        int argc;
+        int op_count;
         am_file->current_line++;
 
         if(is_empty_line(line) || is_comment(line)) continue;
@@ -32,30 +32,58 @@ void second_pass(file_state *am_file, symbol *head)
 
         arg_string = strtok(NULL, "\n");
     
-        argc = 0;
+        op_count = 0;
         if (arg_string) 
-            argc = tokenize(arg_string, args);
+            op_count = tokenize(arg_string, operands);
     
     
-        switch(line_type(argument)) /* type of sentance */
+        switch(sentence_type(argument)) /* type of sentance */
         {
-            case data: /* directive */
-                continue;
-
-            case external: /* instruction */
-                continue;
-
-            case code:
-            
-
-            case entry:
+            case directive: /* directive */
             {
-                symbol *temp;
-                if(!label_exist(args[0], head)) error(am_file, "Label not found");
-                temp = get_symbol(args[0], head);
-                temp->atr = entry;
-                break;
+                if(is_entry(argument))
+                {
+                    symbol *temp;
+                    if(!label_exist(operands[0], head)) error(am_file, "Label not found");
+                    temp = get_symbol(operands[0], head);
+                    temp->atr = entry;
+                    break;
+                }
+            
+                continue;
             }
+
+            case instruction: /* instruction */
+            {
+                attribute att;
+                int i, mode;
+                op_mode m;
+                IC++;
+                if(op_count != get_instruction_operands(argument)) error( am_file ,"Invalid number of operands");
+                while(i<op_count)
+                {
+                    m = get_mode(operands[i]);
+                    if(m == IMM || m == REG)
+                        IC++;
+
+                    if(m == DIR && code_image[IC].type == UNKNOWN)
+                    {
+                        symbol *temp;
+                        if(!label_exist(operands[i], head)) error(am_file, "Label not found");
+                        temp = get_symbol(operands[i], head);
+                        if(temp->atr == external)
+                        {
+                            code_image[IC].word = ZERO;
+                            code_image[IC].type = EXTERNAL;
+                            /* TODO: record the ic and label name for the ext file */
+                        }
+
+                    }
+
+                }
+            }
+
+           
         }
 
     }

@@ -12,7 +12,6 @@
     ◦ Invalid label names or duplicate
 
 */
-static attribute line_type(char *str);
 static void update_symbols(symbol *head, int ICF);
 
 void start(file_state *am_file)
@@ -53,20 +52,45 @@ void start(file_state *am_file)
         if (arg_string) 
             argc = tokenize(arg_string, args);
     
-        switch(line_type(token)) /* type of sentance */
+
+
+        switch(sentence_type(token)) /* type of sentance : directive or instruction */
         {
-            case data: 
-            {
-                if(label_flag) add_symbol(label, &curr, &head, DC, data);
+            case directive: 
                 
-                if(is_data(token) && validate_data(args))
-                    encode_data(args);        
-                else if(is_string(token) && validate_string(*args))
-                    encode_string(*args);
-                break;
+                switch(dir_type(token))
+                {
+                    case data:
+                    {
+                        if(label_flag) add_symbol(label, &curr, &head, DC, data);
+                        
+                        if(is_data(token) && validate_data(args))
+                            encode_data(args); /*its a data directive*/        
+                        else if(is_string(token) && validate_string(*args))
+                            encode_string(*args); /*its a string directive*/
+                        break;
+                    }
+
+                    case external:
+                    {
+                        int i,len;
+                        if(argc!=1) error(am_file, "Extraneous text after external value");
+                        if(!isalpha(*token)) error(am_file, "Invalid label name"); /* first character is non alphabetical */
+                        len = strlen(token);
+                        if((len--)>LABEL_LENGTH) error(am_file, "Label name is too long");
+                        for(i=1;i<len;i++)
+                            if(!isalnum(token[i])) error(am_file, "Invalid label name");
+                        if(label_exist(token, head)) error(am_file, "Label name already exists");
+                        if(!not_reserved(token)) error(am_file, "Label name cannot be a reserved word");
+                        add_symbol(token, &curr, &head, 0, external);
+                        break;
+                    }
+
+                    case entry:
+                    break;
             }
 
-            case code:
+            case instruction:
             {
                 int src, dest, i;
                 i=0;
@@ -80,24 +104,6 @@ void start(file_state *am_file)
                     encode_operand(args[i++]);
                 break;
             }
-
-            case external:
-            {
-                int i,len;
-                if(argc!=1) error(am_file, "Extraneous text after external value");
-                if(!isalpha(*token)) error(am_file, "Invalid label name"); /* first character is non alphabetical */
-                len = strlen(token);
-                if((len--)>LABEL_LENGTH) error(am_file, "Label name is too long");
-                for(i=1;i<len;i++)
-                    if(!isalnum(token[i])) error(am_file, "Invalid label name");
-                if(label_exist(token, head)) error(am_file, "Label name already exists");
-                if(!not_reserved(token)) error(am_file, "Label name cannot be a reserved word");
-                add_symbol(token, &curr, &head, 0, external);
-                break;
-            }
-
-            case entry:
-            break;
         }
 
     }
@@ -119,20 +125,6 @@ static void update_symbols(symbol *head, int ICF)
         temp = temp->next;
     }
 }
-
-
-
-static attribute line_type(char *str)
-{
-    if(is_directive(str)) return data;
-    if(is_instruction(str)) return code;
-    if(is_extern(str)) return external;
-    else return entry; /* TODO: legit assumption? */
-}
-
-
-
-static 
 
 
 
