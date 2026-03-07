@@ -105,16 +105,14 @@ int validate_string(char *str)
 line_type sentence_type(char *str)
 {
     if(is_directive(str)) return directive;
-    if(is_instruction(str)) return instruction;
-    /* TODO: error */
+    return instruction;
 }
 
 attribute dir_type(char *str)
 {
-    if(is_data(str)) return data;
+    if(is_data(str) || is_string(str)) return data;
     if(is_extern(str)) return external;
-    if(is_entry(str)) return entry;
-    /* TODO: error */
+    return entry;
 }
 
 

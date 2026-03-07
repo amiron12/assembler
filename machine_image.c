@@ -3,25 +3,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define OP_SHIFT 8
+#define FUNCT_SHIFT 4
+#define SRC_SHIFT 2
+#define DEST_SHIFT
 #define MASK 0xFFF
 #define ICINDEX (IC)-100
 
+/* TODO: move defines to header? */
  machine_word data_image[MEMORY];
  machine_word code_image[MEMORY];
-
-
 
 void encode_instruction(char *str, int src, int dest)
 {
     int opcode, funct, val;
     opcode = get_instruction_opcode(str);
     funct = get_instruction_funct(str);
-    val = ((opcode<<8) | (funct<<4) | (src<<2) | (dest)); /* TODO: refine, not use nums */
+    val = ((opcode<<OP_SHIFT) | (funct<<FUNCT_SHIFT) | (src<<SRC_SHIFT) | (dest)); 
     code_image[ICINDEX].word = val & MASK;
     code_image[ICINDEX].type = ABSOLUTE;
     IC++;
-}
-
+} 
 
 void encode_operand(char *str)
 {
@@ -45,7 +47,13 @@ void encode_operand(char *str)
         code_image[ICINDEX].type = ABSOLUTE;
         break;
 
-     case REL|| DIR:
+     case DIR:
+        code_image[ICINDEX].word = val;
+        code_image[ICINDEX].type = UNKNOWN;
+        break;
+    
+
+    case REL:
         code_image[ICINDEX].word = val;
         code_image[ICINDEX].type = UNKNOWN;
         break;

@@ -3,8 +3,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+/* TODO: delete file */
 
-
+void print_bits(short value)
+{
+    int i;
+    for (i = 11; i >= 0; i--) {
+        /* Check if the bit at position i is "on" */
+        if ((value >> i) & 1)
+            printf("1");
+        else
+            printf("0");
+        
+        /* Optional: add a space every 4 bits for readability */
+        if (i % 4 == 0 && i != 0) printf(" ");
+    }
+    printf("\n");
+}
 
 
 void print_symbol_table(symbol *head) {
@@ -33,18 +48,15 @@ void print_symbol_table(symbol *head) {
 }
 void print_machine_images() {
     int i;
-
     printf("\n--- DEBUG: Code Image (Instructions) ---\n");
-    /* Starts at 100. Prints only the words added so far. */
     for (i = 0; i < (IC - 100); i++) {
-        /* Using %03X to show the 12-bit word in 3 hex digits */
-        /* code_image[i].type usually holds 'A', 'R', or 'E' [cite: 190] */
-        printf("Addr %04d: %03X (ARE: %c)\n", 
-                i + 100, 
-                code_image[i].word, 
-                code_image[i].type ? code_image[i].type : 'A'); 
+        printf("Addr %04d: ", i + 100);
+        
+        /* Call the bit-printing function for the 12-bit word */
+        print_bits(code_image[i].word);
+        
+        printf(" (ARE: %c)\n", code_image[i].type ? code_image[i].type : 'A');
     }
-
     printf("\n--- DEBUG: Data Image (Memory) ---\n");
     /* DC represents the number of words in the data segment  */
     for (i = 0; i < DC; i++) {

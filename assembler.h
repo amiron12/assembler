@@ -24,7 +24,7 @@
 #define FILE_NAME 30
 #define UNKNOWN '?'
 #define ABSOLUTE 'A'
-#define RELATIVE 'R'
+#define RELOCATABLE 'R'
 #define EXTERNAL 'E'
 
 int DC; /* data counter: .data .string */
@@ -47,8 +47,8 @@ typedef struct file_state
 
 typedef struct machine_word
 { 
-  unsigned int word : WORD_SIZE;
-  char type;
+    short word;
+    char type;
 } machine_word;
 
 

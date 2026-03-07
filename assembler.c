@@ -10,8 +10,9 @@ int main(int argc, char *argv[])
     int i;
     DC = ZERO;
     IC = MEM_START;
+    printf("\n\tRunning Program\n"); /* TODO: delete */
     for(i=1;i<argc;i++)
-    {
+    {  
         char *fname;    
         file_state am_file;
         file_state as_file;
