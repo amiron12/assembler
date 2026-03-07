@@ -134,7 +134,12 @@ void start(file_state *am_file)
     update_symbols(head, IC);
 
 
-    save_symbol_table(head); /* TODO: delete */
+    save_symbol_table(head, "first_pass.txt"); /* TODO: delete */
+    save_machine_images("first_pass.txt");
+
+
+
+    second_pass(am_file, head);
 }
 
 static void update_symbols(symbol *head, int ICF)

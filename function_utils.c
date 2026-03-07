@@ -35,7 +35,7 @@ int not_reserved(char *str)
 
 void error(file_state *state, char *str)
 {
-    printf("File: %s Line: %d - %s\n", state->name, state->current_line, str);
+    printf("File: %s Line: %d - %s\n", state->extended_name, state->current_line, str);
 }
 
 

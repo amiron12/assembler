@@ -26,6 +26,7 @@
 #define ABSOLUTE 'A'
 #define RELOCATABLE 'R'
 #define EXTERNAL 'E'
+#define ICINDEX (IC)-100
 
 int DC; /* data counter: .data .string */
 int IC; /* instruction counter: .text */
@@ -163,8 +164,8 @@ attribute dir_type(char *str);
 void print_symbols(symbol *head);
 void print_symbol_table(symbol *head);
 void print_machine_images();
-void save_symbol_table(symbol *head);
-void save_machine_images();
+void save_symbol_table(symbol *head, char *name);
+void save_machine_images(char *name);
 
 extern machine_word code_image[MEMORY];
 extern machine_word data_image[MEMORY];

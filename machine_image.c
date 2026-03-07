@@ -8,7 +8,7 @@
 #define SRC_SHIFT 2
 #define DEST_SHIFT
 #define MASK 0xFFF
-#define ICINDEX (IC)-100
+
 
 /* TODO: move defines to header? */
  machine_word data_image[MEMORY];
@@ -67,7 +67,7 @@ void encode_operand(char *str)
 
 void encode_data(char *args[])
 {
-    int i = 0;
+    int i = 0; 
     while(args[i] != NULL)
         data_image[DC++].word = (atoi(args[i++]) & MASK);
 }

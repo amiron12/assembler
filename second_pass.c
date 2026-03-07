@@ -10,6 +10,8 @@ void second_pass(file_state *am_file, symbol *head)
     char *operands[MAX_ARG_LENGTH];
     IC = MEM_START;
     printf("Started second pass\n"); /* TODO: delete */
+    rewind(am_file->ptr);
+    am_file->current_line = ZERO;
     while (fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *arg_string;
@@ -41,7 +43,7 @@ void second_pass(file_state *am_file, symbol *head)
             if (!label_exist(operands[0], head))
                 error(am_file, "Label not found");
             temp = get_symbol(operands[0], head);
-            temp->atr = entry;
+            temp->atr = entry; /* TODO: add the attribute or change it? */
         }
 
         else
@@ -52,33 +54,55 @@ void second_pass(file_state *am_file, symbol *head)
             if (op_count != get_instruction_operands(argument))
                 error(am_file, "Invalid number of operands");
 
-            while (i < op_count)
+            while (i < op_count) /* parsing through the operands */
             {
-                if(code_image[IC].type == UNKNOWN)
+                if(code_image[ICINDEX].type == UNKNOWN) /* address not set */
                 {    
                     if(label_exist(operands[i], head))
                     {
                         symbol *temp = get_symbol(operands[i], head);
                         if (temp->atr == external)
                         {
-                            code_image[IC].word = ZERO;
-                            code_image[IC].type = EXTERNAL;
+                            code_image[ICINDEX].word = ZERO;
+                            code_image[ICINDEX].type = EXTERNAL;
                         }
                         else
                         {
-                            code_image[IC].word = temp->address; /* TODO: this does not change to binary */
-                            code_image[IC].type = RELOCATABLE;
+                            code_image[ICINDEX].word = temp->address; 
+                            code_image[ICINDEX].type = RELOCATABLE;
                         }
                     }
                     else
                         error(am_file, "Label not found");
-                    IC++;
                 }
-            }
+
+                if(is_relative(operands[i]))
+                {
+                    clean_string(&operands[i]);
+                    if(label_exist(operands[i], head))
+                    {
+                        symbol *temp;
+                        int address;
+                        temp = get_symbol(operands[i], head);
+                        address = (temp->address)-IC;
+                        code_image[ICINDEX].word = address;
+                        code_image[ICINDEX].type = ABSOLUTE;
+
+                    }
+                    else
+                        error(am_file, "Label not found");
+                }
 
 
-            
+                IC++;
+                i++;
+            }   
         }
+
+
     }
+
+    save_symbol_table(head, "second_pass.txt");
+    save_machine_images("second_pass.txt");
 }
 

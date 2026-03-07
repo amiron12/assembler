@@ -58,3 +58,4 @@ void free_symbols(symbol *head)
 
 
 
+/* TODO: make the names consistant - label/symbol */

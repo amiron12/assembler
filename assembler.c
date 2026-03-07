@@ -38,8 +38,7 @@ int main(int argc, char *argv[])
         if(am_file.error_flag) exit(0); /* error */
 
 
-
-        save_machine_images();
+        
         printf("finished\n"); 
         }
     return 0;
