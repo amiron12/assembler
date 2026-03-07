@@ -130,11 +130,11 @@ void start(file_state *am_file)
     }
     if(am_file->error_flag) return;
     /* finished file */
-    
+
     update_symbols(head, IC);
 
 
-    save_symbol_table(head);
+    save_symbol_table(head); /* TODO: delete */
 }
 
 static void update_symbols(symbol *head, int ICF)

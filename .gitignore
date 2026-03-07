@@ -2,3 +2,4 @@
 *.am
 *.vscode/
 *.txt
+test_utils.c
