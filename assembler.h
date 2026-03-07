@@ -163,6 +163,8 @@ attribute dir_type(char *str);
 void print_symbols(symbol *head);
 void print_symbol_table(symbol *head);
 void print_machine_images();
+void save_symbol_table(symbol *head);
+void save_machine_images();
 
 extern machine_word code_image[MEMORY];
 extern machine_word data_image[MEMORY];

@@ -104,13 +104,22 @@ void start(file_state *am_file)
             case instruction:
             {
                 int src, dest, i;
+                src = ZERO;
+                dest = ZERO;
                 i=0;
                 if(label_flag) 
                     add_symbol(label, &curr,&head, IC, code);
                 if(argc != get_instruction_operands(token)) 
                     error( am_file ,"Invalid number of operands");
-                src = (i<argc)?get_mode(args[i++]):ZERO; 
-                dest = (i<argc)?get_mode(args[i]):ZERO;
+
+                if(argc==1)
+                    dest = get_mode(args[i]);
+                else if(argc==2)
+                {
+                    src = get_mode(args[i++]); 
+                    dest = get_mode(args[i]);
+                }
+                    
                 encode_instruction(token, src, dest);
                 i = 0;
                 while (i<argc)
@@ -119,13 +128,13 @@ void start(file_state *am_file)
             }
         }
     }
-    
     if(am_file->error_flag) return;
     /* finished file */
+    
     update_symbols(head, IC);
 
 
-    print_symbol_table(head);/* TODO: delete */
+    save_symbol_table(head);
 }
 
 static void update_symbols(symbol *head, int ICF)

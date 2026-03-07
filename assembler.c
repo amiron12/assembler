@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
         strncpy(am_file.name, fname, MAX_FNAME);
         extention(&am_file, EXT_AM);
         am_file.ptr = fopen(am_file.extended_name, "r");
+        am_file.error_flag = FALSE;
+        am_file.current_line = ZERO;
         file_check(am_file.ptr);
         
         start(&am_file); /* starting first pass */
@@ -37,7 +39,7 @@ int main(int argc, char *argv[])
 
 
 
-        print_machine_images();
+        save_machine_images();
         printf("finished\n"); 
         }
     return 0;

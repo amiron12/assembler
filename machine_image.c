@@ -32,32 +32,35 @@ void encode_operand(char *str)
     int val = 0;
     switch (get_mode(str))
     {
-    case IMM:
-        clean_string(&str);
-        num = atoi(str);
-        code_image[ICINDEX].word = (num & MASK);
-        code_image[ICINDEX].type = ABSOLUTE;
-        break;
+        case IMM:
+            clean_string(&str);
+            num = atoi(str);
+            code_image[ICINDEX].word = (num & MASK);
+            code_image[ICINDEX].type = ABSOLUTE;
+            break;
 
-    case REG:
-        clean_string(&str);
-        num = atoi(str);
-        val = (1<<num);
-        code_image[ICINDEX].word = (val & MASK);
-        code_image[ICINDEX].type = ABSOLUTE;
-        break;
+        case REG:
+        {
+            char *c;
+            c = &str[1];
+            num = atoi(c);
+            val = (1<<num);
+            code_image[ICINDEX].word = (val & MASK);
+            code_image[ICINDEX].type = ABSOLUTE;
+            break;
+        }
 
-     case DIR:
-        code_image[ICINDEX].word = val;
-        code_image[ICINDEX].type = UNKNOWN;
-        break;
-    
+        case DIR:
+            code_image[ICINDEX].word = val;
+            code_image[ICINDEX].type = UNKNOWN;
+            break;
+        
 
-    case REL:
-        code_image[ICINDEX].word = val;
-        code_image[ICINDEX].type = UNKNOWN;
-        break;
-    }
+        case REL:
+            code_image[ICINDEX].word = val;
+            code_image[ICINDEX].type = UNKNOWN;
+            break;
+        }
     IC++;
 }
 

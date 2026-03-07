@@ -44,7 +44,7 @@ int is_instruction(char *str)
 int is_register(char *str)
 {
     if(strlen(str)!=2) return FALSE;
-    return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE;
+    return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE; /* TODO: change nums */
 }
 
 /*removing non alpha-numeric characters in the begining or end of the string*/
