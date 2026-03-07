@@ -2,4 +2,7 @@
 *.am
 *.vscode/
 *.txt
+*.ob
+*.ext
+*.ent
 test_utils.c

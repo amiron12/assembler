@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#define DEC 10
-
 
 
 int is_directive(char *str)
@@ -40,7 +38,6 @@ int is_instruction(char *str)
     return FALSE;
 }
 
-
 int is_register(char *str)
 {
     if(strlen(str)!=2) return FALSE;
@@ -63,7 +60,6 @@ void clean_string(char **str)
     }
 }
 
-
 op_mode get_mode(char *str)
 {
 
@@ -71,7 +67,6 @@ op_mode get_mode(char *str)
     if(is_directive(str)) return DIR;
     if(is_relative(str)) return REL;
     if(is_register(str)) return REG;
-
     return 1; /* TODO: refine */
 }
 
@@ -97,10 +92,6 @@ int validate_string(char *str)
         return TRUE;
     return FALSE;
 }
-
-
-
-
 
 line_type sentence_type(char *str)
 {

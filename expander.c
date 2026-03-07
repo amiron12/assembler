@@ -30,14 +30,14 @@ void expand_macros(file_state *as_file)
         as_file->current_line++;
         
         if(is_empty_line(line))
-            goto standard_line;
+            goto standard_line; /* TODO: change */
         arg = strtok(line, " \t\n\r");
         rest = strtok(NULL, "\n");
         
         /* Found a macro start */
         if(!strcmp(arg, MACRO_START)) 
         {
-            char *name;
+            char *macro_name;
             char *err = macro_start_check(rest);
             if(err != NULL)
             {
@@ -47,8 +47,8 @@ void expand_macros(file_state *as_file)
             }
 
             inside_macro = TRUE;
-            name = strtok(rest, " \t");
-            new_macro(name, &file_macros); /* creating a macro node */
+            macro_name = strtok(rest, " \t");
+            new_macro(macro_name, &file_macros); /* creating a macro node */
             continue;
         }
         

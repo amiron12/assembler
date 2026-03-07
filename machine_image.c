@@ -6,8 +6,7 @@
 #define OP_SHIFT 8
 #define FUNCT_SHIFT 4
 #define SRC_SHIFT 2
-#define DEST_SHIFT
-#define MASK 0xFFF
+
 
 
 /* TODO: move defines to header? */
@@ -58,7 +57,7 @@ void encode_operand(char *str)
 
         case REL:
             code_image[ICINDEX].word = val;
-            code_image[ICINDEX].type = UNKNOWN;
+            code_image[ICINDEX].type = ABSOLUTE;
             break;
         }
     IC++;
@@ -69,15 +68,22 @@ void encode_data(char *args[])
 {
     int i = 0; 
     while(args[i] != NULL)
-        data_image[DC++].word = (atoi(args[i++]) & MASK);
+        {
+            data_image[DC].word = (atoi(args[i++]) & MASK);
+            data_image[DC++].type = ABSOLUTE;
+        }
 }
 
 void encode_string(char *str)
 {
     clean_string(&str);
     while(*str != '\0')
-        data_image[DC++].word = (*str++ & MASK);
-    data_image[DC++].word = ZERO;
+    {
+        data_image[DC].word = (*str++ & MASK);
+        data_image[DC++].type = ABSOLUTE;
+    }
+    data_image[DC].word = ZERO;
+    data_image[DC++].type = ABSOLUTE;
 }
 
 

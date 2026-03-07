@@ -9,9 +9,9 @@ void second_pass(file_state *am_file, symbol *head)
     char line[MAX_LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
     IC = MEM_START;
-    printf("Started second pass\n"); /* TODO: delete */
     rewind(am_file->ptr);
     am_file->current_line = ZERO;
+    
     while (fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *arg_string;
@@ -19,12 +19,11 @@ void second_pass(file_state *am_file, symbol *head)
         int op_count;
         am_file->current_line++;
 
-        if (is_empty_line(line) || is_comment(line))
-            continue;
+        if (is_empty_line(line) || is_comment(line)) continue;
 
         argument = strtok(line, " \t\n");
-        if (!argument)
-            continue;           /* NULL */
+        if (!argument) continue;           /* NULL */
+        
         if (is_label(argument)) /* skiping labels */
             argument = strtok(NULL, " \t\n");
 

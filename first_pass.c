@@ -12,61 +12,59 @@
     ◦ Invalid label names or duplicate
 
 */
-static void update_symbols(symbol *head, int ICF);
+static void update_symbols(symbol *head);
 
-void start(file_state *am_file)
+void first_pass(file_state *am_file)
 {
     char line[MAX_LINE_LENGTH];
-    char *args[MAX_ARG_LENGTH];
+    char *operands[MAX_ARG_LENGTH];
     int label_flag;
-    symbol *head, *curr;
+    symbol *curr, *head;
     head = NULL;
     curr = NULL; 
-
-    printf("Started first pass\n"); /* TODO: delete */
 
     while(fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *arg_string;
-        char *token;
+        char *argument;
         char *label = NULL;
-        int argc;
+        int op_count;
         label_flag = FALSE;
         am_file->current_line++;
 
         if(is_empty_line(line) || is_comment(line)) continue;
 
-        token = strtok(line, " \t");
-        if (!token) continue;
+        argument = strtok(line, " \t");
+        if (!argument) continue;
 
-        if(is_label(token)) 
+        if(is_label(argument)) 
         {
-            label = token; 
+            label = argument; 
             clean_string(&label); 
-            token = strtok(NULL, " \t\n");
+            argument = strtok(NULL, " \t\n");
             label_flag = TRUE;
         }
 
         arg_string = strtok(NULL, "\n");
     
-        argc = 0;
+        op_count = 0;
         if (arg_string) 
-            argc = tokenize(arg_string, args);
+            op_count = tokenize(arg_string, operands);
     
-        switch(sentence_type(token)) /* type of sentance : directive or instruction */
+        switch(sentence_type(argument)) /* type of sentance : directive or instruction */
         {
             case directive: 
             {    
-                switch(dir_type(token))
+                switch(dir_type(argument))
                 {
                     case data:
                     {
                         if(label_flag) add_symbol(label, &curr, &head, DC, data);
                         
-                        if(is_data(token) && validate_data(args))
-                            encode_data(args); /*its a data directive*/        
-                        else if(is_string(token) && validate_string(*args))
-                            encode_string(*args); /*its a string directive*/
+                        if(is_data(argument) && validate_data(operands))
+                            encode_data(operands); /*its a data directive*/        
+                        else if(is_string(argument) && validate_string(*operands))
+                            encode_string(*operands); /*its a string directive*/
                         break;
                     }
 
@@ -74,9 +72,9 @@ void start(file_state *am_file)
                     {
                         int i,len;
                         char *label;
-                        len = strlen(token);
-                        label = args[0];
-                        if(argc!=1)
+                        label = operands[0];
+                        len = strlen(label);
+                        if(op_count!=1)
                             error(am_file, "Extraneous text after external value");
                         if(!isalpha(*label)) 
                             error(am_file, "Invalid label name"); /* first character is non alphabetical */
@@ -109,40 +107,42 @@ void start(file_state *am_file)
                 i=0;
                 if(label_flag) 
                     add_symbol(label, &curr,&head, IC, code);
-                if(argc != get_instruction_operands(token)) 
-                    error( am_file ,"Invalid number of operands");
+                if(op_count != get_instruction_operands(argument)) 
+                    error(am_file ,"Invalid number of operands");
 
-                if(argc==1)
-                    dest = get_mode(args[i]);
-                else if(argc==2)
+                if(op_count==1)
+                    dest = get_mode(operands[i]);
+                else if(op_count==2)
                 {
-                    src = get_mode(args[i++]); 
-                    dest = get_mode(args[i]);
+                    src = get_mode(operands[i++]); 
+                    dest = get_mode(operands[i]);
                 }
                     
-                encode_instruction(token, src, dest);
+                encode_instruction(argument, src, dest);
                 i = 0;
-                while (i<argc)
-                    encode_operand(args[i++]);
+                while (i<op_count)
+                    encode_operand(operands[i++]);
                 break;
             }
         }
     }
+
     if(am_file->error_flag) return;
     /* finished file */
 
-    update_symbols(head, IC);
+    ICF = IC;   
+    DCF = DC;
+
+    update_symbols(head);
 
 
-    save_symbol_table(head, "first_pass.txt"); /* TODO: delete */
-    save_machine_images("first_pass.txt");
+        save_symbol_table(head, "first_pass.txt"); /* TODO: delete */
+        save_machine_images("first_pass.txt");
 
-
-
-    second_pass(am_file, head);
+        second_pass(am_file, head); /* starting second pass */
 }
 
-static void update_symbols(symbol *head, int ICF)
+static void update_symbols(symbol *head)
 {
     symbol *temp = head;
     while(temp != NULL)

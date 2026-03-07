@@ -11,12 +11,12 @@ void memory_check(void *ptr)
 {
     if(ptr == NULL)
       {
-        printf("Memory alocation failed");
+        printf("Fatal Error:Memory alocation failed");
         exit(1);
       }
 }
 
-void file_check(FILE *fp)
+void file_check(FILE *fp) /* TODO: delete */
 {
     if(fp==NULL)
     {
@@ -33,9 +33,10 @@ int not_reserved(char *str)
 }
 
 
-void error(file_state *state, char *str)
+void error(file_state *fs, char *str)
 {
-    printf("File: %s Line: %d - %s\n", state->extended_name, state->current_line, str);
+    printf("File: %s Line: %d - %s\n", fs->extended_name, fs->current_line, str);
+    fs->error_flag = TRUE;
 }
 
 

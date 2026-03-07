@@ -10,7 +10,7 @@ void new_macro(char *name, macro **file_macros)
 {
     {
         macro *new_node = (macro *)malloc(sizeof(macro));
-        memory_check(new_node);
+        memory_check(new_node);          
         strncpy(new_node->name, name, MAX_LINE_LENGTH);
         new_node->content.head = NULL;
         new_node->content.tail = NULL;

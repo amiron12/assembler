@@ -5,6 +5,7 @@
 
 #ifndef SET_H
 #define SET_H
+#define DEC 10
 #define BYTE (sizeof(unsigned char)*8)
 #define MEM_START 100
 #define MAX_LINE_LENGTH 80 /* including new-line character */
@@ -13,10 +14,14 @@
 #define ONE 1
 #define FALSE 0
 #define TRUE 1
+#define ERR -1
 #define NEG -1
 #define OK 1
 #define EXT_AS ".as"
 #define EXT_AM ".am"
+#define EXT_OBJ ".ob"
+#define EXT_ENTR ".ent"
+#define EXT_EXTER ".ext"
 #define MAX_ARG_LENGTH 30
 #define LABEL_LENGTH 31 /* TODO: make sure its the right length with \n and so */
 #define MEMORY 4096
@@ -27,9 +32,9 @@
 #define RELOCATABLE 'R'
 #define EXTERNAL 'E'
 #define ICINDEX (IC)-100
+#define MASK 0xFFF
 
-int DC; /* data counter: .data .string */
-int IC; /* instruction counter: .text */
+int IC, DC, ICF, DCF;
 
 
 typedef enum attribute {data, code, external, entry} attribute;
@@ -48,7 +53,7 @@ typedef struct file_state
 
 typedef struct machine_word
 { 
-    short word;
+    unsigned int word:WORD_SIZE;
     char type;
 } machine_word;
 
@@ -99,7 +104,7 @@ void start_pass(file_state *fs);
 void add_symbol(char *symbol_name, symbol **curr,symbol **head, int address, attribute atr);
 void print_symbols(symbol *head);
 
-void start(file_state *fs);
+void first_pass(file_state *fs);
 
 int tokenize(char *line, char *args[]);
 
