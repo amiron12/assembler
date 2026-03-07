@@ -14,7 +14,7 @@
 */
 static void update_symbols(symbol *head);
 
-void first_pass(file_state *am_file)
+symbol* first_pass(file_state *am_file)
 {
     char line[MAX_LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
@@ -127,7 +127,7 @@ void first_pass(file_state *am_file)
         }
     }
 
-    if(am_file->error_flag) return;
+    if(am_file->error_flag) return NULL;
     /* finished file */
 
     ICF = IC;   
@@ -139,7 +139,7 @@ void first_pass(file_state *am_file)
         save_symbol_table(head, "first_pass.txt"); /* TODO: delete */
         save_machine_images("first_pass.txt");
 
-        second_pass(am_file, head); /* starting second pass */
+    return second_pass(am_file, head); /* starting second pass */
 }
 
 static void update_symbols(symbol *head)

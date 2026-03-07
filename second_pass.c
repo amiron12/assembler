@@ -4,7 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 
-void second_pass(file_state *am_file, symbol *head)
+symbol* second_pass(file_state *am_file, symbol *head)
 {
     char line[MAX_LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
@@ -103,5 +103,7 @@ void second_pass(file_state *am_file, symbol *head)
 
     save_symbol_table(head, "second_pass.txt");
     save_machine_images("second_pass.txt");
+
+    return head;
 }
 

@@ -17,11 +17,11 @@
 #define ERR -1
 #define NEG -1
 #define OK 1
-#define EXT_AS ".as"
-#define EXT_AM ".am"
-#define EXT_OBJ ".ob"
-#define EXT_ENTR ".ent"
-#define EXT_EXTER ".ext"
+#define AS ".as"
+#define AM ".am"
+#define OBJ ".ob"
+#define ENT ".ent"
+#define EXT ".ext"
 #define MAX_ARG_LENGTH 30
 #define LABEL_LENGTH 31 /* TODO: make sure its the right length with \n and so */
 #define MEMORY 4096
@@ -104,7 +104,7 @@ void start_pass(file_state *fs);
 void add_symbol(char *symbol_name, symbol **curr,symbol **head, int address, attribute atr);
 void print_symbols(symbol *head);
 
-void first_pass(file_state *fs);
+symbol* first_pass(file_state *fs);
 
 int tokenize(char *line, char *args[]);
 
@@ -156,7 +156,7 @@ void new_macro(char *name, macro **curr_macro);
 void cleanup(macro *macro_head, code_file *expanded_file);
 
 
-void second_pass(file_state *fs, symbol *head);
+symbol* second_pass(file_state *fs, symbol *head);
 
 symbol* get_symbol(char *name, symbol *head);
 int is_comment(char *line);
@@ -174,7 +174,5 @@ void save_machine_images(char *name);
 
 extern machine_word code_image[MEMORY];
 extern machine_word data_image[MEMORY];
-
-
 
 #endif

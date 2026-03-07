@@ -86,7 +86,7 @@ static void create_file(file_state *as_file, code_file **expanded_file)
     FILE *am_file;
     code_line *curr;
     char *fname = as_file->name;
-    fname = strcat(fname, EXT_AM);
+    fname = strcat(fname, AM);
     am_file = fopen(fname, "w+");
     file_check(am_file);
     curr = (*expanded_file)->head;
