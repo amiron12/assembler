@@ -29,12 +29,12 @@ int main(int argc, char *argv[])
         fname = argv[i];
 
         init_file_state(&as_file, fname, AS, "r");
-        if(as_file.error_flag) continue;
+        init_file_state(&am_file, fname, AM, "r");
+        if(as_file.error_flag || am_file.error_flag) continue;
 
         expand_macros(&as_file); /* pre-assembler stage */
         if(as_file.error_flag) continue; /* error occurred during macro expansion, continuing to the next file */
 
-        init_file_state(&am_file, fname, AM, "r");
         if(am_file.error_flag) continue;
         
         start_pass(&am_file); 
