@@ -1,7 +1,7 @@
 
 #include "pre_proccess.h"
 #include "assembler.h"
-#include "file_utils.h"
+#include "output.h"
 #include "utils.h"
 #include "text_parsing.h"
 #include "constants.h"
@@ -101,7 +101,8 @@ static void create_am_file(file_state *as_file, code_file **expanded_file)
     char *fname = as_file->name;
     fname = strcat(fname, AM);
     am_file = fopen(fname, "w+");
-    file_check(am_file);
+    if(file_check(am_file))
+        return ERR;
     curr = (*expanded_file)->head;
     while(curr != NULL)
     {

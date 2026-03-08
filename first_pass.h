@@ -2,7 +2,6 @@
 #define FIRST_PASS_H
 #include "symbol_table.h"
 
-symbol* start_pass(file_state *fs);
-
+void start_pass(file_state *fs);
 
 #endif

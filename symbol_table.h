@@ -18,6 +18,8 @@ int symbol_exists(char *name, symbol *head);
 
 symbol* get_symbol(char *name, symbol *head);
 
+void free_symbols(symbol *head);
+
 
 
 /* TODO: delete: */

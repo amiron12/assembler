@@ -3,14 +3,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "file_utils.h"
+#include "output.h"
 #include "symbol_table.h"
 
 
 
 void memory_check(void *ptr);
 
-void file_check(FILE *fp);
+int file_check(FILE *fp);
 
 void error(file_state *state, char *str);
 

@@ -1,6 +1,6 @@
 
 #include "assembler.h"
-#include "file_utils.h"
+#include "output.h"
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,23 +13,17 @@
 
 void memory_check(void *ptr)
 {
-    if(ptr == NULL)
-      {
-        printf("Fatal Error:Memory alocation failed");
-        exit(1);
-      }
+    if(ptr) return;
+    printf("Fatal Error: Memory alocation failed");
+    exit(1);
 }
 
-void file_check(FILE *fp) /* TODO: delete */
+int file_check(FILE *fp) /* TODO: delete */
 {
-    if(fp==NULL)
-    {
-        printf("File opening failed");
-        exit(1);
-    }
-    return;
+    if(fp) return;
+    printf("Fatal Error: File opening failed");  
+    exit(1);
 }
-
 
 
 void error(file_state *fs, char *str)

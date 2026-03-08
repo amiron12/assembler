@@ -2,6 +2,6 @@
 #define SECOND_PASS_H
 #include "symbol_table.h"
 
-symbol* second_pass(file_state *fs, symbol *head);
+void second_pass(file_state *fs, symbol *head);
 
 #endif

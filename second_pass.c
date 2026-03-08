@@ -1,6 +1,6 @@
 #include "assembler.h"
 #include "symbol_table.h"
-#include "file_utils.h"
+#include "output.h"
 #include "text_parsing.h"
 #include "machine_image.h"
 #include "first_pass.h"
@@ -13,14 +13,15 @@
 #include <string.h>
 #include <ctype.h>
 
-symbol* second_pass(file_state *am_file, symbol *head)
+void second_pass(file_state *am_file, symbol *head)
 {
     char line[MAX_LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
     IC = MEM_START;
     rewind(am_file->ptr);
     am_file->current_line = ZERO;
-    
+    init_output_files(am_file->name);
+
     while (fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *arg_string;
@@ -48,10 +49,16 @@ symbol* second_pass(file_state *am_file, symbol *head)
         if (is_entry(argument))
         {
             symbol *temp;
-            if (!symbol_exists(operands[0], head))
-                error(am_file, "Label not found");
-            temp = get_symbol(operands[0], head);
-            temp->atr = entry; /* TODO: add the attribute or change it? */
+            if (symbol_exists(operands[0], head))
+            {
+                temp = get_symbol(operands[0], head);
+                temp->atr = entry; /* TODO: add the attribute or change it? */
+                append_entry(temp, am_file->name);
+            }
+            else
+                {
+                    error(am_file, "Label not found");
+                }
         }
 
         else
@@ -73,6 +80,7 @@ symbol* second_pass(file_state *am_file, symbol *head)
                         {
                             code_image[ICINDEX].word = ZERO;
                             code_image[ICINDEX].type = EXTERNAL;
+                            append_external(temp, am_file->name);
                         }
                         else
                         {
@@ -100,19 +108,23 @@ symbol* second_pass(file_state *am_file, symbol *head)
                     else
                         error(am_file, "Label not found");
                 }
-
-
                 IC++;
                 i++;
             }   
         }
 
-
     }
 
     save_symbol_table(head, "test_output/second_pass.txt");
     save_machine_images("test_output/second_pass.txt");
-
-    if(am_file->error_flag) return NULL;
-    return head;
+    
+    
+    if(am_file->error_flag)
+    {
+        free_symbols(head);
+        delete_output_files(am_file->name);
+        return;
+    }
+    create_obj_file(am_file->name, head);
+    free_symbols(head);
 }
