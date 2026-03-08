@@ -10,10 +10,19 @@
 #include "machine_image.h"
 
 
-
-
-
-
+void init_file_state(file_state *fs, char *fname, char *ext)
+{
+    strncpy(fs->name, fname, MAX_FNAME);
+    extention(fs, ext);
+    fs->ptr = fopen(fs->extended_name, "r");
+    fs->error_flag = FALSE;
+    fs->current_line = ZERO;
+    if(!fs->ptr) 
+    {
+        fs->error_flag = TRUE;
+        printf("File \"%s\" opening failed\n", fs->extended_name);
+    }
+}
 
 void create_obj_file(char *file_name, symbol *symbol_table)
 {

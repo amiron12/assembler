@@ -1,6 +1,7 @@
 
 #include "assembler.h"
 #include "text_parsing.h"
+#include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -151,4 +152,3 @@ int is_comment(char *line)
     if(*line == ';') return TRUE;
     return FALSE;
 }
-

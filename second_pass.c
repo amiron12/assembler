@@ -1,6 +1,13 @@
 #include "assembler.h"
 #include "symbol_table.h"
 #include "file_utils.h"
+#include "text_parsing.h"
+#include "machine_image.h"
+#include "first_pass.h"
+#include "second_pass.h"
+#include "const_tables.h"
+#include "utils.h"
+#include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,7 +48,7 @@ symbol* second_pass(file_state *am_file, symbol *head)
         if (is_entry(argument))
         {
             symbol *temp;
-            if (!label_exist(operands[0], head))
+            if (!symbol_exists(operands[0], head))
                 error(am_file, "Label not found");
             temp = get_symbol(operands[0], head);
             temp->atr = entry; /* TODO: add the attribute or change it? */
@@ -59,7 +66,7 @@ symbol* second_pass(file_state *am_file, symbol *head)
             {
                 if(code_image[ICINDEX].type == UNKNOWN) /* address not set */
                 {    
-                    if(label_exist(operands[i], head))
+                    if(symbol_exists(operands[i], head))
                     {
                         symbol *temp = get_symbol(operands[i], head);
                         if (temp->atr == external)
@@ -80,7 +87,7 @@ symbol* second_pass(file_state *am_file, symbol *head)
                 if(is_relative(operands[i]))
                 {
                     clean_string(&operands[i]);
-                    if(label_exist(operands[i], head))
+                    if(symbol_exists(operands[i], head))
                     {
                         symbol *temp;
                         int address;
@@ -103,10 +110,9 @@ symbol* second_pass(file_state *am_file, symbol *head)
 
     }
 
-    save_symbol_table(head, "second_pass.txt");
-    save_machine_images("second_pass.txt");
+    save_symbol_table(head, "test_output/second_pass.txt");
+    save_machine_images("test_output/second_pass.txt");
 
     if(am_file->error_flag) return NULL;
     return head;
 }
-

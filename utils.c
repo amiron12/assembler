@@ -1,6 +1,7 @@
 
 #include "assembler.h"
 #include "file_utils.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +55,3 @@ int not_reserved(char *str)
     if(is_instruction(str) || is_register(str)) return FALSE;
     return TRUE;
 }
-
-
-
-

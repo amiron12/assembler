@@ -20,13 +20,6 @@ typedef struct code_file
     struct code_line *tail;
 } code_file;
 
-typedef struct macro
-{
-    char name[MAX_LINE_LENGTH];
-    struct macro *next; /*pointer to the next macro */
-    struct code_file content; /*pointer to the first line of the linked list refering to this macro name*/
-    struct macro *tail;
-} macro;
 
 
 
@@ -54,29 +47,6 @@ op_mode get_mode(char *str);
 int validate_data(char *args[]);
 
 int validate_string(char *str);
-
-
-
-
-
-
-
-
-
-
-char *macro_start_check(char *line);
-void expand(char *macro_name, macro *macro_head, code_file *expanded_file);
-int macro_call(char *str, macro *head);
-void add_macro_line(char *line, macro **curr_macro);
-void add_standard_line(char *line, code_file *expanded_file);
-void new_macro(char *name, macro **curr_macro);
-void cleanup(macro *macro_head, code_file *expanded_file);
-
-
-
-
-
-
 
 line_type sentence_type(char *str);
 attribute dir_type(char *str);

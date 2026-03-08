@@ -2,6 +2,9 @@
 #include "assembler.h"
 #include "constants.h"
 #include "machine_image.h"
+#include "const_tables.h"
+#include "text_parsing.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

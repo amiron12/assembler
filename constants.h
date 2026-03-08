@@ -38,7 +38,7 @@ typedef enum attribute {data, code, external, entry} attribute;
 typedef enum line_type {directive, instruction} line_type;
 typedef enum op_mode {IMM, DIR, REL, REG} op_mode;
 
-int IC, DC, ICF, DCF;
+extern int IC, DC, ICF, DCF;
 
 
 #endif

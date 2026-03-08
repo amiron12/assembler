@@ -1,6 +1,7 @@
 *.as
 *.am
 *.vscode/
+*.test_output/
 *.txt
 *.ob
 *.ext

@@ -1,5 +1,8 @@
 
 #include "assembler.h"
+#include "utils.h"
+#include "constants.h"
+#include "const_tables.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -105,6 +108,3 @@ attribute dir_type(char *str)
     if(is_extern(str)) return external;
     return entry;
 }
-
-
-

@@ -13,6 +13,7 @@ typedef struct file_state
     int error_flag;
 } file_state;
 
+void init_file_state(file_state *fs, char *fname, char *ext);
 
 void create_obj_file(char *file_name, symbol *symbol_table);
 

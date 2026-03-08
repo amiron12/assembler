@@ -1,6 +1,11 @@
 #include "assembler.h"
 #include "symbol_table.h"
 #include "file_utils.h"
+#include "text_parsing.h"
+#include "utils.h"
+#include "const_tables.h"
+#include "first_pass.h"
+#include "second_pass.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,7 +90,7 @@ symbol* start_pass(file_state *am_file)
                         for(i=1;i<len;i++)
                             if(!isalnum(label[i])) 
                                 error(am_file, "Invalid label name");
-                        if(label_exist(label, head)) 
+                        if(symbol_exists(label, head)) 
                             error(am_file, "Label name already exists");
                         if(!not_reserved(label))
                              error(am_file, "Label name cannot be a reserved word");
@@ -138,8 +143,8 @@ symbol* start_pass(file_state *am_file)
     update_symbols(head);
 
 
-        save_symbol_table(head, "first_pass.txt"); /* TODO: delete */
-        save_machine_images("first_pass.txt");
+        save_symbol_table(head, "test_output/first_pass.txt"); /* TODO: delete */
+        save_machine_images("test_output/first_pass.txt");
 
     return second_pass(am_file, head); /* starting second pass */
 }
@@ -154,10 +159,3 @@ static void update_symbols(symbol *head)
         temp = temp->next;
     }
 }
-
-
-
-
-
-
-

@@ -14,7 +14,7 @@ void add_symbol(char *symbol_name, symbol **curr,symbol **head, int address, att
 
 void print_symbols(symbol *head);
 
-int label_exist(char *name, symbol *head);
+int symbol_exists(char *name, symbol *head);
 
 symbol* get_symbol(char *name, symbol *head);
 
