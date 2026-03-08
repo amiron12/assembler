@@ -1,4 +1,6 @@
 #include "assembler.h"
+#include "symbol_table.h"
+#include "file_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -104,6 +106,7 @@ symbol* second_pass(file_state *am_file, symbol *head)
     save_symbol_table(head, "second_pass.txt");
     save_machine_images("second_pass.txt");
 
+    if(am_file->error_flag) return NULL;
     return head;
 }
 

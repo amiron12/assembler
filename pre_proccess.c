@@ -1,11 +1,14 @@
 
 #include "assembler.h"
+#include "file_utils.h"
+#include "utils.h"
+#include "text_parsing.h"
+#include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define MACRO_START "mcro"
-#define MACRO_END "mcroend"
+
 
 static void create_file(file_state *as_file, code_file **lines);
 
@@ -99,3 +102,8 @@ static void create_file(file_state *as_file, code_file **expanded_file)
 }
 
 
+
+void create_file_v2(char *file_name, char *ext)
+{
+    
+}

@@ -1,12 +1,13 @@
 
 #include "assembler.h"
+#include "text_parsing.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 
-
+/* TODO: fix comments */
 
 static char* trim_space(char *str);
 static int validate_commas(char *input);
@@ -128,3 +129,26 @@ static int validate_commas(char *input)
 
     return OK;
 }
+
+
+int is_empty_line(char *buff)
+{
+    int i;
+    char line[MAX_LINE_LENGTH];
+    if(buff==NULL) return TRUE;
+    strcpy(line, buff);
+    i=0;
+    while(line[i] != '\0')
+        if(!isspace(line[i++])) return FALSE;
+    return TRUE;
+}
+
+int is_comment(char *line)
+{
+    if(line==NULL) return FALSE;
+    while(isspace(*line))
+       line++;
+    if(*line == ';') return TRUE;
+    return FALSE;
+}
+

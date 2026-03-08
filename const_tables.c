@@ -4,13 +4,6 @@
 #include <string.h>
 
 
-/* typedef struct address_mode
-{   
-    char *name;
-    int mode;
-} address_mode;
-
- */
 typedef struct inst
 {
     char *name;
@@ -19,19 +12,6 @@ typedef struct inst
     int operands;
     
 } inst;
-
-
-/* 
-
-  static const address_mode modes[] = {
-    {"immediate", 0},
-    {"direct", 1},
-    {"relative", 2},
-    {"register", 3},
-    {NULL, 0}
-};
- */
-
 
 
     static const inst instructions[] = {

@@ -1,17 +1,14 @@
 
 #include "assembler.h"
+#include "constants.h"
+#include "machine_image.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define OP_SHIFT 8
-#define FUNCT_SHIFT 4
-#define SRC_SHIFT 2
 
 
 
-/* TODO: move defines to header? */
- machine_word data_image[MEMORY];
- machine_word code_image[MEMORY];
+
 
 void encode_instruction(char *str, int src, int dest)
 {

@@ -1,9 +1,14 @@
-all: assembler
+CC = gcc
+CFLAGS = -g -ansi -pedantic -Wall
+SRCS = $(wildcard *.c)
+TARGET = assembler
 
-assembler: test_utils.c assembler.c expander.c function_utils.c machine_image.c macro_utils.c first_pass.c second_pass.c symb.c tables.c txt_utils.c word_utils.c assembler.h
+all: $(TARGET)
 
-	gcc -g -ansi -pedantic -Wall test_utils.c assembler.c expander.c function_utils.c machine_image.c macro_utils.c first_pass.c second_pass.c symb.c tables.c txt_utils.c word_utils.c -o assembler
+$(TARGET): $(SRCS)
+	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET)
 
-clean: rm *~
+clean:
+	rm -f $(TARGET) *~
 
-
+.PHONY: all clean

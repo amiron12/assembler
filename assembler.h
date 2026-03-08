@@ -1,70 +1,11 @@
-
+#ifndef ASSEMBLER_H
+#define ASSEMBLER_H
+#include "machine_image.h"
+#include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef SET_H
-#define SET_H
-#define DEC 10
-#define BYTE (sizeof(unsigned char)*8)
-#define MEM_START 100
-#define MAX_LINE_LENGTH 80 /* including new-line character */
-#define MAX_FNAME 15
-#define ZERO 0
-#define ONE 1
-#define FALSE 0
-#define TRUE 1
-#define ERR -1
-#define NEG -1
-#define OK 1
-#define AS ".as"
-#define AM ".am"
-#define OBJ ".ob"
-#define ENT ".ent"
-#define EXT ".ext"
-#define MAX_ARG_LENGTH 30
-#define LABEL_LENGTH 31 /* TODO: make sure its the right length with \n and so */
-#define MEMORY 4096
-#define WORD_SIZE 12
-#define FILE_NAME 30
-#define UNKNOWN '?'
-#define ABSOLUTE 'A'
-#define RELOCATABLE 'R'
-#define EXTERNAL 'E'
-#define ICINDEX (IC)-100
-#define MASK 0xFFF
-
-int IC, DC, ICF, DCF;
-
-
-typedef enum attribute {data, code, external, entry} attribute;
-typedef enum line_type {directive, instruction} line_type;
-typedef enum op_mode {IMM, DIR, REL, REG} op_mode;
-/* TODO: is it ok to use these? */
-
-typedef struct file_state
-{
-    char name[FILE_NAME];
-    char extended_name[FILE_NAME];
-    FILE *ptr;
-    int current_line;
-    int error_flag;
-} file_state;
-
-typedef struct machine_word
-{ 
-    unsigned int word:WORD_SIZE;
-    char type;
-} machine_word;
-
-
-typedef struct symbol
-{
-    char name[LABEL_LENGTH];
-    int address;
-    enum attribute atr;
-    struct symbol *next;
-} symbol;
 
 typedef struct code_line
 {
@@ -88,29 +29,10 @@ typedef struct macro
 } macro;
 
 
-char *get_instruction_name(int index);
-int get_instruction_operands(char *name);
-int get_instruction_opcode(char *name);
-int get_instruction_funct(char *name);
-
-
-void memory_check(void *ptr);
-void file_check(FILE *fp);
-
-void expand_macros(file_state *fs);
-
-void start_pass(file_state *fs);
-
-void add_symbol(char *symbol_name, symbol **curr,symbol **head, int address, attribute atr);
-void print_symbols(symbol *head);
-
-symbol* first_pass(file_state *fs);
-
-int tokenize(char *line, char *args[]);
 
 int not_reserved(char *str);
 
-int label_exist(char *name, symbol *head);
+
 
 int is_directive(char *str);
 int is_immediate(char *str);
@@ -134,18 +56,13 @@ int validate_data(char *args[]);
 int validate_string(char *str);
 
 
-void encode_instruction(char *str, int src, int dest);
-void encode_operand(char *str);
-void encode_data(char *args[]);
-void encode_string(char *str);
 
 
-void error(file_state *state, char *str);
 
 
-int is_empty_line(char *line);
 
-void extention(file_state *fs, char *ext);
+
+
 
 char *macro_start_check(char *line);
 void expand(char *macro_name, macro *macro_head, code_file *expanded_file);
@@ -156,22 +73,18 @@ void new_macro(char *name, macro **curr_macro);
 void cleanup(macro *macro_head, code_file *expanded_file);
 
 
-symbol* second_pass(file_state *fs, symbol *head);
 
-symbol* get_symbol(char *name, symbol *head);
-int is_comment(char *line);
+
+
+
 
 line_type sentence_type(char *str);
 attribute dir_type(char *str);
 
 
 /* TODO: delete: */
-void print_symbols(symbol *head);
-void print_symbol_table(symbol *head);
 void print_machine_images();
-void save_symbol_table(symbol *head, char *name);
 void save_machine_images(char *name);
-
 extern machine_word code_image[MEMORY];
 extern machine_word data_image[MEMORY];
 

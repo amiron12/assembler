@@ -1,9 +1,11 @@
-#include "assembler.h"
+#include "symbol_table.h"
+#include "constants.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int label_exist(char *name, symbol *head)
+int label_exist(char *name, symbol *head) /* TODO: change to symbol */
 {
     symbol *temp;
     temp = head;

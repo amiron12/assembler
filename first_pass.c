@@ -1,4 +1,6 @@
 #include "assembler.h"
+#include "symbol_table.h"
+#include "file_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +16,7 @@
 */
 static void update_symbols(symbol *head);
 
-symbol* first_pass(file_state *am_file)
+symbol* start_pass(file_state *am_file)
 {
     char line[MAX_LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
