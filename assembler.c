@@ -37,12 +37,8 @@ int main(int argc, char *argv[])
         expand_macros(&as_file, &am_file); /* pre-assembler stage */
         if(as_file.error_flag) continue; /* error occurred during macro expansion, continuing to the next file */
 
-        exit(0);
-
         start_pass(&am_file); 
         if(am_file.error_flag) continue; /* error occurred during the passes, continuing to the next file */
-
-
 
         fclose(am_file.ptr);
         fclose(as_file.ptr);
