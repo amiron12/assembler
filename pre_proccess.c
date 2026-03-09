@@ -84,8 +84,16 @@ void expand_macros(file_state *as_file, file_state *am_file)
 
     /* finished file */
     if(as_file->error_flag)
+    {
         remove(am_file->extended_name);
+        return;
+    }
     free_macros(head);
+
+    fclose(am_file->ptr);
+    am_file->ptr = fopen(am_file->extended_name, "r");
+    memory_check(am_file->ptr);
+    
 }
 
 static void new_macro(char *name, macro **head)
