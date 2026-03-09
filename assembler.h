@@ -7,22 +7,6 @@
 #include <string.h>
 
 
-typedef struct code_line
-{
-    struct code_line *next;
-    struct code_line *tail;
-    char text[MAX_LINE_LENGTH];
-} code_line;
-
-typedef struct code_file
-{
-    struct code_line *head;
-    struct code_line *tail;
-} code_file;
-
-
-
-
 int not_reserved(char *str);
 
 

@@ -10,7 +10,7 @@
 
 void memory_check(void *ptr);
 
-int file_check(FILE *fp);
+void file_check(FILE *fp);
 
 void error(file_state *state, char *str);
 

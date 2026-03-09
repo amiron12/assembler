@@ -11,55 +11,55 @@
 
 
 
-static void create_am_file(file_state *as_file, code_file **lines);
-static void new_macro(char *name, macro **file_macros);
+static void append_content(macro_line *head, macro_line *new_line);
+static void new_macro(char *name, macro **curr);
+static void expand(char *macro_name, macro *macro_head, FILE *expanded_file);
 static char *macro_start_check(char *line);
-static void expand(char *macro_name, macro *macro_head, code_file *expanded_file);
 static int is_macro_call(char *str, macro *head);
-static void add_macro_line(char *line, macro **file_macros);
-static void add_standard_line(char *line, code_file *expanded_file);
-static void free_macros(macro *macro_head, code_file *expanded_file);
+static void add_macro_line(char *line, macro *curr);
+static void free_macros(macro *macro_head);
+static void free_lines(macro_line *head);
 
-void expand_macros(file_state *as_file)
+void expand_macros(file_state *as_file, file_state *am_file)
 {
-    macro *file_macros;
+    macro *head;
     char buffer[MAX_LINE_LENGTH];
     int inside_macro = FALSE;
-    file_macros = NULL;
-
+    head = NULL;    
     while(fgets(buffer, sizeof(buffer), as_file->ptr) != NULL)
     {
         /* TODO: check size is correct (with /0 maybe) */
-        char *arg, *rest;
+        char *first_arg, *rest;
         char line[MAX_LINE_LENGTH];
         strcpy(line, buffer);
         as_file->current_line++;
         
-        if(is_empty_line(line))
-            goto standard_line; /* TODO: change */
-        arg = strtok(line, " \t\n\r");
+        if(is_empty_line(line) || is_comment(line)) continue; /* TODO: avoid these lines? */
+
+
+        first_arg = strtok(line, " \t\n\r");
         rest = strtok(NULL, "\n");
         
         /* Found a macro start */
-        if(!strcmp(arg, MACRO_START)) 
+        if(!strcmp(first_arg, MACRO_START)) 
         {
             char *macro_name;
             char *err = macro_start_check(rest);
             if(err != NULL)
             {
                 error(as_file, err);
-                /* TODO: freemacros */
+                free_macros(head);
                 return;
             }
-
             inside_macro = TRUE;
             macro_name = strtok(rest, " \t");
-            new_macro(macro_name, &file_macros); /* creating a macro node */
+            new_macro(macro_name, &head); /* creating a macro node */
             continue;
         }
         
+
         /* Found a macro end */
-        if(!strcmp(arg, MACRO_END))
+        if(!strcmp(first_arg, MACRO_END))
         {
             if(is_empty_line(rest)) /* checking that there is no text after macro end call */
             {
@@ -67,39 +67,36 @@ void expand_macros(file_state *as_file)
                 continue;
             }
             error(as_file, "Extraneous text after macro end statement");
-            /* TODO: freemacros */
+            free_macros(head);
             return;
         }
 
-        standard_line:
         if(inside_macro)
-            add_macro_line(buffer, &file_macros);
+            add_macro_line(buffer, head);
+    
+        else if(is_macro_call(first_arg, head))
+            expand(first_arg, head, am_file->ptr);
+    
         else
-            if(is_macro_call(arg, file_macros))
-                expand(arg, file_macros, exp_file);
-            else
-                add_standard_line(buffer, exp_file);
+            fputs(buffer, am_file->ptr);
+        
     }
+
+    /* finished file */
+    if(as_file->error_flag)
+        remove(am_file->extended_name);
+    free_macros(head);
 }
 
-
-
-
-static void new_macro(char *name, macro *curr)
+static void new_macro(char *name, macro **head)
 {
     {
         macro *new_node = (macro *)malloc(sizeof(macro));
         memory_check(new_node);          
         strncpy(new_node->name, name, MAX_LINE_LENGTH);
-        new_node->next = NULL;
         new_node->content = NULL;
-
-
-        if(head == NULL) 
-            head = new_node; /* first macro */
-        else
-            head = new_node;
-
+        new_node->next = *head;
+        *head = new_node;
     }    
 }
 
@@ -118,19 +115,19 @@ static char *macro_start_check(char *line)
 }
 
 
-static void expand(char *macro_name, macro *macro_head, code_file *expanded_file)
+static void expand(char *macro_name, macro *macro_head, FILE *expanded_file)
 {
     macro *ptr = macro_head;
-    while(ptr != NULL && strcmp(ptr->name, macro_name) != 0)
+    while(ptr != NULL && strcmp(ptr->name, macro_name))
         ptr = ptr->next;
     
     if (ptr) 
     {
-        code_line *curr = ptr->content.head;
-        while (curr != NULL) 
+        macro_line *curr_line = ptr->content;
+        while (curr_line != NULL) 
         {
-            add_standard_line(curr->text, expanded_file); 
-            curr = curr->next;
+            fputs(curr_line->text, expanded_file);
+            curr_line = curr_line->next;
         }
     }
 }
@@ -147,20 +144,48 @@ static int is_macro_call(char *str, macro *head)
     return FALSE;
 }
 
-static void add_macro_line(char *line, macro **file_macros)
+static void add_macro_line(char *line, macro *head)
 {
-
-    macro *curr_macro = (*file_macros)->tail;
-    code_line *new_line = (code_line *)malloc(sizeof(code_line));
+    macro_line *new_line = (macro_line *)malloc(sizeof(macro_line));
     memory_check(new_line);
     strncpy(new_line->text, line, MAX_LINE_LENGTH);
     new_line->next=NULL;
 
-
-    if(curr_macro->content.head == NULL)
-        curr_macro->content.head = new_line;
+    if(head->content == NULL)
+        head->content = new_line;
     else
-        curr_macro->content.tail->next = new_line;
-    curr_macro->content.tail = new_line;
+        append_content(head->content, new_line);
 }
 
+static void append_content(macro_line *head, macro_line *new_line)
+{
+    macro_line *temp;
+    temp = head;
+    while(temp->next != NULL)
+        temp = temp->next;
+    temp->next = new_line;
+}
+
+static void free_macros(macro *head)
+{
+    macro *temp = head;
+    while(head != NULL)
+    {
+        temp = head;
+        head = head->next;
+        free_lines(temp->content);
+        free(temp);
+    }
+    printf("\nMacro list freed\n"); /* TODO: delete */
+}
+
+static void free_lines(macro_line *head)
+{
+    macro_line *temp = head;
+    while(head != NULL)
+    {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}

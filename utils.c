@@ -14,14 +14,14 @@
 void memory_check(void *ptr)
 {
     if(ptr) return;
-    printf("Fatal Error: Memory alocation failed");
+    printf("Fatal Error: Memory alocation failed\n");
     exit(1);
 }
 
-int file_check(FILE *fp) /* TODO: delete */
+void file_check(FILE *fp) /* TODO: delete */
 {
     if(fp) return;
-    printf("Fatal Error: File opening failed");  
+    printf("Fatal Error: File opening failed\n");  
     exit(1);
 }
 

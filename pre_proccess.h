@@ -19,6 +19,6 @@ typedef struct macro_line
 } macro_line;
 
 
-void expand_macros(file_state *fs);
+void expand_macros(file_state *fs, file_state *am_file);
 
 #endif
