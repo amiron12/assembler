@@ -29,6 +29,7 @@ void start_pass(file_state *am_file)
     symbol *curr, *head;
     head = NULL;
     curr = NULL; 
+    fprintf(stderr,"[INFO] starting first pass\n");
 
     while(fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
@@ -57,85 +58,101 @@ void start_pass(file_state *am_file)
         op_count = 0;
         if (arg_string) 
             op_count = tokenize(arg_string, operands);
-    
-        switch(sentence_type(argument)) /* type of sentance : directive or instruction */
+
+        if (is_directive(argument))
         {
-            case directive: 
-            {    
-                switch(dir_type(argument))
-                {
-                    case data:
-                    {
-                        if(label_flag) add_symbol(label, &curr, &head, DC, data);
-                        
-                        if(is_data(argument) && validate_data(operands))
-                            encode_data(operands); /*its a data directive*/        
-                        else if(is_string(argument) && validate_string(*operands))
-                            encode_string(*operands); /*its a string directive*/
-                        break;
-                    }
-
-                    case external:
-                    {
-                        int i,len;
-                        char *label;
-                        label = operands[0];
-                        len = strlen(label);
-                        if(op_count!=1)
-                            error(am_file, "Extraneous text after external value");
-                        if(!isalpha(*label)) 
-                            error(am_file, "Invalid label name"); /* first character is non alphabetical */
-                        if((len--)>LABEL_LENGTH) 
-                            error(am_file, "Label name is too long");
-                        for(i=1;i<len;i++)
-                            if(!isalnum(label[i])) 
-                                error(am_file, "Invalid label name");
-                        if(symbol_exists(label, head)) 
-                            error(am_file, "Label name already exists");
-                        if(!not_reserved(label))
-                             error(am_file, "Label name cannot be a reserved word");
-                        add_symbol(label, &curr, &head, 0, external);
-                        break;
-                    }
-
-                    case entry:
-                        break;
-
-                    default:
-                        break;
-                }
-                break;
-            }
-            case instruction:
+            if (is_data(argument))
             {
-                int src, dest, i;
-                src = ZERO;
-                dest = ZERO;
-                i=0;
-                if(label_flag) 
-                    add_symbol(label, &curr,&head, IC, code);
-                if(op_count != get_instruction_operands(argument)) 
-                    error(am_file ,"Invalid number of operands");
+                if (!validate_data(operands))
+                    error(am_file, "Invalid data value");
+                encode_data(operands);
+                if(label_flag) add_symbol(label, &curr, &head, DC, data);
+            }
 
-                if(op_count==1)
-                    dest = get_mode(operands[i]);
-                else if(op_count==2)
-                {
-                    src = get_mode(operands[i++]); 
-                    dest = get_mode(operands[i]);
+            else if (is_string(argument))
+            {
+                if (!validate_string(*operands))
+                    error(am_file, "Invalid string value");
+                encode_string(*operands); /*its a string directive*/
+                if(label_flag) add_symbol(label, &curr, &head, DC, data);
                 }
-                    
-                encode_instruction(argument, src, dest);
-                i = 0;
-                while (i<op_count)
-                    encode_operand(operands[i++]);
-                break;
+
+            else if (is_extern(argument))
+            {
+                int i, len;
+                char *label;
+                label = operands[0];
+                len = strlen(label);
+                if (op_count != 1)
+                    error(am_file, "Extraneous text after external value");
+                if (!isalpha(*label))
+                    error(am_file, "Invalid label name"); /* first character is non alphabetical */
+                if ((len--) > LABEL_LENGTH)
+                    error(am_file, "Label name is too long");
+                for (i = 1; i < len; i++)
+                    if (!isalnum(label[i]))
+                        error(am_file, "Invalid label name");
+                if (symbol_exists(label, head))
+                    error(am_file, "Label name already exists");
+                if (!not_reserved(label))
+                    error(am_file, "Label name cannot be a reserved word");
+                if(label_flag) add_symbol(label, &curr, &head, 0, external);
+            }
+
+            else if (is_entry(argument))
+                continue;
+
+            else
+            {
+                error(am_file, "Invalid directive");
+                continue;
             }
         }
+
+        else if (is_instruction(argument))
+        {
+            int src, dest, i;
+            src = ZERO;
+            dest = ZERO;
+            i = 0;
+
+            if (label_flag)
+                add_symbol(label, &curr, &head, IC, code);
+
+            if (op_count != get_instruction_operands(argument))
+            {
+                error(am_file, "Invalid number of operands");
+                continue;
+            }
+            if (op_count == 1)
+                dest = get_mode(operands[i]);
+            else if (op_count == 2)
+            {
+                src = get_mode(operands[i++]);
+                dest = get_mode(operands[i]);
+            }
+            if (src == ERR || dest == ERR)
+            {
+                error(am_file, "Invalid operand");
+                continue;
+            }
+            encode_instruction(argument, src, dest);
+            i = 0;
+            while (i < op_count)
+                encode_operand(operands[i++]);
+        }
+
+        else
+            error(am_file, "Invalid operation");
     }
-    
+
+    fprintf(stderr,"[INFO] Done reading file\n");
     /* finished reading file */
-    if(am_file->error_flag) return;
+    if(am_file->error_flag) 
+    {
+        fprintf(stderr,"[ERROR] returnig to main\n");
+        return;
+    }
 
     ICF = IC;   
     DCF = DC;
@@ -145,6 +162,8 @@ void start_pass(file_state *am_file)
 
         save_symbol_table(head, "test_output/first_pass.txt"); /* TODO: delete */
         save_machine_images("test_output/first_pass.txt");
+    
+    fprintf(stderr,"[INFO] finished first pass\n");
 
     second_pass(am_file, head); /* starting second pass */
 }

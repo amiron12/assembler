@@ -9,10 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-
-
-
 void encode_instruction(char *str, int src, int dest)
 {
     int opcode, funct, val;

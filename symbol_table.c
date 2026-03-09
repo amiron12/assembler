@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int symbol_exists(char *name, symbol *head) /* TODO: change to symbol */
+int symbol_exists(char *name, symbol *head)
 {
     symbol *temp;
     temp = head;
@@ -56,8 +56,5 @@ void free_symbols(symbol *head)
         head = head->next;
         free(temp);
     }
+    fprintf(stderr,"Symbol list free'd\n");
 }
-
-
-
-/* TODO: make the names consistant - label/symbol */

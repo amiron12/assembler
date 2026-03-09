@@ -25,7 +25,7 @@ int is_entry(char *str);
 void clean_string(char **str);
 
 
-op_mode get_mode(char *str);
+int get_mode(char *str);
 
 
 int validate_data(char *args[]);
@@ -33,7 +33,6 @@ int validate_data(char *args[]);
 int validate_string(char *str);
 
 line_type sentence_type(char *str);
-attribute dir_type(char *str);
 
 
 /* TODO: delete: */

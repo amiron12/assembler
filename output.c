@@ -9,7 +9,6 @@
 #include "machine_image.h"
 
 
-
 void init_output_files(char *file_name)
 {
     FILE *f;
@@ -26,6 +25,8 @@ void init_output_files(char *file_name)
     f = fopen(name, "w"); 
     file_check(f);
     fclose(f);
+
+    fprintf(stderr,"[INFO] Output files initiated\n");
 }
 
 void init_file_state(file_state *fs, char *fname, char *ext, char *mode)
@@ -68,6 +69,7 @@ void create_obj_file(char *file_name, symbol *symbol_table)
         fprintf(ob_file,"\n%04d %03X %c", i+ICF, w, c);
     }
     fclose(ob_file);
+    fprintf(stderr,"[INFO] .ob file created\n");
 }
 
 void append_entry(symbol *entry, char *file_name)
@@ -109,4 +111,6 @@ void delete_output_files(char *file_name)
     strcpy(name, file_name);
     strcat(name, ENT);
     remove(name);
+
+    fprintf(stderr,"[INFO] output files deleted\n");
 }

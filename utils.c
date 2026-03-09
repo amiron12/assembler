@@ -29,6 +29,7 @@ void file_check(FILE *fp) /* TODO: delete */
 void error(file_state *fs, char *str)
 {
     printf("File: %s Line: %d - %s\n", fs->extended_name, fs->current_line, str);
+    fprintf(stderr,"[ERROR] File: %s Line: %d - %s\n", fs->extended_name, fs->current_line, str);
     fs->error_flag = TRUE;
 }
 

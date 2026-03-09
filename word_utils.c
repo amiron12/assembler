@@ -63,14 +63,14 @@ void clean_string(char **str)
     }
 }
 
-op_mode get_mode(char *str)
+int get_mode(char *str)
 {
 
     if(is_immediate(str)) return IMM;
     if(is_directive(str)) return DIR;
     if(is_relative(str)) return REL;
     if(is_register(str)) return REG;
-    return 1; /* TODO: refine */
+    return ERR; 
 }
 
 static int is_int(char *s)
@@ -96,15 +96,4 @@ int validate_string(char *str)
     return FALSE;
 }
 
-line_type sentence_type(char *str)
-{
-    if(is_directive(str)) return directive;
-    return instruction;
-}
 
-attribute dir_type(char *str)
-{
-    if(is_data(str) || is_string(str)) return data;
-    if(is_extern(str)) return external;
-    return entry;
-}

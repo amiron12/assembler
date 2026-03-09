@@ -26,6 +26,9 @@ void expand_macros(file_state *as_file, file_state *am_file)
     char buffer[MAX_LINE_LENGTH];
     int inside_macro = FALSE;
     head = NULL;    
+
+    fprintf(stderr,"[INFO] starting pre-proccess\n");
+    
     while(fgets(buffer, sizeof(buffer), as_file->ptr) != NULL)
     {
         /* TODO: check size is correct (with /0 maybe) */
@@ -86,13 +89,15 @@ void expand_macros(file_state *as_file, file_state *am_file)
     if(as_file->error_flag)
     {
         remove(am_file->extended_name);
+        fprintf(stderr,"[INFO] %s deleted\n", as_file->extended_name);
         return;
     }
     free_macros(head);
-
     fclose(am_file->ptr);
     am_file->ptr = fopen(am_file->extended_name, "r");
     memory_check(am_file->ptr);
+    fprintf(stderr,"[INFO] finished pre-proccess\n");
+
     
 }
 
@@ -184,7 +189,8 @@ static void free_macros(macro *head)
         free_lines(temp->content);
         free(temp);
     }
-    printf("\nMacro list freed\n"); /* TODO: delete */
+    fprintf(stderr,"[INFO] Macro list free'd\n");
+
 }
 
 static void free_lines(macro_line *head)

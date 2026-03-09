@@ -22,6 +22,9 @@ void second_pass(file_state *am_file, symbol *head)
     am_file->current_line = ZERO;
     init_output_files(am_file->name);
 
+    fprintf(stderr,"[INFO] starting second pass\n");
+
+
     while (fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *arg_string;
@@ -67,7 +70,7 @@ void second_pass(file_state *am_file, symbol *head)
             IC++;
             i = 0;
             if (op_count != get_instruction_operands(argument))
-                error(am_file, "Invalid number of operands");
+                error(am_file, "Invalid number of operands"); /* TODO: need second check */
 
             while (i < op_count) /* parsing through the operands */
             {
