@@ -23,7 +23,7 @@ static void free_lines(macro_line *head);
 void expand_macros(file_state *as_file, file_state *am_file)
 {
     macro *head;
-    char buffer[MAX_LINE_LENGTH];
+    char buffer[LINE_LENGTH];
     int inside_macro = FALSE;
     head = NULL;    
 
@@ -33,7 +33,7 @@ void expand_macros(file_state *as_file, file_state *am_file)
     {
         /* TODO: check size is correct (with /0 maybe) */
         char *first_arg, *rest;
-        char line[MAX_LINE_LENGTH];
+        char line[LINE_LENGTH];
         strcpy(line, buffer);
         as_file->current_line++;
         
@@ -51,8 +51,7 @@ void expand_macros(file_state *as_file, file_state *am_file)
             if(err != NULL)
             {
                 error(as_file, err);
-                free_macros(head);
-                return;
+                break;
             }
             inside_macro = TRUE;
             macro_name = strtok(rest, " \t");
@@ -70,8 +69,7 @@ void expand_macros(file_state *as_file, file_state *am_file)
                 continue;
             }
             error(as_file, "Extraneous text after macro end statement");
-            free_macros(head);
-            return;
+            break;
         }
 
         if(inside_macro)
@@ -86,19 +84,20 @@ void expand_macros(file_state *as_file, file_state *am_file)
     }
 
     /* finished file */
+    free_macros(head);
+    fclose(am_file->ptr);
+    fprintf(stderr,"[INFO] finished pre-proccess\n");
+    
     if(as_file->error_flag)
     {
         remove(am_file->extended_name);
-        fprintf(stderr,"[INFO] %s deleted\n", as_file->extended_name);
-        return;
+        fprintf(stderr,"[INFO] %s deleted\n", am_file->extended_name);
     }
-    free_macros(head);
-    fclose(am_file->ptr);
-    am_file->ptr = fopen(am_file->extended_name, "r");
-    memory_check(am_file->ptr);
-    fprintf(stderr,"[INFO] finished pre-proccess\n");
-
-    
+    else
+    {
+        am_file->ptr = fopen(am_file->extended_name, "r");
+        memory_check(am_file->ptr);
+    }
 }
 
 static void new_macro(char *name, macro **head)
@@ -106,7 +105,7 @@ static void new_macro(char *name, macro **head)
     {
         macro *new_node = (macro *)malloc(sizeof(macro));
         memory_check(new_node);          
-        strncpy(new_node->name, name, MAX_LINE_LENGTH);
+        strncpy(new_node->name, name, LINE_LENGTH);
         new_node->content = NULL;
         new_node->next = *head;
         *head = new_node;
@@ -161,7 +160,7 @@ static void add_macro_line(char *line, macro *head)
 {
     macro_line *new_line = (macro_line *)malloc(sizeof(macro_line));
     memory_check(new_line);
-    strncpy(new_line->text, line, MAX_LINE_LENGTH);
+    strncpy(new_line->text, line, LINE_LENGTH);
     new_line->next=NULL;
 
     if(head->content == NULL)

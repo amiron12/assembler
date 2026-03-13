@@ -15,12 +15,6 @@ static char* trim_space(char *str);
 static int validate_commas(char *input, file_state *fs);
 
 
-/*
- * Function: tokenize
- * Purpose: Splits a line into arguments based on commas.
- * Logic: Validates syntax first, then uses strtok to split by comma and trims spaces.
- * Assumptions: line is a modifiable string.
- */
 int tokenize(char *line, char *args[], file_state *fs)
 {
     char *token; /* Pointer to the current token */
@@ -52,14 +46,6 @@ int tokenize(char *line, char *args[], file_state *fs)
 }
 
 
-
-
-/*
- * Function: trim_space
- * Purpose: Removes leading and trailing whitespace from a string.
- * Logic: Advances pointer past leading spaces, places null terminator after last non-space.
- * Assumptions: str is a valid string pointer.
- */
 static char* trim_space(char *str)
 {
     char *end; /* Pointer to the end of the string */

@@ -15,7 +15,7 @@
 
 void second_pass(file_state *am_file, symbol *head)
 {
-    char line[MAX_LINE_LENGTH];
+    char line[LINE_LENGTH];
     IC = MEM_START;
     rewind(am_file->ptr);
     am_file->current_line = ZERO;
@@ -24,7 +24,7 @@ void second_pass(file_state *am_file, symbol *head)
     fprintf(stderr,"[INFO] starting second pass\n");
     
     
-    while (fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
+    while (fgets(line, LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *operands[MAX_ARG_LENGTH];
         char *arg_string;
@@ -97,6 +97,11 @@ void second_pass(file_state *am_file, symbol *head)
                         symbol *temp;
                         int address;
                         temp = get_symbol(operands[i], head);
+                        if(temp->atr == external)
+                        {
+                            error(am_file, "Relative label cannot be external");
+                            continue;
+                        }
                         address = (temp->address)-IC;
                         code_image[ICINDEX].word = address;
                         code_image[ICINDEX].type = ABSOLUTE;

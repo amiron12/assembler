@@ -3,6 +3,7 @@
 *.vscode/
 *.test_output/
 *.output/
+*.out/
 *.txt
 *.ob
 *.ext

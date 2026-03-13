@@ -24,7 +24,7 @@ static void update_symbols(symbol *head);
 
 void start_pass(file_state *am_file)
 {
-    char line[MAX_LINE_LENGTH];
+    char line[LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
     int label_flag;
     symbol *curr, *head;
@@ -32,7 +32,7 @@ void start_pass(file_state *am_file)
     curr = NULL; 
     fprintf(stderr,"[INFO] starting first pass\n");
 
-    while(fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
+    while(fgets(line, LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *arg_string;
         char *argument;
@@ -42,6 +42,9 @@ void start_pass(file_state *am_file)
         am_file->current_line++;
 
         if(is_empty_line(line) || is_comment(line)) continue;
+
+        if(strlen(line) > MAX_LINE_LENGTH)
+            error(am_file, "Line is too long");
 
         argument = strtok(line, " \t");
         if (!argument) continue;

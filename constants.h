@@ -8,7 +8,8 @@
 #define DEC 10
 #define BYTE (sizeof(unsigned char)*8)
 #define MEM_START 100
-#define MAX_LINE_LENGTH 80 /* including new-line character */
+#define LINE_LENGTH 85
+#define MAX_LINE_LENGTH 81
 #define MAX_FNAME 15
 #define ZERO 0
 #define ONE 1
@@ -33,7 +34,7 @@
 #define EXTERNAL 'E'
 #define ICINDEX (IC)-100
 #define MASK 0xFFF
-
+/* TODO: add PC? */
 typedef enum attribute {data, code, external, entry} attribute;
 typedef enum line_type {directive, instruction} line_type;
 typedef enum op_mode {IMM, DIR, REL, REG} op_mode;

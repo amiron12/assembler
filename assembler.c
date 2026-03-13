@@ -47,7 +47,6 @@ int main(int argc, char *argv[])
 
         fclose(am_file.ptr);
         fclose(as_file.ptr);
-        
     }
     
     fprintf(stderr,"\t---Finished---\n\n"); 

@@ -1,0 +1,249 @@
+{
+    "extension": "linecounter",
+    "version": "0.2.7",
+    "workspace": "/home/student/course/projects/project",
+    "linecount": [
+        {
+            "version": "0.2.7",
+            "counttime": "2026-03-13 13:49:56",
+            "filesum": 34,
+            "codesum": 1577,
+            "commentsum": 48,
+            "blanksum": 309,
+            "statistics": {
+                ".c": {
+                    "code": 1054,
+                    "comment": 45,
+                    "blank": 217
+                },
+                "": {
+                    "code": 20,
+                    "comment": 0,
+                    "blank": 4
+                },
+                ".txt": {
+                    "code": 172,
+                    "comment": 0,
+                    "blank": 5
+                },
+                ".h": {
+                    "code": 189,
+                    "comment": 3,
+                    "blank": 78
+                },
+                ".as": {
+                    "code": 142,
+                    "comment": 0,
+                    "blank": 5
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 0,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": ".gitignore"
+                },
+                {
+                    "filename": "assembler",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 15,
+                    "code": 42,
+                    "comment": 0,
+                    "filename": "assembler.c"
+                },
+                {
+                    "blank": 15,
+                    "code": 28,
+                    "comment": 1,
+                    "filename": "assembler.h"
+                },
+                {
+                    "blank": 8,
+                    "code": 64,
+                    "comment": 1,
+                    "filename": "const_tables.c"
+                },
+                {
+                    "blank": 7,
+                    "code": 22,
+                    "comment": 0,
+                    "filename": "const_tables.h"
+                },
+                {
+                    "blank": 6,
+                    "code": 37,
+                    "comment": 1,
+                    "filename": "constants.h"
+                },
+                {
+                    "blank": 1,
+                    "code": 22,
+                    "comment": 0,
+                    "filename": "file1.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 33,
+                    "comment": 0,
+                    "filename": "file2.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 38,
+                    "comment": 0,
+                    "filename": "file3.as"
+                },
+                {
+                    "blank": 3,
+                    "code": 28,
+                    "comment": 0,
+                    "filename": "file4.as"
+                },
+                {
+                    "blank": 31,
+                    "code": 158,
+                    "comment": 7,
+                    "filename": "first_pass.c"
+                },
+                {
+                    "blank": 2,
+                    "code": 5,
+                    "comment": 0,
+                    "filename": "first_pass.h"
+                },
+                {
+                    "blank": 1,
+                    "code": 6,
+                    "comment": 0,
+                    "filename": "logs.txt"
+                },
+                {
+                    "blank": 14,
+                    "code": 72,
+                    "comment": 0,
+                    "filename": "machine_image.c"
+                },
+                {
+                    "blank": 9,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "machine_image.h"
+                },
+                {
+                    "blank": 4,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "makefile"
+                },
+                {
+                    "blank": 16,
+                    "code": 100,
+                    "comment": 0,
+                    "filename": "output.c"
+                },
+                {
+                    "blank": 9,
+                    "code": 19,
+                    "comment": 0,
+                    "filename": "output.h"
+                },
+                {
+                    "blank": 32,
+                    "code": 169,
+                    "comment": 4,
+                    "filename": "pre_proccess.c"
+                },
+                {
+                    "blank": 6,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "pre_proccess.h"
+                },
+                {
+                    "blank": 19,
+                    "code": 108,
+                    "comment": 0,
+                    "filename": "second_pass.c"
+                },
+                {
+                    "blank": 2,
+                    "code": 5,
+                    "comment": 0,
+                    "filename": "second_pass.h"
+                },
+                {
+                    "blank": 4,
+                    "code": 54,
+                    "comment": 2,
+                    "filename": "symbol_table.c"
+                },
+                {
+                    "blank": 10,
+                    "code": 19,
+                    "comment": 1,
+                    "filename": "symbol_table.h"
+                },
+                {
+                    "blank": 1,
+                    "code": 21,
+                    "comment": 0,
+                    "filename": "test.as"
+                },
+                {
+                    "blank": 2,
+                    "code": 83,
+                    "comment": 0,
+                    "filename": "test_output/first_pass.txt"
+                },
+                {
+                    "blank": 2,
+                    "code": 83,
+                    "comment": 0,
+                    "filename": "test_output/second_pass.txt"
+                },
+                {
+                    "blank": 19,
+                    "code": 69,
+                    "comment": 13,
+                    "filename": "test_utils.c"
+                },
+                {
+                    "blank": 27,
+                    "code": 105,
+                    "comment": 16,
+                    "filename": "text_parsing.c"
+                },
+                {
+                    "blank": 4,
+                    "code": 7,
+                    "comment": 0,
+                    "filename": "text_parsing.h"
+                },
+                {
+                    "blank": 14,
+                    "code": 37,
+                    "comment": 1,
+                    "filename": "utils.c"
+                },
+                {
+                    "blank": 8,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": "utils.h"
+                },
+                {
+                    "blank": 18,
+                    "code": 76,
+                    "comment": 1,
+                    "filename": "word_utils.c"
+                }
+            ]
+        }
+    ]
+}

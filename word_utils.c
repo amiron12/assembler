@@ -46,19 +46,16 @@ int is_register(char *str)
 }
 
 /*removing non alpha-numeric characters in the begining or end of the string*/
-void clean_string(char **str)
+void clean_string(char **str) /* TODO: refine: need all the casting? */
 {
-
     int len = strlen(*str);
-    while (len > 0 && !isalnum((unsigned char)(*str)[len - 1])) {
+    while (len > 0 && !isalnum((unsigned char)(*str)[len - 1])) 
+    {
         (*str)[len - 1] = '\0';
         len--;
     }
-
-    
-    while ((*str)[0] != '\0' && !isalnum((unsigned char)(*str)[0])) {
+    while ((*str)[0] != '\0' && !isalnum((unsigned char)(*str)[0])) 
         (*str)++;
-    }
 }
 
 int get_mode(char *str)
