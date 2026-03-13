@@ -1,39 +1,28 @@
 #include "assembler.h"
+#include "const_tables.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-typedef struct inst
-{
-    char *name;
-    int opcode;
-    int funct;
-    int operands;
-    
-} inst;
-
-
-    static const inst instructions[] = {
-    {"mov", 0, 0, 2},
-    {"cmp", 1, 0, 2},
-    {"add", 2, 10, 2},
-    {"sub", 2, 11, 2},
-    {"lea", 4, 0, 2},
-    {"clr", 5, 10, 1},
-    {"not", 5, 11, 1},
-    {"inc", 5, 12, 1},
-    {"dec", 5, 13, 1},
-    {"jmp", 9, 10, 1},
-    {"bne", 9, 11, 1},
-    {"jsr", 9, 12, 1},
-    {"red", 12, 0, 1},
-    {"prn", 13, 0, 1},
-    {"rts", 14, 0, 0},
-    {"stop", 15, 0, 0},
-    {NULL, 0, 0, 0}
-};
-
+/* name, opmode, funct, number of ops, src modes, dest modes */
+static const inst instructions[] = {
+    {"mov", 0, 0, 2, M0 | M1 | M3, M1 | M3},
+    {"cmp", 1, 0, 2, M0 | M1 | M3, M0 | M1 | M3},
+    {"add", 2, 10, 2, M0 | M1 | M3, M1 | M3},
+    {"sub", 2, 11, 2, M0 | M1 | M3, M1 | M3},
+    {"lea", 4, 0, 2, M1, M1 | M3},
+    {"clr", 5, 10, 1, 0, M1 | M3},
+    {"not", 5, 11, 1, 0, M1 | M3},
+    {"inc", 5, 12, 1, 0, M1 | M3},
+    {"dec", 5, 13, 1, 0, M1 | M3},
+    {"jmp", 9, 10, 1, 0, M1 | M2},
+    {"bne", 9, 11, 1, 0, M1 | M2},
+    {"jsr", 9, 12, 1, 0, M1 | M2},
+    {"red", 12, 0, 1, 0, M1 | M3},
+    {"prn", 13, 0, 1, 0, M0 | M1 | M3},
+    {"rts", 14, 0, 0, 0, 0},
+    {"stop", 15, 0, 0, 0, 0},
+    {NULL, 0, 0, 0, 0, 0}};
 
 static int get_index(char *str)
 {
@@ -72,3 +61,13 @@ int get_instruction_operands(char *name)
     return instructions[index].operands;
 }
 
+int is_dest_allowed(char *name, int mode) 
+{
+    unsigned int mask = instructions[get_index(name)].dest_modes;
+    return (mask & (1 << mode)) != ZERO;
+}
+int is_src_allowed(char *name, int mode) 
+{
+    unsigned int mask = instructions[get_index(name)].src_modes;
+    return (mask & (1 << mode)) != 0;
+}

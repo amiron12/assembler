@@ -16,17 +16,17 @@
 void second_pass(file_state *am_file, symbol *head)
 {
     char line[MAX_LINE_LENGTH];
-    char *operands[MAX_ARG_LENGTH];
     IC = MEM_START;
     rewind(am_file->ptr);
     am_file->current_line = ZERO;
     init_output_files(am_file->name);
-
+    
     fprintf(stderr,"[INFO] starting second pass\n");
-
-
+    
+    
     while (fgets(line, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
+        char *operands[MAX_ARG_LENGTH];
         char *arg_string;
         char *argument;
         int op_count;
@@ -34,21 +34,19 @@ void second_pass(file_state *am_file, symbol *head)
 
         if (is_empty_line(line) || is_comment(line)) continue;
 
-        argument = strtok(line, " \t\n");
-        if (!argument) continue;           /* NULL */
+        argument = strtok(line, " \t");
         
         if (is_label(argument)) /* skiping labels */
             argument = strtok(NULL, " \t\n");
 
         arg_string = strtok(NULL, "\n");
 
-        op_count = 0;
-        if (arg_string)
-            op_count = tokenize(arg_string, operands);
+        op_count = tokenize(arg_string, operands, am_file);
 
         if (is_data(argument) || is_string(argument) || is_extern(argument))
             continue;
 
+        
         if (is_entry(argument))
         {
             symbol *temp;
@@ -66,12 +64,8 @@ void second_pass(file_state *am_file, symbol *head)
 
         else
         {
-            int i;
+            int i = 0;
             IC++;
-            i = 0;
-            if (op_count != get_instruction_operands(argument))
-                error(am_file, "Invalid number of operands"); /* TODO: need second check */
-
             while (i < op_count) /* parsing through the operands */
             {
                 if(code_image[ICINDEX].type == UNKNOWN) /* address not set */
@@ -92,7 +86,7 @@ void second_pass(file_state *am_file, symbol *head)
                         }
                     }
                     else
-                        error(am_file, "Label not found");
+                        error(am_file, "Label not found"); /* TODO: why showing for external labels */
                 }
 
                 if(is_relative(operands[i]))

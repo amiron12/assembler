@@ -1,6 +1,7 @@
 
 #include "assembler.h"
 #include "text_parsing.h"
+#include "utils.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +12,7 @@
 /* TODO: fix comments */
 
 static char* trim_space(char *str);
-static int validate_commas(char *input);
+static int validate_commas(char *input, file_state *fs);
 
 
 /*
@@ -20,7 +21,7 @@ static int validate_commas(char *input);
  * Logic: Validates syntax first, then uses strtok to split by comma and trims spaces.
  * Assumptions: line is a modifiable string.
  */
-int tokenize(char *line, char *args[])
+int tokenize(char *line, char *args[], file_state *fs)
 {
     char *token; /* Pointer to the current token */
     int i = ZERO;
@@ -30,11 +31,15 @@ int tokenize(char *line, char *args[])
     if(line == NULL)
     {
         args[i] = NULL;
-        return NEG;
+        return ZERO; /* 0 operands */
     }
 
-    if(validate_commas(line)!=OK) /* checking general input correction */
-        return NEG;
+    
+    if(!validate_commas(line, fs)) 
+    {
+        args[i] = NULL;
+        return ERR;
+    }  
     
     token = strtok(line, ","); 
     while(token != NULL)
@@ -74,73 +79,62 @@ static char* trim_space(char *str)
 }
 
 
+static int validate_commas(char *input, file_state *fs) 
+{
+    int expecting_operand = 1; /* expecting an operand */
+    char *ptr = input;
 
-/*
- * Function: validate_commas
- * Purpose: Validates the syntax of the input line (commas, spaces).
- * Logic: Ensures commas are not consecutive, not at start/end, and properly separate tokens.
- * Assumptions: input is null-terminated.
- */
-static int validate_commas(char *input)
- {
-    char COMMA = ',';
-    int expecting_comma = ZERO; /* Flag: 1 if comma expected, 0 otherwise */
-    char *last_char; /* Pointer to the last character of the string */
+    while (*ptr && isspace((unsigned char)*ptr))
+        ptr++; /* getting to the first word */
 
- 
-    if (input == NULL || *input == '\0') return !OK;
-    last_char = input + strlen(input) - ONE;
-
-    while (last_char > input && isspace((unsigned char)*last_char))
-        last_char--;
-    
-    if (*last_char == COMMA)
+    if (*ptr == ',') 
     {
-        printf("< Extraneous text after end of command >\n");
-        return !OK;
+        error(fs, "Illegal comma at start of line");
+        return FALSE;
     }
 
-    while (*input != '\0')
+    while (*ptr)
     {
-        if (isspace(*input)) {
-            input++;
+        if (*ptr == ',') 
+        {
+            if (expecting_operand) 
+            {
+                error(fs, "Multiple consecutive commas or misplaced comma");
+                return FALSE;
+            }
+            expecting_operand = 1;
+        } 
+        else if (!isspace((unsigned char)*ptr)) 
+        {
+            /* found a non-space character  */
+            if (!expecting_operand) 
+            {
+                error(fs, "Missing comma between operands");
+                return FALSE;
+            }
+            /* skip rest of this operand */
+            while (*ptr && !isspace((unsigned char)*ptr) && *ptr != ',') 
+                ptr++;
+            expecting_operand = 0;
             continue;
         }
-
-        if (*input == COMMA) {
-            if (expecting_comma == ZERO) {
-                printf("< Unexpected comma or multiple commas >\n");
-                return !OK;
-            }
-            expecting_comma = ZERO; 
-        } else {
-            if (expecting_comma == ONE) {
-                printf("< Missing comma between parameters >\n");
-                return !OK;
-            }
-
-            while (*input != '\0' && !isspace(*input) && *input != COMMA) {
-                input++;
-            }
-            expecting_comma = ONE; 
-            continue; 
-        }
-        input++;
+        ptr++;
     }
 
-    return OK;
+    if (expecting_operand && ptr != input) 
+        error(fs, "Extraneous comma at end of command");
+
+    return TRUE;
 }
 
 
-int is_empty_line(char *buff)
-{
-    int i;
-    char line[MAX_LINE_LENGTH];
-    if(buff==NULL) return TRUE;
-    strcpy(line, buff);
-    i=0;
-    while(line[i] != '\0')
-        if(!isspace(line[i++])) return FALSE;
+int is_empty_line(char *buff) {
+    if (buff == NULL) return TRUE;
+    while (*buff) 
+    {
+        if(!isspace((unsigned char)*buff)) return FALSE;
+        buff++;
+    }
     return TRUE;
 }
 

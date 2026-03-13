@@ -6,6 +6,7 @@
 #include "const_tables.h"
 #include "first_pass.h"
 #include "second_pass.h"
+#include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,10 +56,13 @@ void start_pass(file_state *am_file)
 
         arg_string = strtok(NULL, "\n");
     
-        op_count = 0;
-        if (arg_string) 
-            op_count = tokenize(arg_string, operands);
+        op_count = tokenize(arg_string, operands, am_file);
 
+        if(am_file->error_flag)
+        {
+            am_file->error_flag = FALSE;
+            continue;
+        }
         if (is_directive(argument))
         {
             if (is_data(argument))
@@ -85,18 +89,22 @@ void start_pass(file_state *am_file)
                 len = strlen(label);
                 if (op_count != 1)
                     error(am_file, "Extraneous text after external value");
-                if (!isalpha(*label))
+                else if (!isalpha(*label))
                     error(am_file, "Invalid label name"); /* first character is non alphabetical */
-                if ((len--) > LABEL_LENGTH)
+                else if ((len--) > LABEL_LENGTH)
                     error(am_file, "Label name is too long");
-                for (i = 1; i < len; i++)
-                    if (!isalnum(label[i]))
-                        error(am_file, "Invalid label name");
-                if (symbol_exists(label, head))
+                else if (symbol_exists(label, head))
                     error(am_file, "Label name already exists");
-                if (!not_reserved(label))
+                else if (!not_reserved(label))
                     error(am_file, "Label name cannot be a reserved word");
-                if(label_flag) add_symbol(label, &curr, &head, 0, external);
+                else
+                {
+                    for (i = 1; i < len; i++)
+                        if (!isalnum(label[i]))
+                            error(am_file, "Invalid label name");
+                }
+
+                add_symbol(label, &curr, &head, 0, external);
             }
 
             else if (is_entry(argument))
@@ -112,8 +120,6 @@ void start_pass(file_state *am_file)
         else if (is_instruction(argument))
         {
             int src, dest, i;
-            src = ZERO;
-            dest = ZERO;
             i = 0;
 
             if (label_flag)
@@ -124,18 +130,27 @@ void start_pass(file_state *am_file)
                 error(am_file, "Invalid number of operands");
                 continue;
             }
+
             if (op_count == 1)
+            {
                 dest = get_mode(operands[i]);
+                if(!is_dest_allowed(argument, dest))
+                    {
+                        error(am_file, "Invalid addressing mode");
+                        continue;
+                    }
+            }
             else if (op_count == 2)
             {
                 src = get_mode(operands[i++]);
                 dest = get_mode(operands[i]);
+                if(!is_dest_allowed(argument, dest) || !is_src_allowed(argument, src))
+                {
+                    error(am_file, "Invalid addressing mode");
+                    continue;
+                }
             }
-            if (src == ERR || dest == ERR)
-            {
-                error(am_file, "Invalid operand");
-                continue;
-            }
+
             encode_instruction(argument, src, dest);
             i = 0;
             while (i < op_count)
@@ -167,6 +182,7 @@ void start_pass(file_state *am_file)
 
     second_pass(am_file, head); /* starting second pass */
 }
+
 
 static void update_symbols(symbol *head)
 {

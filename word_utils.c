@@ -9,16 +9,14 @@
 #include <ctype.h>
 
 
-int is_directive(char *str)
-{
-    return (*str=='.')?TRUE:FALSE;
-}
+int is_directive(char *str){return (*str=='.')?TRUE:FALSE;}
+int is_data(char *str) {return !strcmp(str, ".data")?TRUE:FALSE;}
+int is_entry(char *str) {return !strcmp(str, ".entry")?TRUE:FALSE;}
+int is_extern(char *str) {return !strcmp(str, ".extern")?TRUE:FALSE;}
+int is_string(char *str) {return !strcmp(str, ".string")?TRUE:FALSE;}
+
 int is_immediate(char *str) {return (*str=='#')?TRUE:FALSE;}
 int is_relative(char *str) {return (*str=='%')?TRUE:FALSE;}
-int is_data(char *str) {return !strcmp(str, ".data")?TRUE:FALSE;}
-int is_string(char *str) {return !strcmp(str, ".string")?TRUE:FALSE;}
-int is_extern(char *str) {return !strcmp(str, ".extern")?TRUE:FALSE;}
-int is_entry(char *str) {return !strcmp(str, ".entry")?TRUE:FALSE;}
 
 int is_label(char *str)
 {
@@ -65,12 +63,10 @@ void clean_string(char **str)
 
 int get_mode(char *str)
 {
-
     if(is_immediate(str)) return IMM;
-    if(is_directive(str)) return DIR;
     if(is_relative(str)) return REL;
     if(is_register(str)) return REG;
-    return ERR; 
+    return DIR;
 }
 
 static int is_int(char *s)

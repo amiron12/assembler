@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         
     }
     
-    fprintf(stderr,"\t------\n\n"); 
+    fprintf(stderr,"\t---Finished---\n\n"); 
     return 0;
 }
 
