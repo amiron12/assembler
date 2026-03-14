@@ -114,43 +114,15 @@ void start_pass(file_data *am_file)
 
         else if (is_instruction(argument))
         {
-            int src, dest, i;
-            i = 0;
-
-            if (symbol_flag)
+            if (symbol_flag) 
                 add_symbol(symbol, &head, IC, code);
-
-            if (op_count != get_instruction_operands(argument))
+            if (op_count == get_instruction_operands(argument))
+                encode_instruction(argument, operands[0], operands[1], am_file);
+            else
             {
                 error(am_file, "Invalid number of operands");
                 continue;
             }
-
-            if (op_count == 1)
-            {
-                dest = get_mode(operands[i]);
-                if(!is_dest_allowed(argument, dest))
-                    {
-                        error(am_file, "Invalid addressing mode");
-                        continue;
-                    }
-            }
-            else if (op_count == 2)
-            {
-                src = get_mode(operands[i++]);
-                dest = get_mode(operands[i]);
-                if(!is_dest_allowed(argument, dest) || !is_src_allowed(argument, src))
-                {
-                    error(am_file, "Invalid addressing mode");
-                    continue;
-                }
-            }
-
-            encode_instruction(argument, src, dest);
-            
-            i = 0;
-            while (i < op_count)
-                encode_operand(operands[i++]);
         }
 
         else

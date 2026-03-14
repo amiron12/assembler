@@ -65,12 +65,12 @@ int get_instruction_operands(char *name)
     return instructions[index].operands;
 }
 
-int is_dest_allowed(char *name, int mode) 
+int validate_dest_mode(char *name, int mode) 
 {
     unsigned int mask = instructions[get_index(name)].dest_modes;
     return (mask & (1 << mode)) != ZERO;
 }
-int is_src_allowed(char *name, int mode) 
+int validate_src_mode(char *name, int mode) 
 {
     unsigned int mask = instructions[get_index(name)].src_modes;
     return (mask & (1 << mode)) != 0;

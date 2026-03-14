@@ -13,7 +13,7 @@ machine_word data_image[MEMORY];
 machine_word code_image[MEMORY];
 
 
-void encode_instruction(char *str, int src, int dest);
+void encode_instruction(char *str, char* src, char* dest, file_data *fs);
 
 void encode_operand(char *str);
 
