@@ -1,5 +1,6 @@
 *.as
 *.am
+*.o
 *.vscode/
 *.test_output/
 *.output/
