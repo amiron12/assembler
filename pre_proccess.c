@@ -15,7 +15,6 @@ static void new_macro(char *name, macro **curr);
 static void expand(char *macro_name, macro *macro_head, FILE *expanded_file);
 static char *macro_start_check(char *line);
 static void add_macro_line(char *line, macro *curr);
-static void free_macros(macro *macro_head);
 static void free_lines(macro_line *head);
 
 void expand_macros(file_data *as_file, file_data *am_file)
@@ -177,7 +176,7 @@ static void append_content(macro_line *head, macro_line *new_line)
     temp->next = new_line;
 }
 
-static void free_macros(macro *head)
+void free_macros(macro *head)
 {
     macro *temp = head;
     while(head != NULL)

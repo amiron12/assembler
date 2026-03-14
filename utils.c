@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "output.h"
 #include "symbol_table.h"
 #include "const_tables.h"
 #include "structs.h" 
@@ -65,11 +66,11 @@ int is_string(char *str) {return !strcmp(str, ".string")?TRUE:FALSE;}
 int is_immediate(char *str) {return (*str=='#')?TRUE:FALSE;}
 int is_relative(char *str) {return (*str=='%')?TRUE:FALSE;}
 
-int label_format(char *str)
+int valid_symbol_format(char *str)
 {
     int len, i;
     len = strlen(str);
-    if(str[len-1]!=':' || len>LABEL_LENGTH) return FALSE;
+    if(str[len-1]!=':' || len>SYMBOL_LENGTH) return FALSE;
     if(!isalpha(*str)) return FALSE; /* first character is non alphabetical */
     for(i=1;i<len-1;i++)
         if(!isalnum(str[i])) return FALSE;
@@ -136,12 +137,24 @@ int validate_string(char *str)
     return FALSE;
 }
 
-void validate_label(char *str, file_data *fs, symbol *head)
+void validate_symbol(char *str, file_data *fs)
 {
     if(is_macro_call(str, fs->macro_list))
         error(fs, "Label cannot be a macro name");
-    if(symbol_exists(str, head))
+    if(symbol_exists(str, fs->symbol_list))
         error(fs, "Label already exists");
     if(!not_reserved(str))
         error(fs, "Label cannot be a reserved word");
 }
+
+void abort_file(file_data *f)
+{
+    fprintf(stderr,"[ERROR] Aborting file\n");
+    free_symbols(f->symbol_list);
+    free_macros(f->macro_list);
+    delete_output_files(f->name); /* will delete if created */
+    fclose(f->ptr);
+}
+
+
+   

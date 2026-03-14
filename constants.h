@@ -5,6 +5,7 @@
 #define MACRO_START "mcro"
 #define MACRO_END "mcroend"
 
+#define ATTR 4
 #define DEC 10
 #define BYTE (sizeof(unsigned char)*8)
 #define MEM_START 100
@@ -24,7 +25,7 @@
 #define ENT ".ent"
 #define EXT ".ext"
 #define MAX_ARG_LENGTH 30
-#define LABEL_LENGTH 31 /* TODO: make sure its the right length with \n and so */
+#define SYMBOL_LENGTH 31 /* TODO: make sure its the right length with \n and so */
 #define MEMORY 4096
 #define WORD_SIZE 12
 #define FILE_NAME 30
@@ -35,6 +36,7 @@
 #define ICINDEX (IC)-100
 #define MASK 0xFFF
 /* TODO: add PC? */
+
 typedef enum attribute {data, code, external, entry} attribute;
 typedef enum op_mode {IMM, DIR, REL, REG} op_mode;
 

@@ -38,7 +38,7 @@ void second_pass(file_data *am_file, symbol *head)
 
         argument = strtok(line, " \t");
         
-        if (label_format(argument)) /* skiping labels */
+        if (valid_symbol_format(argument)) /* skiping labels */
             argument = strtok(NULL, " \t\n");
 
         arg_string = strtok(NULL, "\n");
@@ -55,7 +55,7 @@ void second_pass(file_data *am_file, symbol *head)
             if (symbol_exists(operands[0], head))
             {
                 temp = get_symbol(operands[0], head);
-                temp->atr = entry; /* TODO: add the attribute or change it? */
+                set_attribute(temp, entry);
                 append_entry(temp, am_file->name);
             }
             else
@@ -73,7 +73,7 @@ void second_pass(file_data *am_file, symbol *head)
                     if(symbol_exists(operands[i], head))
                     {
                         symbol *temp = get_symbol(operands[i], head);
-                        if (temp->atr == external)
+                        if (is_attribute(temp, external))
                         {
                             code_image[ICINDEX].word = ZERO;
                             code_image[ICINDEX].type = EXTERNAL;
@@ -97,7 +97,7 @@ void second_pass(file_data *am_file, symbol *head)
                         symbol *temp;
                         int address;
                         temp = get_symbol(operands[i], head);
-                        if(temp->atr == external)
+                        if(is_attribute(temp, external))
                         {
                             error(am_file, "Relative label cannot be external");
                             continue;
@@ -120,11 +120,9 @@ void second_pass(file_data *am_file, symbol *head)
     save_symbol_table(head, "test_output/second_pass.txt");
     save_machine_images("test_output/second_pass.txt");
     
-    
     if(am_file->error_flag)
     {
-        free_symbols(head);
-        delete_output_files(am_file->name);
+        abort_file(am_file);
         return;
     }
     create_obj_file(am_file->name, head);

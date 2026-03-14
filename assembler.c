@@ -33,21 +33,20 @@ int main(int argc, char *argv[])
         
         fprintf(stderr,"[%s]\n", fname);
 
-        init_file_state(&as_file, fname, AS, "r");
+        init_file_data(&as_file, fname, AS, "r");
 
-        init_file_state(&am_file, fname, AM, "w+");
+        init_file_data(&am_file, fname, AM, "w+");
 
         if(as_file.error_flag) continue;
 
         expand_macros(&as_file, &am_file); /* pre-assembler stage */
         if(as_file.error_flag) continue; /* error occurred during macro expansion, continuing to the next file */
+        fclose(as_file.ptr);
 
         start_pass(&am_file); 
         if(am_file.error_flag) continue; /* error occurred during the passes, continuing to the next file */
 
-
         fclose(am_file.ptr);
-        fclose(as_file.ptr);
     }
     
     fprintf(stderr,"\t---Finished---\n\n"); 

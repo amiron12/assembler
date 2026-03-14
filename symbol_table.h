@@ -10,6 +10,10 @@ symbol* get_symbol(char *name, symbol *head);
 
 void free_symbols(symbol *head);
 
+int is_attribute(symbol *sym, attribute attr);
+
+void set_attribute(symbol *sym, attribute attr);
+
 
 
 /* TODO: delete: */

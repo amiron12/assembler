@@ -17,6 +17,20 @@ typedef struct macro_line
     char text[LINE_LENGTH];
 } macro_line;
 
+typedef struct symbol
+{
+    char name[SYMBOL_LENGTH];
+    int address;
+    /* enum attribute atr; */
+    unsigned int attr:ATTR;
+    struct symbol *next;
+} symbol;
+
+typedef struct machine_word
+{ 
+    unsigned int word:WORD_SIZE;
+    char type;
+} machine_word;
 
 typedef struct file_data
 {
@@ -28,20 +42,5 @@ typedef struct file_data
     macro *macro_list;
     symbol *symbol_list;
 } file_data;
-
-
-typedef struct symbol
-{
-    char name[LABEL_LENGTH];
-    int address;
-    enum attribute atr;
-    struct symbol *next;
-} symbol;
-
-typedef struct machine_word
-{ 
-    unsigned int word:WORD_SIZE;
-    char type;
-} machine_word;
 
 #endif

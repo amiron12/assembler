@@ -19,7 +19,7 @@
 /*
     Invalid operation names.
     ◦ Incorrect number of operands or invalid addressing modes for a specific operation.
-    ◦ Invalid label names or duplicate
+    ◦ Invalid symbol names or duplicate
 
 */
 static void update_symbols(symbol *head);
@@ -28,21 +28,21 @@ void start_pass(file_data *am_file)
 {
     char line[LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
-    int label_flag;
+    int symbol_flag;
     symbol *curr, *head;
     head = NULL;
     curr = NULL; 
     am_file->symbol_list = head;
-    
+
     fprintf(stderr,"[INFO] starting first pass\n");
 
     while(fgets(line, LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *arg_string;
         char *argument;
-        char *label = NULL;
+        char *symbol = NULL;
         int op_count;
-        label_flag = FALSE;
+        symbol_flag = FALSE;
         am_file->current_line++;
 
         if(is_empty_line(line) || is_comment(line)) continue;
@@ -52,13 +52,14 @@ void start_pass(file_data *am_file)
 
         argument = strtok(line, " \t");
         if (!argument) continue;
-        if(label_format(argument)) 
+
+        if(valid_symbol_format(argument)) 
         {
-            label = argument; 
-            clean_string(&label); 
-            validate_label(label, am_file, head);
+            symbol = argument; 
+            clean_string(&symbol); 
+            validate_symbol(symbol, am_file);
             argument = strtok(NULL, " \t\n");
-            label_flag = TRUE;
+            symbol_flag = TRUE;
         }
 
         arg_string = strtok(NULL, "\n");
@@ -74,7 +75,7 @@ void start_pass(file_data *am_file)
                 if (!validate_data(operands))
                     error(am_file, "Invalid data value");
                 encode_data(operands);
-                if(label_flag) add_symbol(label, &curr, &head, DC, data);
+                if(symbol_flag) add_symbol(symbol, &curr, &head, DC, data);
             }
 
             else if (is_string(argument))
@@ -82,33 +83,33 @@ void start_pass(file_data *am_file)
                 if (!validate_string(*operands))
                     error(am_file, "Invalid string value");
                 encode_string(*operands); /*its a string directive*/
-                if(label_flag) add_symbol(label, &curr, &head, DC, data);
+                if(symbol_flag) add_symbol(symbol, &curr, &head, DC, data);
                 }
 
             else if (is_extern(argument))
             {
                 int i, len;
-                char *label;
-                label = operands[0];
-                len = strlen(label);
+                char *symbol;
+                symbol = operands[0];
+                len = strlen(symbol);
                 if (op_count != 1)
                     error(am_file, "Extraneous text after external value");
-                else if (!isalpha(*label))
-                    error(am_file, "Invalid label name"); /* first character is non alphabetical */
-                else if ((len--) > LABEL_LENGTH)
-                    error(am_file, "Label name is too long");
-                else if (symbol_exists(label, head))
-                    error(am_file, "Label name already exists");
-                else if (!not_reserved(label))
-                    error(am_file, "Label name cannot be a reserved word");
+                else if (!isalpha(*symbol))
+                    error(am_file, "Invalid symbol name"); /* first character is non alphabetical */
+                else if ((len--) > SYMBOL_LENGTH)
+                    error(am_file, "symbol name is too long");
+                else if (symbol_exists(symbol, head))
+                    error(am_file, "symbol name already exists");
+                else if (!not_reserved(symbol))
+                    error(am_file, "symbol name cannot be a reserved word");
                 else
                 {
                     for (i = 1; i < len; i++)
-                        if (!isalnum(label[i]))
-                            error(am_file, "Invalid label name");
+                        if (!isalnum(symbol[i]))
+                            error(am_file, "Invalid symbol name");
                 }
 
-                add_symbol(label, &curr, &head, 0, external);
+                add_symbol(symbol, &curr, &head, 0, external);
             }
 
             else if (is_entry(argument))
@@ -126,8 +127,8 @@ void start_pass(file_data *am_file)
             int src, dest, i;
             i = 0;
 
-            if (label_flag)
-                add_symbol(label, &curr, &head, IC, code);
+            if (symbol_flag)
+                add_symbol(symbol, &curr, &head, IC, code);
 
             if (op_count != get_instruction_operands(argument))
             {
@@ -166,10 +167,11 @@ void start_pass(file_data *am_file)
     }
 
     fprintf(stderr,"[INFO] Done reading file\n");
+    
     /* finished reading file */
     if(am_file->error_flag) 
     {
-        fprintf(stderr,"[ERROR] Aborting file\n");
+        abort_file(am_file);
         return;
     }
 
@@ -193,7 +195,7 @@ static void update_symbols(symbol *head)
     symbol *temp = head;
     while(temp != NULL)
     {
-        if(temp->atr == data)
+        if(is_attribute(temp, data))
             temp->address += ICF;
         temp = temp->next;
     }

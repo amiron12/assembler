@@ -17,7 +17,6 @@ int symbol_exists(char *name, symbol *head)
             return TRUE;
         temp = temp->next;
     }
-    /* TODO: error */
     return FALSE;
 }
 
@@ -31,23 +30,37 @@ symbol* get_symbol(char *name, symbol *head)
             return temp;
         temp = temp->next;
     }
-    /* TODO: error */
     return NULL;
 }
 
-void add_symbol(char *symbol_name, symbol **curr, symbol **head, int address, attribute atr)
+void add_symbol(char *symbol_name, symbol **curr, symbol **head, int address, attribute attr)
 {
     symbol *temp = (symbol *)malloc(sizeof(symbol));
     memory_check(temp);
-    strncpy(temp->name, symbol_name, LABEL_LENGTH);
+    strncpy(temp->name, symbol_name, SYMBOL_LENGTH);
     temp->next = NULL;
     temp->address = address;
-    temp->atr = atr;
+    (temp->attr) = (1<<attr); /* turns on the bit */
+
     if(*head == NULL)
         *head = temp;
     else
         (*curr)->next = temp;
     *curr = temp;
+}
+
+/* This function receives a symbol and an attribute and checks if the symbol holds this attribute
+ if the attribute bit flag is turned on, it returns a non zero value, otherwise returns zero */
+int is_attribute(symbol *sym, attribute attr)
+{
+    int val = 0;
+    val = (1<<attr);
+    return (sym->attr) & val;
+}
+
+void set_attribute(symbol *sym, attribute attr)
+{
+    (sym->attr) |= (1<<attr);
 }
 
 void free_symbols(symbol *head)

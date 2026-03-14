@@ -31,7 +31,7 @@ void init_output_files(char *file_name)
     fprintf(stderr,"[INFO] Output files initiated\n");
 }
 
-void init_file_state(file_data *fs, char *fname, char *ext, char *mode)
+void init_file_data(file_data *fs, char *fname, char *ext, char *mode)
 {
     strncpy(fs->name, fname, MAX_FNAME);
     extention(fs, ext);
@@ -39,6 +39,7 @@ void init_file_state(file_data *fs, char *fname, char *ext, char *mode)
     fs->error_flag = FALSE;
     fs->current_line = ZERO;
     fs->macro_list = NULL;
+    fs->symbol_list = NULL;
     file_check(fs->ptr);
 }
 

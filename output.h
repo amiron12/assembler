@@ -13,7 +13,7 @@ void append_entry(symbol *entry, char *file_name);
 
 void append_external(symbol *external, char *file_name);
 
-void init_file_state(file_data *fs, char *fname, char *ext, char *mode);
+void init_file_data(file_data *fs, char *fname, char *ext, char *mode);
 
 void create_obj_file(char *file_name, symbol *symbol_table);
 
