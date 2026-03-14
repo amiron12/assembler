@@ -19,7 +19,7 @@ static void update_symbols(symbol *head);
 void start_pass(file_data *am_file)
 {
     char line[LINE_LENGTH];
-    char *operands[MAX_ARG_LENGTH];
+    char *operands[MAX_OPERANDS];
     int symbol_flag;
     symbol *head;
     head = NULL;

@@ -4,8 +4,8 @@
 /* Values used in pre-proccess */
 #define MACRO_START "mcro"
 #define MACRO_END "mcroend"
-
 #define ATTR 4
+#define MAX_OPERANDS 3
 #define DEC 10
 #define BYTE (sizeof(unsigned char)*8)
 #define MEM_START 100

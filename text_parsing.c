@@ -19,13 +19,11 @@ int tokenize(char *line, char *args[], file_data *fs)
     char *token; /* Pointer to the current token */
     int i = ZERO;
     token = NULL;
-    
+    memset(args, 0, MAX_OPERANDS*sizeof(char *)); /* reseting the array */
+
     /* checking if the input is empty */
     if(line == NULL)
-    {
-        args[i] = NULL;
-        return ZERO; /* 0 operands */
-    }
+        return ZERO; 
 
     
     if(!validate_commas(line, fs)) 
