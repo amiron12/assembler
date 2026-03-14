@@ -52,9 +52,9 @@ void second_pass(file_data *am_file, symbol *head)
         if (is_entry(argument))
         {
             symbol *temp;
-            if (symbol_exists(operands[0], head))
+            if (symbol_exists(*operands, head))
             {
-                temp = get_symbol(operands[0], head);
+                temp = get_symbol(*operands, head);
                 set_attribute(temp, entry);
                 append_entry(temp, am_file->name);
             }

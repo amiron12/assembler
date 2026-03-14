@@ -18,7 +18,7 @@ static void update_symbols(symbol *head);
 
 void start_pass(file_data *am_file)
 {
-    char line[LINE_LENGTH];
+    char buffer[LINE_LENGTH];
     char *operands[MAX_OPERANDS];
     int symbol_flag;
     symbol *head;
@@ -27,21 +27,23 @@ void start_pass(file_data *am_file)
 
     fprintf(stderr,"[INFO] starting first pass\n");
 
-    while(fgets(line, LINE_LENGTH, am_file->ptr) != NULL)
+    while(fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
     {
-        char *arg_string, *argument, *symbol;
+        char *arg_string, *argument, *symbol, *line;
         int op_count;
         symbol = NULL;
         symbol_flag = FALSE;
         am_file->current_line++;
+        line = buffer;
 
-        if(is_empty_line(line) || is_comment(line)) continue;
+        if(is_empty_line(buffer) || is_comment(buffer)) continue;
 
-        if(strlen(line) > MAX_LINE_LENGTH)
-            error(am_file, "Line is too long");
+        if(strlen(buffer) > MAX_LINE_LENGTH)
+        error(am_file, "Line is too long");
+        
 
-        argument = strtok(line, " \t");
-        if (!argument) continue;
+        get_next_word(&line, &argument);
+        
 
         if(valid_symbol_format(argument)) 
         {
@@ -52,7 +54,9 @@ void start_pass(file_data *am_file)
             symbol_flag = TRUE;
         }
 
+        
         arg_string = strtok(NULL, "\n");
+        
         op_count = tokenize(arg_string, operands, am_file);
         
         if(op_count == ERR)
@@ -105,8 +109,13 @@ void start_pass(file_data *am_file)
             }
 
             else if (is_entry(argument))
+            {
+                if (op_count == 0)
+                    error(am_file, "No symbol after entry directive");
+                else if(op_count > 1)
+                    error(am_file, "Extraneous text after entry directive");
                 continue;
-
+            }
             else
             {
                 error(am_file, "Invalid directive");

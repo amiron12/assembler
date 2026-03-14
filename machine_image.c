@@ -78,7 +78,7 @@ void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
     opcode = get_instruction_opcode(str);
     funct = get_instruction_funct(str);
     val = ((opcode<<OP_SHIFT) | (funct<<FUNCT_SHIFT) | (src_mode<<SRC_SHIFT) | (dest_mode)); 
-    code_image[ICINDEX].word = val & MASK;
+    code_image[ICINDEX].word = val & MASK; /* TODO: reset before giving value */
     code_image[ICINDEX].type = ABSOLUTE;
     IC++;
 

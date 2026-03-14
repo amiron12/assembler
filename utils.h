@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "structs.h"
 
+void get_next_word(char **line, char **word);
 
 int reserved(char *str);
 

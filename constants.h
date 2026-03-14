@@ -25,7 +25,8 @@
 #define ENT ".ent"
 #define EXT ".ext"
 #define MAX_ARG_LENGTH 30
-#define SYMBOL_LENGTH 31 /* TODO: make sure its the right length with \n and so */
+#define SYMBOL_LENGTH 35 /* TODO: make sure its the right length with \n and so */
+#define MAX_SYMBOL_LENGTH 32
 #define MEMORY 4096
 #define WORD_SIZE 12
 #define FILE_NAME 30

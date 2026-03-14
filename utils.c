@@ -69,10 +69,10 @@ int valid_symbol_format(char *str)
 {
     int len, i;
     len = strlen(str);
-    if(str[len-1]!=':' || len>SYMBOL_LENGTH) return FALSE;
+    if(str[len-1]!=':' || len>MAX_SYMBOL_LENGTH) return FALSE; /* symbol too long */
     if(!isalpha(*str)) return FALSE; /* first character is non alphabetical */
     for(i=1;i<len-1;i++)
-        if(!isalnum(str[i])) return FALSE;
+        if(!isalnum(str[i])) return FALSE; /* symbol contains a non alpha-numeric character */
     return TRUE;
 }
 
@@ -153,6 +153,12 @@ void abort_file(file_data *f)
     free_macros(f->macro_list);
     delete_output_files(f->name); /* will delete if created */
     fclose(f->ptr);
+}
+
+void get_next_word(char **line, char **word)
+{
+    *word = strtok(*line, " \t\n\r");
+    *line = NULL;
 }
 
 
