@@ -5,7 +5,7 @@
 #include "structs.h"
 
 
-int not_reserved(char *str);
+int reserved(char *str);
 
 int get_mode(char *str);
 

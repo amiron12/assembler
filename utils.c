@@ -6,7 +6,7 @@
 #include <ctype.h>
 
 #include "output.h"
-#include "symbol_table.h"
+#include "symbols.h"
 #include "const_tables.h"
 #include "structs.h" 
 #include "constants.h"
@@ -49,10 +49,10 @@ void extention(file_data *fs, char *ext)
 
 
 
-int not_reserved(char *str)
+int reserved(char *str)
 {
-    if(is_instruction(str) || is_register(str) || is_register(str)) return FALSE;
-    return TRUE;
+    if(is_instruction(str) || is_register(str) || is_data(str) || is_entry(str) || is_extern(str) || is_string(str)) return TRUE;
+    return FALSE;
 }
 
 
@@ -116,10 +116,10 @@ int get_mode(char *str)
 
 static int is_int(char *s)
 {
-    char *e;
+    char *c;
     if (!s || !*s) return 0;
-    strtol(s, &e, DEC);
-    return *e == '\0';
+    strtol(s, &c, DEC);
+    return *c == '\0';
 }
    
 
@@ -143,7 +143,7 @@ void validate_symbol(char *str, file_data *fs)
         error(fs, "Label cannot be a macro name");
     if(symbol_exists(str, fs->symbol_list))
         error(fs, "Label already exists");
-    if(!not_reserved(str))
+    if(reserved(str))
         error(fs, "Label cannot be a reserved word");
 }
 

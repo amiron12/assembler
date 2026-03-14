@@ -5,8 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
-
-#include "symbol_table.h"
+#include "symbols.h"
 #include "machine_image.h"
 #include "text_parsing.h"
 #include "const_tables.h"
@@ -15,13 +14,6 @@
 #include "structs.h"
 #include "utils.h"
 
-
-/*
-    Invalid operation names.
-    ◦ Incorrect number of operands or invalid addressing modes for a specific operation.
-    ◦ Invalid symbol names or duplicate
-
-*/
 static void update_symbols(symbol *head);
 
 void start_pass(file_data *am_file)
@@ -29,19 +21,17 @@ void start_pass(file_data *am_file)
     char line[LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
     int symbol_flag;
-    symbol *curr, *head;
+    symbol *head;
     head = NULL;
-    curr = NULL; 
     am_file->symbol_list = head;
 
     fprintf(stderr,"[INFO] starting first pass\n");
 
     while(fgets(line, LINE_LENGTH, am_file->ptr) != NULL)
     {
-        char *arg_string;
-        char *argument;
-        char *symbol = NULL;
+        char *arg_string, *argument, *symbol;
         int op_count;
+        symbol = NULL;
         symbol_flag = FALSE;
         am_file->current_line++;
 
@@ -72,18 +62,18 @@ void start_pass(file_data *am_file)
         {
             if (is_data(argument))
             {
+                if(symbol_flag) add_symbol(symbol, &head, DC, data);
                 if (!validate_data(operands))
                     error(am_file, "Invalid data value");
                 encode_data(operands);
-                if(symbol_flag) add_symbol(symbol, &curr, &head, DC, data);
             }
 
             else if (is_string(argument))
             {
+                if(symbol_flag) add_symbol(symbol, &head, DC, data);
                 if (!validate_string(*operands))
                     error(am_file, "Invalid string value");
                 encode_string(*operands); /*its a string directive*/
-                if(symbol_flag) add_symbol(symbol, &curr, &head, DC, data);
                 }
 
             else if (is_extern(argument))
@@ -100,7 +90,7 @@ void start_pass(file_data *am_file)
                     error(am_file, "symbol name is too long");
                 else if (symbol_exists(symbol, head))
                     error(am_file, "symbol name already exists");
-                else if (!not_reserved(symbol))
+                else if (reserved(symbol))
                     error(am_file, "symbol name cannot be a reserved word");
                 else
                 {
@@ -109,7 +99,7 @@ void start_pass(file_data *am_file)
                             error(am_file, "Invalid symbol name");
                 }
 
-                add_symbol(symbol, &curr, &head, 0, external);
+                add_symbol(symbol, &head, 0, external);
             }
 
             else if (is_entry(argument))
@@ -128,7 +118,7 @@ void start_pass(file_data *am_file)
             i = 0;
 
             if (symbol_flag)
-                add_symbol(symbol, &curr, &head, IC, code);
+                add_symbol(symbol, &head, IC, code);
 
             if (op_count != get_instruction_operands(argument))
             {
@@ -157,6 +147,7 @@ void start_pass(file_data *am_file)
             }
 
             encode_instruction(argument, src, dest);
+            
             i = 0;
             while (i < op_count)
                 encode_operand(operands[i++]);

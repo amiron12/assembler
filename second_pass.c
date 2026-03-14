@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "symbol_table.h"
+#include "symbols.h"
 #include "output.h"
 #include "text_parsing.h"
 #include "machine_image.h"

@@ -13,7 +13,7 @@
 static void append_content(macro_line *head, macro_line *new_line);
 static void new_macro(char *name, macro **curr);
 static void expand(char *macro_name, macro *macro_head, FILE *expanded_file);
-static char *macro_start_check(char *line);
+static char *validate_macro_start(char *line);
 static void add_macro_line(char *line, macro *curr);
 static void free_lines(macro_line *head);
 
@@ -44,7 +44,7 @@ void expand_macros(file_data *as_file, file_data *am_file)
         if(!strcmp(first_arg, MACRO_START)) 
         {
             char *macro_name;
-            char *err = macro_start_check(rest);
+            char *err = validate_macro_start(rest);
             if(err != NULL)
             {
                 error(as_file, err);
@@ -110,14 +110,14 @@ static void new_macro(char *name, macro **head)
     }    
 }
 
-static char *macro_start_check(char *line)
+static char *validate_macro_start(char *line)
 {
     char *macro_name;
     macro_name = strtok(line, " \t");
     line = strtok(NULL, "");
     if(macro_name == NULL)
         return "Macro name not specified";
-    if(!not_reserved(macro_name))
+    if(reserved(macro_name))
         return "Macro name is a reserved word";
     if(!is_empty_line(line))
         return "Extraneous text after macro name";
