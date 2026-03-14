@@ -9,45 +9,7 @@
 #include "structs.h"
 #include "utils.h"
 
-void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
-{
-    int opcode, funct, val;
-    int src_mode, dest_mode;
-    int mode_err = FALSE;
-
-    if(arg1 != NULL && arg2 == NULL)
-    {
-        dest_mode = get_mode(arg1);
-        if(!validate_dest_mode(str, dest_mode))
-            mode_err = TRUE;
-    }
-    else if(arg2 != NULL)
-    {
-        src_mode = get_mode(arg1);
-        dest_mode = get_mode(arg2);
-        if(!validate_dest_mode(str, dest_mode) || !validate_src_mode(str, src_mode))
-            mode_err = TRUE;
-    }
-
-    if(mode_err)
-    {
-        error(fs, "Invalid addressing mode");
-        return;
-    }
-    
-    opcode = get_instruction_opcode(str);
-    funct = get_instruction_funct(str);
-    val = ((opcode<<OP_SHIFT) | (funct<<FUNCT_SHIFT) | (src_mode<<SRC_SHIFT) | (dest_mode)); 
-    code_image[ICINDEX].word = val & MASK;
-    code_image[ICINDEX].type = ABSOLUTE;
-    IC++;
-
-    encode_operand(arg1);
-    encode_operand(arg2);
-
-} 
-
-void encode_operand(char *str)
+static void encode_operand(char *str)
 {
 
     int num;
@@ -86,6 +48,44 @@ void encode_operand(char *str)
         }
     IC++;
 }
+
+void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
+{
+    int opcode, funct, val;
+    int src_mode, dest_mode;
+    int mode_err = FALSE;
+
+    if(arg1 != NULL && arg2 == NULL)
+    {
+        dest_mode = get_mode(arg1);
+        if(!validate_dest_mode(str, dest_mode))
+            mode_err = TRUE;
+    }
+    else if(arg2 != NULL)
+    {
+        src_mode = get_mode(arg1);
+        dest_mode = get_mode(arg2);
+        if(!validate_dest_mode(str, dest_mode) || !validate_src_mode(str, src_mode))
+            mode_err = TRUE;
+    }
+
+    if(mode_err)
+    {
+        error(fs, "Invalid addressing mode");
+        return;
+    }
+    
+    opcode = get_instruction_opcode(str);
+    funct = get_instruction_funct(str);
+    val = ((opcode<<OP_SHIFT) | (funct<<FUNCT_SHIFT) | (src_mode<<SRC_SHIFT) | (dest_mode)); 
+    code_image[ICINDEX].word = val & MASK;
+    code_image[ICINDEX].type = ABSOLUTE;
+    IC++;
+
+    encode_operand(arg1);
+    encode_operand(arg2);
+
+} 
 
 
 void encode_data(char *args[])

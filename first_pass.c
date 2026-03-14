@@ -63,18 +63,20 @@ void start_pass(file_data *am_file)
             if (is_data(argument))
             {
                 if(symbol_flag) add_symbol(symbol, &head, DC, data);
-                if (!validate_data(operands))
+                if (validate_data(operands))
+                    encode_data(operands);
+                else
                     error(am_file, "Invalid data value");
-                encode_data(operands);
             }
 
             else if (is_string(argument))
             {
                 if(symbol_flag) add_symbol(symbol, &head, DC, data);
-                if (!validate_string(*operands))
+                if (validate_string(*operands))
+                    encode_string(*operands); /*its a string directive*/
+                else
                     error(am_file, "Invalid string value");
-                encode_string(*operands); /*its a string directive*/
-                }
+            }
 
             else if (is_extern(argument))
             {

@@ -15,8 +15,6 @@ machine_word code_image[MEMORY];
 
 void encode_instruction(char *str, char* src, char* dest, file_data *fs);
 
-void encode_operand(char *str);
-
 void encode_data(char *args[]);
 
 void encode_string(char *str);
