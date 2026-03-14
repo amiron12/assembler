@@ -1,9 +1,11 @@
 #include "symbol_table.h"
-#include "constants.h"
-#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "structs.h"
+#include "constants.h"
+#include "utils.h"
 
 int symbol_exists(char *name, symbol *head)
 {
@@ -56,5 +58,5 @@ void free_symbols(symbol *head)
         head = head->next;
         free(temp);
     }
-    fprintf(stderr,"Symbol list free'd\n");
+    fprintf(stderr,"[INFO] Symbol list free'd\n");
 }

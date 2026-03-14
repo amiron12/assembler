@@ -1,16 +1,13 @@
 #ifndef MACHINE_IMAGE_H
 #define MACHINE_IMAGE_H
 #include "constants.h"
+#include "structs.h"
 
 #define OP_SHIFT 8
 #define FUNCT_SHIFT 4
 #define SRC_SHIFT 2
 
-typedef struct machine_word
-{ 
-    unsigned int word:WORD_SIZE;
-    char type;
-} machine_word;
+
 
 machine_word data_image[MEMORY];
 machine_word code_image[MEMORY];

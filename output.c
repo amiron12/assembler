@@ -1,10 +1,12 @@
+#include "output.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #include "constants.h"
-#include "symbol_table.h"
-#include "output.h"
+#include "structs.h"
 #include "utils.h"
 #include "machine_image.h"
 
@@ -29,13 +31,14 @@ void init_output_files(char *file_name)
     fprintf(stderr,"[INFO] Output files initiated\n");
 }
 
-void init_file_state(file_state *fs, char *fname, char *ext, char *mode)
+void init_file_state(file_data *fs, char *fname, char *ext, char *mode)
 {
     strncpy(fs->name, fname, MAX_FNAME);
     extention(fs, ext);
     fs->ptr = fopen(fs->extended_name, mode);
     fs->error_flag = FALSE;
     fs->current_line = ZERO;
+    fs->macro_list = NULL;
     file_check(fs->ptr);
 }
 

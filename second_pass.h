@@ -1,7 +1,8 @@
 #ifndef SECOND_PASS_H
 #define SECOND_PASS_H
-#include "symbol_table.h"
 
-void second_pass(file_state *fs, symbol *head);
+#include "structs.h"
+
+void second_pass(file_data *fs, symbol *head);
 
 #endif

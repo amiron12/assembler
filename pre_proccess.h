@@ -1,24 +1,9 @@
 
 #ifndef PRE_PROCCESS_H
 #define PRE_PROCCESS_H
-#include "constants.h"
-#include "assembler.h"
-#include "output.h"
 
-typedef struct macro
-{
-    char name[LINE_LENGTH];
-    struct macro *next; /*pointer to the next macro */
-    struct macro_line *content; /*pointer to the first line of the linked list refering to this macro name*/
-} macro;
+#include "structs.h"
 
-typedef struct macro_line
-{
-    struct macro_line *next;
-    char text[LINE_LENGTH];
-} macro_line;
-
-
-void expand_macros(file_state *fs, file_state *am_file);
+void expand_macros(file_data *fs, file_data *am_file);
 
 #endif

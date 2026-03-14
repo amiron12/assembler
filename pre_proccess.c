@@ -1,26 +1,24 @@
-
 #include "pre_proccess.h"
-#include "assembler.h"
-#include "output.h"
-#include "utils.h"
-#include "text_parsing.h"
-#include "constants.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "text_parsing.h"
+#include "constants.h"
+#include "structs.h"
+#include "utils.h"
 
 
 static void append_content(macro_line *head, macro_line *new_line);
 static void new_macro(char *name, macro **curr);
 static void expand(char *macro_name, macro *macro_head, FILE *expanded_file);
 static char *macro_start_check(char *line);
-static int is_macro_call(char *str, macro *head);
 static void add_macro_line(char *line, macro *curr);
 static void free_macros(macro *macro_head);
 static void free_lines(macro_line *head);
 
-void expand_macros(file_state *as_file, file_state *am_file)
+void expand_macros(file_data *as_file, file_data *am_file)
 {
     macro *head;
     char buffer[LINE_LENGTH];
@@ -84,12 +82,12 @@ void expand_macros(file_state *as_file, file_state *am_file)
     }
 
     /* finished file */
-    free_macros(head);
     fclose(am_file->ptr);
     fprintf(stderr,"[INFO] finished pre-proccess\n");
     
     if(as_file->error_flag)
     {
+        free_macros(head);
         remove(am_file->extended_name);
         fprintf(stderr,"[INFO] %s deleted\n", am_file->extended_name);
     }
@@ -97,6 +95,7 @@ void expand_macros(file_state *as_file, file_state *am_file)
     {
         am_file->ptr = fopen(am_file->extended_name, "r");
         memory_check(am_file->ptr);
+        am_file->macro_list = head;
     }
 }
 
@@ -144,7 +143,7 @@ static void expand(char *macro_name, macro *macro_head, FILE *expanded_file)
     }
 }
 
-static int is_macro_call(char *str, macro *head)
+int is_macro_call(char *str, macro *head)
 {
     macro *temp = head;
     while(temp != NULL)

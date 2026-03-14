@@ -1,17 +1,19 @@
-#include "assembler.h"
-#include "symbol_table.h"
-#include "output.h"
-#include "text_parsing.h"
-#include "utils.h"
-#include "const_tables.h"
 #include "first_pass.h"
-#include "second_pass.h"
-#include "constants.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
+
+#include "symbol_table.h"
+#include "machine_image.h"
+#include "text_parsing.h"
+#include "const_tables.h"
+#include "second_pass.h"
+#include "constants.h"
+#include "structs.h"
+#include "utils.h"
 
 
 /*
@@ -22,7 +24,7 @@
 */
 static void update_symbols(symbol *head);
 
-void start_pass(file_state *am_file)
+void start_pass(file_data *am_file)
 {
     char line[LINE_LENGTH];
     char *operands[MAX_ARG_LENGTH];
@@ -30,6 +32,8 @@ void start_pass(file_state *am_file)
     symbol *curr, *head;
     head = NULL;
     curr = NULL; 
+    am_file->symbol_list = head;
+    
     fprintf(stderr,"[INFO] starting first pass\n");
 
     while(fgets(line, LINE_LENGTH, am_file->ptr) != NULL)
@@ -48,24 +52,21 @@ void start_pass(file_state *am_file)
 
         argument = strtok(line, " \t");
         if (!argument) continue;
-
-        if(is_label(argument)) 
+        if(label_format(argument)) 
         {
             label = argument; 
             clean_string(&label); 
+            validate_label(label, am_file, head);
             argument = strtok(NULL, " \t\n");
             label_flag = TRUE;
         }
 
         arg_string = strtok(NULL, "\n");
-    
         op_count = tokenize(arg_string, operands, am_file);
-
-        if(am_file->error_flag)
-        {
-            am_file->error_flag = FALSE;
+        
+        if(op_count == ERR)
             continue;
-        }
+        
         if (is_directive(argument))
         {
             if (is_data(argument))
@@ -168,7 +169,7 @@ void start_pass(file_state *am_file)
     /* finished reading file */
     if(am_file->error_flag) 
     {
-        fprintf(stderr,"[ERROR] returnig to main\n");
+        fprintf(stderr,"[ERROR] Aborting file\n");
         return;
     }
 

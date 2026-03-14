@@ -1,19 +1,21 @@
-#include "assembler.h"
-#include "symbol_table.h"
-#include "output.h"
-#include "text_parsing.h"
-#include "machine_image.h"
-#include "first_pass.h"
 #include "second_pass.h"
-#include "const_tables.h"
-#include "utils.h"
-#include "constants.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-void second_pass(file_state *am_file, symbol *head)
+#include "symbol_table.h"
+#include "output.h"
+#include "text_parsing.h"
+#include "machine_image.h"
+#include "structs.h"
+#include "constants.h"
+#include "utils.h"
+
+
+
+void second_pass(file_data *am_file, symbol *head)
 {
     char line[LINE_LENGTH];
     IC = MEM_START;
@@ -36,7 +38,7 @@ void second_pass(file_state *am_file, symbol *head)
 
         argument = strtok(line, " \t");
         
-        if (is_label(argument)) /* skiping labels */
+        if (label_format(argument)) /* skiping labels */
             argument = strtok(NULL, " \t\n");
 
         arg_string = strtok(NULL, "\n");
@@ -57,9 +59,7 @@ void second_pass(file_state *am_file, symbol *head)
                 append_entry(temp, am_file->name);
             }
             else
-                {
-                    error(am_file, "Label not found");
-                }
+                error(am_file, "Label not found");
         }
 
         else

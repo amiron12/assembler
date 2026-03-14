@@ -1,8 +1,12 @@
-#include "assembler.h"
 #include "const_tables.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "constants.h"
+#include "structs.h"
+#include "utils.h"
 
 /* name, opmode, funct, number of ops, src modes, dest modes */
 static const inst instructions[] = {

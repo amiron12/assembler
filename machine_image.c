@@ -1,13 +1,13 @@
-
-#include "assembler.h"
-#include "constants.h"
 #include "machine_image.h"
-#include "const_tables.h"
-#include "text_parsing.h"
-#include "utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "const_tables.h"
+#include "constants.h"
+#include "structs.h"
+#include "utils.h"
 
 void encode_instruction(char *str, int src, int dest)
 {

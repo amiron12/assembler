@@ -1,18 +1,8 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
-#include "constants.h"
-
-typedef struct symbol
-{
-    char name[LABEL_LENGTH];
-    int address;
-    enum attribute atr;
-    struct symbol *next;
-} symbol;
+#include "structs.h"
 
 void add_symbol(char *symbol_name, symbol **curr,symbol **head, int address, attribute atr);
-
-void print_symbols(symbol *head);
 
 int symbol_exists(char *name, symbol *head);
 

@@ -1,21 +1,20 @@
-
-#include "assembler.h"
 #include "text_parsing.h"
-#include "utils.h"
-#include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
+#include "structs.h"
+#include "constants.h"
+#include "utils.h"
 
 /* TODO: fix comments */
 
 static char* trim_space(char *str);
-static int validate_commas(char *input, file_state *fs);
+static int validate_commas(char *input, file_data *fs);
 
 
-int tokenize(char *line, char *args[], file_state *fs)
+int tokenize(char *line, char *args[], file_data *fs)
 {
     char *token; /* Pointer to the current token */
     int i = ZERO;
@@ -65,7 +64,7 @@ static char* trim_space(char *str)
 }
 
 
-static int validate_commas(char *input, file_state *fs) 
+static int validate_commas(char *input, file_data *fs) 
 {
     int expecting_operand = 1; /* expecting an operand */
     char *ptr = input;
@@ -75,7 +74,7 @@ static int validate_commas(char *input, file_state *fs)
 
     if (*ptr == ',') 
     {
-        error(fs, "Illegal comma at start of line");
+        error(fs, "Illegal comma before operand");
         return FALSE;
     }
 
