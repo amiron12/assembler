@@ -155,11 +155,14 @@ void abort_file(file_data *f)
     fclose(f->ptr);
 }
 
+/* this function receives a pointer to a line of text, extracts the first word (ends with the first whitespace)
+ and leaves the original pointer as the remaining of the line */
 void get_next_word(char **line, char **word)
 {
     *word = strtok(*line, " \t\n\r");
-    *line = NULL;
+    *line = strtok(NULL, "");
 }
+
 
 
    

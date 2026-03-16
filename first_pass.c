@@ -29,7 +29,7 @@ void start_pass(file_data *am_file)
 
     while(fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
     {
-        char *arg_string, *argument, *symbol, *line;
+        char *argument, *symbol, *line;
         int op_count;
         symbol = NULL;
         symbol_flag = FALSE;
@@ -50,14 +50,11 @@ void start_pass(file_data *am_file)
             symbol = argument; 
             clean_string(&symbol); 
             validate_symbol(symbol, am_file);
-            argument = strtok(NULL, " \t\n");
+            get_next_word(&line, &argument);
             symbol_flag = TRUE;
         }
-
-        
-        arg_string = strtok(NULL, "\n");
-        
-        op_count = tokenize(arg_string, operands, am_file);
+    
+        op_count = tokenize(line, operands, am_file);
         
         if(op_count == ERR)
             continue;
@@ -85,7 +82,6 @@ void start_pass(file_data *am_file)
             else if (is_extern(argument))
             {
                 int i, len;
-                char *symbol;
                 symbol = operands[0];
                 len = strlen(symbol);
                 if (op_count != 1)

@@ -13,7 +13,7 @@
 static void append_content(macro_line *head, macro_line *new_line);
 static void new_macro(char *name, macro **curr);
 static void expand(char *macro_name, macro *macro_head, FILE *expanded_file);
-static char *validate_macro_start(char *line);
+static char *validate_macro_start(char *macro_name, char *line);
 static void add_macro_line(char *line, macro *curr);
 static void free_lines(macro_line *head);
 
@@ -26,32 +26,30 @@ void expand_macros(file_data *as_file, file_data *am_file)
 
     fprintf(stderr,"[INFO] starting pre-proccess\n");
     
-    while(fgets(buffer, sizeof(buffer), as_file->ptr) != NULL)
+    while(fgets(buffer, LINE_LENGTH, as_file->ptr) != NULL)
     {
-        /* TODO: check size is correct (with /0 maybe) */
-        char *first_arg, *rest;
-        char line[LINE_LENGTH];
-        strcpy(line, buffer);
+        char *first_arg, *line;
+        char buff_copy[LINE_LENGTH];
+        strcpy(buff_copy, buffer);
         as_file->current_line++;
+        line = buff_copy;
         
-        if(is_empty_line(line) || is_comment(line)) continue; /* TODO: avoid these lines? */
+        if(is_empty_line(line) || is_comment(line)) continue; /* avoiding empty and comment lines */
 
-
-        first_arg = strtok(line, " \t\n\r");
-        rest = strtok(NULL, "\n");
+        get_next_word(&line, &first_arg);
         
         /* Found a macro start */
         if(!strcmp(first_arg, MACRO_START)) 
         {
-            char *macro_name;
-            char *err = validate_macro_start(rest);
+            char *macro_name, *err;
+            get_next_word(&line, &macro_name);
+            err = validate_macro_start(macro_name, line);
             if(err != NULL)
             {
                 error(as_file, err);
                 break;
             }
             inside_macro = TRUE;
-            macro_name = strtok(rest, " \t");
             new_macro(macro_name, &head); /* creating a macro node */
             continue;
         }
@@ -60,7 +58,7 @@ void expand_macros(file_data *as_file, file_data *am_file)
         /* Found a macro end */
         if(!strcmp(first_arg, MACRO_END))
         {
-            if(is_empty_line(rest)) /* checking that there is no text after macro end call */
+            if(is_empty_line(line)) /* checking that there is no text after macro end call */
             {
                 inside_macro = FALSE;
                 continue;
@@ -110,11 +108,8 @@ static void new_macro(char *name, macro **head)
     }    
 }
 
-static char *validate_macro_start(char *line)
+static char *validate_macro_start(char *macro_name, char *line)
 {
-    char *macro_name;
-    macro_name = strtok(line, " \t");
-    line = strtok(NULL, "");
     if(macro_name == NULL)
         return "Macro name not specified";
     if(reserved(macro_name))

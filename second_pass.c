@@ -17,7 +17,7 @@
 
 void second_pass(file_data *am_file, symbol *head)
 {
-    char line[LINE_LENGTH];
+    char buffer[LINE_LENGTH];
     IC = MEM_START;
     rewind(am_file->ptr);
     am_file->current_line = ZERO;
@@ -26,24 +26,21 @@ void second_pass(file_data *am_file, symbol *head)
     fprintf(stderr,"[INFO] starting second pass\n");
     
     
-    while (fgets(line, LINE_LENGTH, am_file->ptr) != NULL)
+    while (fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *operands[MAX_ARG_LENGTH];
-        char *arg_string;
-        char *argument;
+        char *argument, *line;
         int op_count;
         am_file->current_line++;
+        line = buffer;
 
-        if (is_empty_line(line) || is_comment(line)) continue;
-
-        argument = strtok(line, " \t");
+        get_next_word(&line, &argument);
         
         if (valid_symbol_format(argument)) /* skiping labels */
-            argument = strtok(NULL, " \t\n");
+            get_next_word(&line, &argument);
 
-        arg_string = strtok(NULL, "\n");
 
-        op_count = tokenize(arg_string, operands, am_file);
+        op_count = tokenize(line, operands, am_file);
 
         if (is_data(argument) || is_string(argument) || is_extern(argument))
             continue;
