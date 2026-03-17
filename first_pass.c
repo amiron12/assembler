@@ -19,24 +19,27 @@ static void update_symbols(symbol *head);
 void start_pass(file_data *am_file)
 {
     char buffer[LINE_LENGTH];
-    char *operands[MAX_OPERANDS];
+    char *operands[LINE_LENGTH];
     int symbol_flag;
     symbol *head;
     head = NULL;
-
-    fprintf(stderr,"[INFO] starting first pass\n");
 
     while(fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *argument, *symbol, *line;
         int op_count;
         symbol = NULL;
-        symbol_flag = FALSE;
         am_file->current_line++;
         line = buffer;
+        
+        if(IC+DC >= MEMORY) 
+        {
+            error(am_file, "Memory overflow");
+            abort_file(am_file);
+            return;
+        }
 
-        if(strlen(buffer) > MAX_LINE_LENGTH)
-            error(am_file, "Line is too long");
+        if(strlen(buffer) > MAX_LINE_LENGTH) error(am_file, "Line is too long");
         
         get_next_word(&line, &argument); /* assigning the first word to argument, line is set with the remaining text*/
 
@@ -45,35 +48,27 @@ void start_pass(file_data *am_file)
             symbol = argument; 
             validate_symbol(symbol, am_file); /* if there is an error the flag will be raised, continuing to read file anyway */
             get_next_word(&line, &argument);
-            symbol_flag = TRUE;
         }
     
         op_count = tokenize(line, operands, am_file); /* parsing through the line and inserting each word into the operands array, returns the number of words found */
         
-        if(op_count == ERR) /* skipping a line with syntax errors, operands cannot be parsed */
-            continue;
-        
+        if(op_count == ERR) continue; /* skipping a line with syntax errors, operands cannot be parsed */
+            
         if (is_directive(argument))
         {
             if (is_data(argument)) /* .data */
             {
-                if(symbol_flag) 
-                    add_symbol(symbol, &head, DC, data);
-                if (validate_data(operands))
+                add_symbol(symbol, &head, DC, data); /* If symbol is null, it will return without anything added */
+                if (validate_data(operands, am_file))
                     encode_data(operands);
-                else
-                    error(am_file, "Invalid data value");
                 continue;
             }
 
             if(is_string(argument)) /* .string */
             {
-                if(symbol_flag) 
-                    add_symbol(symbol, &head, DC, data);
-                if (validate_string(*operands))
-                    encode_string(*operands); /*its a string directive*/
-                else
-                    error(am_file, "Invalid string value");
+                add_symbol(symbol, &head, DC, data); /* If symbol is null, it will return without anything added */
+                if (validate_string(*operands, am_file))
+                    encode_string(*operands);      
                 continue;
             }
 
@@ -81,9 +76,9 @@ void start_pass(file_data *am_file)
             {   
                 symbol = *operands;
                 if(op_count > 1)
-                    error(am_file, "Extraneous text after extern directive");
+                    error(am_file, "Extraneous text after extern symbol");
                 validate_symbol(symbol, am_file);
-                add_symbol(symbol, &head, 0, external);
+                add_symbol(symbol, &head, ZERO, external);
                 continue;
             }
 
@@ -92,19 +87,17 @@ void start_pass(file_data *am_file)
                 if (!op_count) /* op_count is 0 */
                     error(am_file, "No symbol after entry directive");
                 else if(op_count > 1)
-                    error(am_file, "Extraneous text after entry directive");
+                    error(am_file, "Extraneous text after entry symbol");
                 continue;
             }
                 
             error(am_file, "Invalid directive");
             continue;
-
         }
 
         if(is_instruction(argument))
         {
-            if (symbol_flag) 
-                add_symbol(symbol, &head, IC, code);
+            add_symbol(symbol, &head, IC, code); /* If symbol is null, it will return without anything added */
             if (op_count == get_instruction_operands(argument))
                 encode_instruction(argument, operands[0], operands[1], am_file);
             else
@@ -114,10 +107,10 @@ void start_pass(file_data *am_file)
 
         error(am_file, "Invalid operation");
     }
+    /* finished reading file */
     
     am_file->symbol_list = head;
 
-    /* finished reading file */
     if(am_file->error_flag) 
     {
         abort_file(am_file);
@@ -125,12 +118,9 @@ void start_pass(file_data *am_file)
     }
 
     ICF = IC;   
-    DCF = DC;
+    DCF = DC; /* TODO: need these? */
 
     update_symbols(head);
-    
-    fprintf(stderr,"[INFO] finished first pass\n");
-
     second_pass(am_file);
 }
 

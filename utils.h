@@ -10,10 +10,10 @@ int reserved(char *str);
 
 int get_mode(char *str);
 
+int validate_number(char *str);
+int validate_data(char *args[], file_data *fs);
 
-int validate_data(char *args[]);
-
-int validate_string(char *str);
+int validate_string(char *str, file_data *fs);
 
 void validate_symbol(char *str, file_data *fs);
 
@@ -28,7 +28,7 @@ int is_data(char *str);
 int is_extern(char *str);
 int is_entry(char *str);
 
-void clean_string(char **str);
+void clean_string(char **str, char c);
 
 void memory_check(void *ptr);
 
@@ -46,7 +46,6 @@ void free_data(file_data *f);
 
 
 /* TODO: delete: */
-extern machine_word code_image[MEMORY];
-extern machine_word data_image[MEMORY]; /* TODO: refactor the way we use */
+ /* TODO: refactor the way we use */
 
 #endif

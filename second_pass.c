@@ -13,99 +13,87 @@
 #include "constants.h"
 #include "utils.h"
 
-
-
 void second_pass(file_data *am_file)
 {
     char buffer[LINE_LENGTH];
     IC = MEM_START;
-    rewind(am_file->ptr);
     am_file->current_line = ZERO;
-    init_output_files(am_file->name);
-    
-    fprintf(stderr,"[INFO] starting second pass\n");
-    
+    rewind(am_file->ptr);
+    init_output_files(am_file->name); /* making the output files to write in */
     
     while (fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
     {
-        char *operands[MAX_ARG_LENGTH];
-        char *argument, *line;
+        char *operands[MAX_OPERANDS], *argument, *line;
         int op_count;
+        symbol *temp;
+
         am_file->current_line++;
         line = buffer;
 
         get_next_word(&line, &argument);
         
-        if(argument[strlen(argument)-1] == ':') /* skiping labels */
+        if(argument[strlen(argument)-1] == ':') /* skiping symbols */
             get_next_word(&line, &argument);
-
-
-        op_count = tokenize(line, operands, am_file);
 
         if (is_data(argument) || is_string(argument) || is_extern(argument))
             continue;
 
-        
+        op_count = tokenize(line, operands, am_file);
+
         if (is_entry(argument))
         {
-            symbol *temp;
-            if (symbol_exists(*operands, am_file->symbol_list))
+            if (temp = get_symbol(*operands, am_file->symbol_list))
             {
-                temp = get_symbol(*operands, am_file->symbol_list);
-                set_attribute(temp, entry);
-                append_entry(temp, am_file->name);
+                set_attribute(temp, entry); /* adding the entry attribute */
+                append_entry(temp, am_file->name); /* writing it to the .ent file */
             }
             else
-                error(am_file, "Label not found");
+                error(am_file, "symbol not found");
         }
 
-        else
+        else 
         {
             int i = 0;
             IC++;
             while (i < op_count) /* parsing through the operands */
             {
-                if(code_image[ICINDEX].type == UNKNOWN) /* address not set */
+                symbol *temp;
+                if(code_image[IC_INDEX].type == UNKNOWN) /* address not set */
                 {    
-                    if(symbol_exists(operands[i], am_file->symbol_list))
+                    if(temp = get_symbol(operands[i], am_file->symbol_list))
                     {
-                        symbol *temp = get_symbol(operands[i], am_file->symbol_list);
                         if (is_attribute(temp, external))
                         {
-                            code_image[ICINDEX].word = ZERO;
-                            code_image[ICINDEX].type = EXTERNAL;
-                            append_external(temp, am_file->name);
+                            code_image[IC_INDEX].word = ZERO;
+                            code_image[IC_INDEX].type = EXTERNAL;
+                            append_external(temp, am_file->name); /* writing it to the .ext file */
                         }
                         else
                         {
-                            code_image[ICINDEX].word = temp->address; 
-                            code_image[ICINDEX].type = RELOCATABLE;
+                            code_image[IC_INDEX].word = temp->address; 
+                            code_image[IC_INDEX].type = RELOCATABLE;
                         }
                     }
                     else
-                        error(am_file, "Label not found"); /* TODO: why showing for external labels */
+                        error(am_file, "symbol not found");
                 }
 
                 if(is_relative(operands[i]))
                 {
-                    clean_string(&operands[i]);
-                    if(symbol_exists(operands[i], am_file->symbol_list))
+                    clean_string(&operands[i], '%');
+                    if(temp = get_symbol(operands[i], am_file->symbol_list))
                     {
-                        symbol *temp;
-                        int address;
-                        temp = get_symbol(operands[i], am_file->symbol_list);
                         if(is_attribute(temp, external))
                         {
-                            error(am_file, "Relative label cannot be external");
+                            error(am_file, "Relative symbol cannot be external");
                             continue;
                         }
-                        address = (temp->address)-IC;
-                        code_image[ICINDEX].word = address;
-                        code_image[ICINDEX].type = ABSOLUTE;
+                        code_image[IC_INDEX].word = ((temp->address)-IC);
+                        code_image[IC_INDEX].type = ABSOLUTE;
 
                     }
                     else
-                        error(am_file, "Label not found");
+                        error(am_file, "symbol not found");
                 }
                 IC++;
                 i++;
@@ -114,10 +102,8 @@ void second_pass(file_data *am_file)
 
     }
     
-    if(am_file->error_flag)
-    {
+    if(!am_file->error_flag)
+        create_obj_file(am_file->name, am_file->symbol_list);
+    else
         abort_file(am_file);
-        return;
-    }
-    create_obj_file(am_file->name, am_file->symbol_list);
 }

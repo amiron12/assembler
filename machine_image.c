@@ -9,7 +9,7 @@
 #include "structs.h"
 #include "utils.h"
 
-static void encode_operand(char *str)
+static void encode_operand(char *str, file_data *fs)
 {
 
     int num;
@@ -18,10 +18,15 @@ static void encode_operand(char *str)
     switch (get_mode(str))
     {
         case IMM:
-            clean_string(&str);
+            clean_string(&str, '#');
+            if(!validate_number(str))
+            {
+                error(fs, "Invalid immediate value");
+                return;
+            }
             num = atoi(str);
-            code_image[ICINDEX].word = (num & MASK);
-            code_image[ICINDEX].type = ABSOLUTE;
+            code_image[IC_INDEX].word = (num & MASK);
+            code_image[IC_INDEX].type = ABSOLUTE;
             break;
 
         case REG:
@@ -30,20 +35,20 @@ static void encode_operand(char *str)
             c = &str[1];
             num = atoi(c);
             val = (1<<num);
-            code_image[ICINDEX].word = (val & MASK);
-            code_image[ICINDEX].type = ABSOLUTE;
+            code_image[IC_INDEX].word = (val & MASK);
+            code_image[IC_INDEX].type = ABSOLUTE;
             break;
         }
 
         case DIR:
-            code_image[ICINDEX].word = val;
-            code_image[ICINDEX].type = UNKNOWN;
+            code_image[IC_INDEX].word = val;
+            code_image[IC_INDEX].type = UNKNOWN;
             break;
         
 
         case REL:
-            code_image[ICINDEX].word = val;
-            code_image[ICINDEX].type = ABSOLUTE;
+            code_image[IC_INDEX].word = val;
+            code_image[IC_INDEX].type = ABSOLUTE;
             break;
         }
     IC++;
@@ -54,7 +59,7 @@ void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
     int opcode, funct, val;
     int src_mode, dest_mode;
     int mode_err = FALSE;
-    src_mode = dest_mode = ZERO;
+    src_mode = dest_mode = opcode = funct = val = ZERO;
 
     if(arg1 != NULL && arg2 == NULL)
     {
@@ -79,29 +84,30 @@ void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
     opcode = get_instruction_opcode(str);
     funct = get_instruction_funct(str);
     val = ((opcode<<OP_SHIFT) | (funct<<FUNCT_SHIFT) | (src_mode<<SRC_SHIFT) | (dest_mode)); 
-    code_image[ICINDEX].word = val & MASK; /* TODO: reset before giving value */
-    code_image[ICINDEX].type = ABSOLUTE;
+    code_image[IC_INDEX].word = val & MASK;
+    code_image[IC_INDEX].type = ABSOLUTE;
     IC++;
 
-    encode_operand(arg1);
-    encode_operand(arg2);
+    encode_operand(arg1,fs);
+    encode_operand(arg2,fs);
 
 } 
 
 
 void encode_data(char *args[])
 {
+
     int i = 0; 
     while(args[i] != NULL)
         {
-            data_image[DC].word = (atoi(args[i++]) & MASK);
+            data_image[DC].word = (strtol(args[i++], NULL, DEC) & MASK);
             data_image[DC++].type = ABSOLUTE;
         }
 }
 
 void encode_string(char *str)
 {
-    clean_string(&str);
+    clean_string(&str, '"');
     while(*str != '\0')
     {
         data_image[DC].word = (*str++ & MASK);

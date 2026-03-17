@@ -7,11 +7,8 @@
 #define FUNCT_SHIFT 4
 #define SRC_SHIFT 2
 
-
-
 machine_word data_image[MEMORY];
 machine_word code_image[MEMORY];
-
 
 void encode_instruction(char *str, char* src, char* dest, file_data *fs);
 

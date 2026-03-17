@@ -33,8 +33,8 @@ typedef struct machine_word
 
 typedef struct file_data
 {
-    char name[FILE_NAME];
-    char extended_name[FILE_NAME];
+    char name[MAX_FILE_NAME];
+    char extended_name[MAX_FILE_NAME];
     int current_line;
     int error_flag;
     FILE *ptr;

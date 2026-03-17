@@ -40,10 +40,10 @@ void error(file_data *fs, char *str)
 
 void extention(file_data *fs, char *ext)
 {
-    char fname[MAX_FNAME];
+    char fname[MAX_FILE_NAME];
     strcpy(fname, (fs)->name);
     strcat(fname, ext);
-    strncpy((fs)->extended_name, fname, MAX_FNAME);
+    strncpy((fs)->extended_name, fname, MAX_FILE_NAME);
 }
 
 
@@ -74,7 +74,7 @@ void validate_symbol(char *str, file_data *fs)
 
     if(str[len-1]==':') /* if its a symbol defenition in the start of a line */
     {
-        clean_string(&str);
+        clean_string(&str, ':');
         len--;
     }
 
@@ -115,17 +115,26 @@ int is_register(char *str)
     return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE; /* TODO: change nums */
 }
 
-/*removing non alpha-numeric characters in the begining or end of the string*/
-void clean_string(char **str) /* TODO: refine: need all the casting? */
+/* this functions removes the non alpha-numeric symbols from a string, depending on the symbol given as a parameter
+it is built like this so error correction can be successful on the string returning */
+void clean_string(char **str, char c)
 {
-    int len = strlen(*str);
-    while (len > 0 && !isalnum((unsigned char)(*str)[len - 1])) 
+    switch (c)
     {
-        (*str)[len - 1] = '\0';
-        len--;
-    }
-    while ((*str)[0] != '\0' && !isalnum((unsigned char)(*str)[0])) 
+    case (':'):
+        (*str)[strlen(*str)-1] = '\0';
+        break;
+    case ('#'):
         (*str)++;
+        break;
+    case ('%'):
+        (*str)++;
+        break;
+    case ('"'):
+        (*str)++;
+        (*str)[strlen(*str)-1] = '\0';
+        break;
+    }
 }
 
 int get_mode(char *str)
@@ -136,26 +145,36 @@ int get_mode(char *str)
     return DIR;
 }
 
-static int is_int(char *s)
+int validate_number(char *str)
 {
-    char *c;
-    if (!s || !*s) return 0;
-    strtol(s, &c, DEC);
-    return *c == '\0';
-}
-   
-
-int validate_data(char *args[])
-{
-    while (*args)
-        if(!is_int(*args++)) return FALSE;
+    char *ptr;
+    int result;
+    result = strtol(str, &ptr, DEC);
+    if(ptr == str) return FALSE;
+    if(*ptr != '\0') return FALSE;
+    if(result > MAX_NUM || result < MIN_NUM) return FALSE;
     return TRUE;
 }
 
-int validate_string(char *str)
+int validate_data(char *integers[], file_data *fs)
+{
+    int i = 0;
+    while (integers[i] != NULL)
+    {
+        if(validate_number(integers[i++]))
+        {
+            error(fs, "Invalid data value");
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+int validate_string(char *str, file_data *fs)
 {
     if(str[0] == '\"' && str[strlen(str)-1] == '\"')
         return TRUE;
+    error(fs, "Invalid string value");
     return FALSE;
 }
 

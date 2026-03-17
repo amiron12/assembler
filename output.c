@@ -14,7 +14,7 @@
 void init_output_files(char *file_name)
 {
     FILE *f;
-    char name[MAX_FNAME];
+    char name[MAX_FILE_NAME];
 
     strcpy(name, file_name);
     strcat(name, ENT);
@@ -33,7 +33,7 @@ void init_output_files(char *file_name)
 
 void init_file_data(file_data *fs, char *fname, char *ext, char *mode)
 {
-    strncpy(fs->name, fname, MAX_FNAME);
+    strncpy(fs->name, fname, MAX_FILE_NAME);
     extention(fs, ext);
     fs->ptr = fopen(fs->extended_name, mode);
     fs->error_flag = FALSE;
@@ -47,15 +47,15 @@ void create_obj_file(char *file_name, symbol *symbol_table)
 {
     FILE *ob_file;
     int i;
-    char fname[MAX_FNAME];
+    char fname[MAX_FILE_NAME];
     strcpy(fname, file_name);
     strcat(fname, OBJ);
     ob_file = fopen(fname, "w+");
     file_check(ob_file);
     IC = ICF;
 
-    fprintf(ob_file,"%d %d",ICINDEX, DCF);
-    for(i=0;i<ICINDEX;i++)
+    fprintf(ob_file,"%d %d",IC_INDEX, DCF);
+    for(i=0;i<IC_INDEX;i++)
     {
         short w;
         char c;
@@ -79,7 +79,7 @@ void create_obj_file(char *file_name, symbol *symbol_table)
 void append_entry(symbol *entry, char *file_name)
 {
     FILE *ent_file;
-    char name[MAX_FNAME];
+    char name[MAX_FILE_NAME];
     strcpy(name, file_name);
     strcat(name, ENT);
     ent_file = fopen(name, "a");
@@ -91,7 +91,7 @@ void append_entry(symbol *entry, char *file_name)
 void append_external(symbol *external, char *file_name)
 {
     FILE *ext_file;
-    char name[MAX_FNAME];
+    char name[MAX_FILE_NAME];
     strcpy(name, file_name);
     strcat(name, EXT);
     ext_file = fopen(name, "a");
@@ -102,7 +102,7 @@ void append_external(symbol *external, char *file_name)
 
 void delete_output_files(char *file_name)
 {
-    char name[MAX_FNAME];
+    char name[MAX_FILE_NAME];
 
     strcpy(name, file_name);
     strcat(name, OBJ);
