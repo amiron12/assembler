@@ -23,7 +23,6 @@ void start_pass(file_data *am_file)
     int symbol_flag;
     symbol *head;
     head = NULL;
-    am_file->symbol_list = head;
 
     fprintf(stderr,"[INFO] starting first pass\n");
 
@@ -85,6 +84,7 @@ void start_pass(file_data *am_file)
                     error(am_file, "Extraneous text after extern directive");
                 validate_symbol(symbol, am_file);
                 add_symbol(symbol, &head, 0, external);
+                continue;
             }
 
             if(is_entry(argument)) /* .entry */
@@ -115,6 +115,8 @@ void start_pass(file_data *am_file)
         error(am_file, "Invalid operation");
     }
     
+    am_file->symbol_list = head;
+
     /* finished reading file */
     if(am_file->error_flag) 
     {

@@ -54,6 +54,7 @@ void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
     int opcode, funct, val;
     int src_mode, dest_mode;
     int mode_err = FALSE;
+    src_mode = dest_mode = ZERO;
 
     if(arg1 != NULL && arg2 == NULL)
     {

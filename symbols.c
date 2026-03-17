@@ -43,7 +43,9 @@ symbol* get_symbol(char *name, symbol *head)
  returns a non-zero value if it does not exists, otherwise returns zero */
 int symbol_exists(char *name, symbol *head)
 {
-   return get_symbol(name, head) != NULL;
+    if(get_symbol(name, head) == NULL)
+        return FALSE;
+    return TRUE;
 }
 
 /* This function receives a symbol and an attribute and checks if the symbol holds this attribute

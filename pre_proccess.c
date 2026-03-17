@@ -12,7 +12,7 @@
 
 static void append_content(macro_line *head, macro_line *new_line);
 static void new_macro(char *name, macro **curr);
-static void expand(char *macro_name, macro *macro_head, FILE *expanded_file);
+static void expand(char *macro_name, macro *head, FILE *am_file);
 static char *validate_macro_start(char *macro_name, char *line);
 static void add_macro_line(char *line, macro *curr);
 static void free_lines(macro_line *head);
@@ -22,7 +22,8 @@ void expand_macros(file_data *as_file, file_data *am_file)
     macro *head;
     char buffer[LINE_LENGTH];
     int inside_macro = FALSE;
-    head = NULL;    
+    head = NULL;   
+    
 
     fprintf(stderr,"[INFO] starting pre-proccess\n");
     
@@ -53,7 +54,6 @@ void expand_macros(file_data *as_file, file_data *am_file)
             new_macro(macro_name, &head); /* creating a macro node */
             continue;
         }
-        
 
         /* Found a macro end */
         if(!strcmp(first_arg, MACRO_END))
@@ -120,9 +120,9 @@ static char *validate_macro_start(char *macro_name, char *line)
 }
 
 
-static void expand(char *macro_name, macro *macro_head, FILE *expanded_file)
+static void expand(char *macro_name, macro *head ,FILE *am_file)
 {
-    macro *ptr = macro_head;
+    macro *ptr = head;
     while(ptr != NULL && strcmp(ptr->name, macro_name))
         ptr = ptr->next;
     
@@ -131,7 +131,7 @@ static void expand(char *macro_name, macro *macro_head, FILE *expanded_file)
         macro_line *curr_line = ptr->content;
         while (curr_line != NULL) 
         {
-            fputs(curr_line->text, expanded_file);
+            fputs(curr_line->text, am_file);
             curr_line = curr_line->next;
         }
     }

@@ -17,13 +17,11 @@
 
 void second_pass(file_data *am_file)
 {
-    symbol *head;
     char buffer[LINE_LENGTH];
     IC = MEM_START;
     rewind(am_file->ptr);
     am_file->current_line = ZERO;
     init_output_files(am_file->name);
-    head = am_file->symbol_list;
     
     fprintf(stderr,"[INFO] starting second pass\n");
     
@@ -122,5 +120,4 @@ void second_pass(file_data *am_file)
         return;
     }
     create_obj_file(am_file->name, am_file->symbol_list);
-    free_data(am_file);
 }

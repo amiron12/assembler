@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         start_pass(&am_file); 
         if(am_file.error_flag) continue; /* error occurred during the passes, continuing to the next file */
 
-        fclose(am_file.ptr);
+        free_data(&am_file);
     }
     
     fprintf(stderr,"\t---Finished---\n\n"); 

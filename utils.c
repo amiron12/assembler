@@ -38,7 +38,6 @@ void error(file_data *fs, char *str)
 }
 
 
-
 void extention(file_data *fs, char *ext)
 {
     char fname[MAX_FNAME];
@@ -73,7 +72,7 @@ void validate_symbol(char *str, file_data *fs)
     if(str == NULL)
         error(fs, "Symbol not specified");
 
-    if(str[len-1]!=':') /* if its a symbol defenition in the start of a line */
+    if(str[len-1]==':') /* if its a symbol defenition in the start of a line */
     {
         clean_string(&str);
         len--;
@@ -160,6 +159,9 @@ int validate_string(char *str)
     return FALSE;
 }
 
+
+/* function for aborting the proccess of a file, mainly is the same functionality
+as free_data function, but is referenced when an error occurs */
 void abort_file(file_data *f)
 {
     fprintf(stderr,"[ERROR] Aborting file\n");
@@ -167,6 +169,8 @@ void abort_file(file_data *f)
     free_data(f);
 }
 
+/* function that wraps different memory freeing functions
+all free functions are called, those that receive NULL pointers return immidietly */
 void free_data(file_data *f)
 {
     free_symbols(f->symbol_list);
