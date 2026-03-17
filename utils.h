@@ -20,7 +20,7 @@ void validate_symbol(char *str, file_data *fs);
 int is_directive(char *str);
 int is_immediate(char *str);
 int is_relative(char *str);
-int valid_symbol_format(char *str);
+
 int is_instruction(char *str);
 int is_register(char *str);
 int is_string(char *str);
@@ -42,11 +42,11 @@ int is_macro_call(char *str, macro *head); /* defined in pre-proccess.c */
 void free_macros(macro *head);
 
 void abort_file(file_data *f);
+void free_data(file_data *f);
+
 
 /* TODO: delete: */
-void print_machine_images();
-void save_machine_images(char *name);
 extern machine_word code_image[MEMORY];
-extern machine_word data_image[MEMORY];
+extern machine_word data_image[MEMORY]; /* TODO: refactor the way we use */
 
 #endif

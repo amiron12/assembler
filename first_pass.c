@@ -36,107 +36,84 @@ void start_pass(file_data *am_file)
         am_file->current_line++;
         line = buffer;
 
-        if(is_empty_line(buffer) || is_comment(buffer)) continue;
-
         if(strlen(buffer) > MAX_LINE_LENGTH)
-        error(am_file, "Line is too long");
+            error(am_file, "Line is too long");
         
+        get_next_word(&line, &argument); /* assigning the first word to argument, line is set with the remaining text*/
 
-        get_next_word(&line, &argument);
-        
-
-        if(valid_symbol_format(argument)) 
+        if(argument[strlen(argument)-1] == ':')
         {
             symbol = argument; 
-            clean_string(&symbol); 
-            validate_symbol(symbol, am_file);
+            validate_symbol(symbol, am_file); /* if there is an error the flag will be raised, continuing to read file anyway */
             get_next_word(&line, &argument);
             symbol_flag = TRUE;
         }
     
-        op_count = tokenize(line, operands, am_file);
+        op_count = tokenize(line, operands, am_file); /* parsing through the line and inserting each word into the operands array, returns the number of words found */
         
-        if(op_count == ERR)
+        if(op_count == ERR) /* skipping a line with syntax errors, operands cannot be parsed */
             continue;
         
         if (is_directive(argument))
         {
-            if (is_data(argument))
+            if (is_data(argument)) /* .data */
             {
-                if(symbol_flag) add_symbol(symbol, &head, DC, data);
+                if(symbol_flag) 
+                    add_symbol(symbol, &head, DC, data);
                 if (validate_data(operands))
                     encode_data(operands);
                 else
                     error(am_file, "Invalid data value");
+                continue;
             }
 
-            else if (is_string(argument))
+            if(is_string(argument)) /* .string */
             {
-                if(symbol_flag) add_symbol(symbol, &head, DC, data);
+                if(symbol_flag) 
+                    add_symbol(symbol, &head, DC, data);
                 if (validate_string(*operands))
                     encode_string(*operands); /*its a string directive*/
                 else
                     error(am_file, "Invalid string value");
+                continue;
             }
 
-            else if (is_extern(argument))
-            {
-                int i, len;
-                symbol = operands[0];
-                len = strlen(symbol);
-                if (op_count != 1)
-                    error(am_file, "Extraneous text after external value");
-                else if (!isalpha(*symbol))
-                    error(am_file, "Invalid symbol name"); /* first character is non alphabetical */
-                else if ((len--) > SYMBOL_LENGTH)
-                    error(am_file, "symbol name is too long");
-                else if (symbol_exists(symbol, head))
-                    error(am_file, "symbol name already exists");
-                else if (reserved(symbol))
-                    error(am_file, "symbol name cannot be a reserved word");
-                else
-                {
-                    for (i = 1; i < len; i++)
-                        if (!isalnum(symbol[i]))
-                            error(am_file, "Invalid symbol name");
-                }
-
+            if(is_extern(argument)) /* .extern */
+            {   
+                symbol = *operands;
+                if(op_count > 1)
+                    error(am_file, "Extraneous text after extern directive");
+                validate_symbol(symbol, am_file);
                 add_symbol(symbol, &head, 0, external);
             }
 
-            else if (is_entry(argument))
+            if(is_entry(argument)) /* .entry */
             {
-                if (op_count == 0)
+                if (!op_count) /* op_count is 0 */
                     error(am_file, "No symbol after entry directive");
                 else if(op_count > 1)
                     error(am_file, "Extraneous text after entry directive");
                 continue;
             }
-            else
-            {
-                error(am_file, "Invalid directive");
-                continue;
-            }
+                
+            error(am_file, "Invalid directive");
+            continue;
+
         }
 
-        else if (is_instruction(argument))
+        if(is_instruction(argument))
         {
             if (symbol_flag) 
                 add_symbol(symbol, &head, IC, code);
             if (op_count == get_instruction_operands(argument))
                 encode_instruction(argument, operands[0], operands[1], am_file);
             else
-            {
                 error(am_file, "Invalid number of operands");
-                continue;
-            }
+            continue;
         }
 
-        else
-            error(am_file, "Invalid operation");
+        error(am_file, "Invalid operation");
     }
-
-    fprintf(stderr,"[INFO] Done reading file\n");
     
     /* finished reading file */
     if(am_file->error_flag) 
@@ -149,14 +126,10 @@ void start_pass(file_data *am_file)
     DCF = DC;
 
     update_symbols(head);
-
-
-        save_symbol_table(head, "test_output/first_pass.txt"); /* TODO: delete */
-        save_machine_images("test_output/first_pass.txt");
     
     fprintf(stderr,"[INFO] finished first pass\n");
 
-    second_pass(am_file, head); /* starting second pass */
+    second_pass(am_file);
 }
 
 

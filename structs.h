@@ -21,7 +21,6 @@ typedef struct symbol
 {
     char name[SYMBOL_LENGTH];
     int address;
-    /* enum attribute atr; */
     unsigned int attr:ATTR;
     struct symbol *next;
 } symbol;

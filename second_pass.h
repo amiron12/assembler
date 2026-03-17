@@ -3,6 +3,6 @@
 
 #include "structs.h"
 
-void second_pass(file_data *fs, symbol *head);
+void second_pass(file_data *fs);
 
 #endif

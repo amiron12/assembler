@@ -12,7 +12,9 @@
  it pushes a new symbol node with this information, and sets it as the head of the list */
 void add_symbol(char *symbol_name, symbol **head, int address, attribute attr)
 {
-    symbol *new_node = (symbol *)malloc(sizeof(symbol));
+    symbol *new_node;
+    if(symbol_name == NULL) return;
+    new_node = (symbol *)malloc(sizeof(symbol));
     memory_check(new_node);
     strncpy(new_node->name, symbol_name, SYMBOL_LENGTH);
     new_node->address = address;

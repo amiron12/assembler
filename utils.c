@@ -48,15 +48,6 @@ void extention(file_data *fs, char *ext)
 }
 
 
-
-int reserved(char *str)
-{
-    if(is_instruction(str) || is_register(str) || is_data(str) || is_entry(str) || is_extern(str) || is_string(str)) return TRUE;
-    return FALSE;
-}
-
-
-
 int is_directive(char *str){return (*str=='.')?TRUE:FALSE;}
 int is_data(char *str) {return !strcmp(str, ".data")?TRUE:FALSE;}
 int is_entry(char *str) {return !strcmp(str, ".entry")?TRUE:FALSE;}
@@ -65,15 +56,48 @@ int is_string(char *str) {return !strcmp(str, ".string")?TRUE:FALSE;}
 int is_immediate(char *str) {return (*str=='#')?TRUE:FALSE;}
 int is_relative(char *str) {return (*str=='%')?TRUE:FALSE;}
 
-int valid_symbol_format(char *str)
+
+/* general use function to check if a given string is a reserved word of the machine */
+int reserved(char *str)
 {
-    int len, i;
+    if(is_instruction(str) || is_register(str) || is_data(str) || is_entry(str) || is_extern(str) || is_string(str)) return TRUE;
+    return FALSE;
+}
+
+/* general use function to make sure that a symbol is defined by the correct rules */
+void validate_symbol(char *str, file_data *fs)
+{
+    int i, len;
     len = strlen(str);
-    if(str[len-1]!=':' || len>MAX_SYMBOL_LENGTH) return FALSE; /* symbol too long */
-    if(!isalpha(*str)) return FALSE; /* first character is non alphabetical */
-    for(i=1;i<len-1;i++)
-        if(!isalnum(str[i])) return FALSE; /* symbol contains a non alpha-numeric character */
-    return TRUE;
+    
+    if(str == NULL)
+        error(fs, "Symbol not specified");
+
+    if(str[len-1]!=':') /* if its a symbol defenition in the start of a line */
+    {
+        clean_string(&str);
+        len--;
+    }
+
+    if(len > MAX_SYMBOL_LENGTH)
+        error(fs, "Symbol name is too long"); /* symbol too long */
+
+    if (!isalpha(*str))
+        error(fs, "Invalid symbol name"); /* first character is non alphabetical */
+    
+    if(is_macro_call(str, fs->macro_list))
+        error(fs, "Symbol cannot be a macro name");
+    
+    if(symbol_exists(str, fs->symbol_list))
+        error(fs, "Symbol already exists");
+    
+    if(reserved(str))
+        error(fs, "Symbol cannot be a reserved word");
+
+    for(i=0;i<len;i++)
+        if(!isalnum(str[i]))
+            error(fs, "Invalid symbol name"); /* symbol contains a non alpha-numeric character */
+    
 }
 
 int is_instruction(char *str) 
@@ -136,23 +160,19 @@ int validate_string(char *str)
     return FALSE;
 }
 
-void validate_symbol(char *str, file_data *fs)
-{
-    if(is_macro_call(str, fs->macro_list))
-        error(fs, "Label cannot be a macro name");
-    if(symbol_exists(str, fs->symbol_list))
-        error(fs, "Label already exists");
-    if(reserved(str))
-        error(fs, "Label cannot be a reserved word");
-}
-
 void abort_file(file_data *f)
 {
     fprintf(stderr,"[ERROR] Aborting file\n");
+    delete_output_files(f->name); /* will delete if created */
+    free_data(f);
+}
+
+void free_data(file_data *f)
+{
     free_symbols(f->symbol_list);
     free_macros(f->macro_list);
-    delete_output_files(f->name); /* will delete if created */
     fclose(f->ptr);
+    fprintf(stderr,"[INFO] Data free'd\n");
 }
 
 /* this function receives a pointer to a line of text, extracts the first word (ends with the first whitespace)

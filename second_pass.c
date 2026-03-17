@@ -15,13 +15,15 @@
 
 
 
-void second_pass(file_data *am_file, symbol *head)
+void second_pass(file_data *am_file)
 {
+    symbol *head;
     char buffer[LINE_LENGTH];
     IC = MEM_START;
     rewind(am_file->ptr);
     am_file->current_line = ZERO;
     init_output_files(am_file->name);
+    head = am_file->symbol_list;
     
     fprintf(stderr,"[INFO] starting second pass\n");
     
@@ -36,7 +38,7 @@ void second_pass(file_data *am_file, symbol *head)
 
         get_next_word(&line, &argument);
         
-        if (valid_symbol_format(argument)) /* skiping labels */
+        if(argument[strlen(argument)-1] == ':') /* skiping labels */
             get_next_word(&line, &argument);
 
 
@@ -49,9 +51,9 @@ void second_pass(file_data *am_file, symbol *head)
         if (is_entry(argument))
         {
             symbol *temp;
-            if (symbol_exists(*operands, head))
+            if (symbol_exists(*operands, am_file->symbol_list))
             {
-                temp = get_symbol(*operands, head);
+                temp = get_symbol(*operands, am_file->symbol_list);
                 set_attribute(temp, entry);
                 append_entry(temp, am_file->name);
             }
@@ -67,9 +69,9 @@ void second_pass(file_data *am_file, symbol *head)
             {
                 if(code_image[ICINDEX].type == UNKNOWN) /* address not set */
                 {    
-                    if(symbol_exists(operands[i], head))
+                    if(symbol_exists(operands[i], am_file->symbol_list))
                     {
-                        symbol *temp = get_symbol(operands[i], head);
+                        symbol *temp = get_symbol(operands[i], am_file->symbol_list);
                         if (is_attribute(temp, external))
                         {
                             code_image[ICINDEX].word = ZERO;
@@ -89,11 +91,11 @@ void second_pass(file_data *am_file, symbol *head)
                 if(is_relative(operands[i]))
                 {
                     clean_string(&operands[i]);
-                    if(symbol_exists(operands[i], head))
+                    if(symbol_exists(operands[i], am_file->symbol_list))
                     {
                         symbol *temp;
                         int address;
-                        temp = get_symbol(operands[i], head);
+                        temp = get_symbol(operands[i], am_file->symbol_list);
                         if(is_attribute(temp, external))
                         {
                             error(am_file, "Relative label cannot be external");
@@ -113,15 +115,12 @@ void second_pass(file_data *am_file, symbol *head)
         }
 
     }
-
-    save_symbol_table(head, "test_output/second_pass.txt");
-    save_machine_images("test_output/second_pass.txt");
     
     if(am_file->error_flag)
     {
         abort_file(am_file);
         return;
     }
-    create_obj_file(am_file->name, head);
-    free_symbols(head);
+    create_obj_file(am_file->name, am_file->symbol_list);
+    free_data(am_file);
 }
