@@ -112,11 +112,12 @@ void start_pass(file_data *am_file)
     ICF = IC;   
     DCF = DC; /* TODO: need these? */
 
-    update_symbols(head);
+    update_symbols(am_file->symbol_list);
     second_pass(am_file);
 }
 
-
+/* looping through all data symbols, 
+appending them to the code symbols and updating the address as so */
 static void update_symbols(symbol *head)
 {
     symbol *temp = head;

@@ -11,6 +11,7 @@
 #include "structs.h" 
 #include "constants.h"
 
+/* This function is called to check a pointer after memory allocation, and exits with a fatal error if allocation failed */
 void memory_check(void *ptr)
 {
     if(ptr) return;
@@ -18,13 +19,16 @@ void memory_check(void *ptr)
     exit(1);
 }
 
+/* This function receives a file data pointer and a string, 
+    prints the error string to the standard output and turns on the file's error flag */
 void error(file_data *fs, char *str)
 {
-    printf("File: %s Line: %d - %s\n", fs->extended_name, fs->current_line, str);
+    printf("[%s:%d] -> %s\n", fs->extended_name, fs->current_line, str);
     fs->error_flag = TRUE;
 }
 
-
+/* This function receives a file data pointer, and an extention
+ it sets the pointer's extended name with the extension */
 void extention(file_data *fs, char *ext)
 {
     char fname[MAX_FILE_NAME];
@@ -33,15 +37,56 @@ void extention(file_data *fs, char *ext)
     strncpy((fs)->extended_name, fname, MAX_FILE_NAME);
 }
 
+int is_directive(char *str)
+{
+    return (*str=='.')?TRUE:FALSE;
+}
 
-int is_directive(char *str){return (*str=='.')?TRUE:FALSE;}
-int is_data(char *str) {return !strcmp(str, ".data")?TRUE:FALSE;}
-int is_entry(char *str) {return !strcmp(str, ".entry")?TRUE:FALSE;}
-int is_extern(char *str) {return !strcmp(str, ".extern")?TRUE:FALSE;}
-int is_string(char *str) {return !strcmp(str, ".string")?TRUE:FALSE;}
-int is_immediate(char *str) {return (*str=='#')?TRUE:FALSE;}
-int is_relative(char *str) {return (*str=='%')?TRUE:FALSE;}
+int is_data(char *str)
+{
+    return !strcmp(str, ".data")?TRUE:FALSE;
+}
 
+int is_entry(char *str)
+{
+    return !strcmp(str, ".entry")?TRUE:FALSE;
+}
+
+int is_extern(char *str)
+{
+    return !strcmp(str, ".extern")?TRUE:FALSE;
+}
+
+int is_string(char *str) 
+{
+    return !strcmp(str, ".string")?TRUE:FALSE;
+}
+
+int is_immediate(char *str)
+{
+    return (*str=='#')?TRUE:FALSE;
+}
+
+int is_relative(char *str)
+{
+    return (*str=='%')?TRUE:FALSE;
+}
+
+int is_instruction(char *str) 
+{
+    char *temp;
+    int i = 0;
+    while((temp = get_instruction_name(i++)) != NULL)
+        if(!strcmp(str, temp))
+            return TRUE;
+    return FALSE;
+}
+
+int is_register(char *str)
+{
+    if(strlen(str)!=2) return FALSE;
+    return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE; /* TODO: change nums */
+}
 
 /* general use function to check if a given string is a reserved word of the machine */
 int reserved(char *str)
@@ -87,22 +132,6 @@ void validate_symbol(char *str, file_data *fs)
     
 }
 
-int is_instruction(char *str) 
-{
-    char *temp;
-    int i = 0;
-    while((temp = get_instruction_name(i++)) != NULL)
-        if(!strcmp(str, temp))
-            return TRUE;
-    return FALSE;
-}
-
-int is_register(char *str)
-{
-    if(strlen(str)!=2) return FALSE;
-    return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE; /* TODO: change nums */
-}
-
 /* this functions removes the non alpha-numeric symbols from a string, depending on the symbol given as a parameter
 it is built like this so error correction can be successful on the string returning */
 void clean_string(char **str, char c)
@@ -125,6 +154,7 @@ void clean_string(char **str, char c)
     }
 }
 
+/* This function returns the addressing mode of a given string */
 int get_mode(char *str)
 {
     if(is_immediate(str)) return IMM;
@@ -133,6 +163,8 @@ int get_mode(char *str)
     return DIR;
 }
 
+/* This function receives a string and checks if it is a valid number, with no extra characters, that fits in a 12 bit word
+    returns false if there the number is not valid, and true otherwise */
 int validate_number(char *str)
 {
     char *ptr;
@@ -144,6 +176,8 @@ int validate_number(char *str)
     return TRUE;
 }
 
+/* This function receives an array of strings, goes through all and check that it is a valid number
+    returns false if there is a value that is not valid or if the array is empty, and true otherwise */
 int validate_data(char *integers[], file_data *fs)
 {
     int i = 0;
@@ -159,6 +193,8 @@ int validate_data(char *integers[], file_data *fs)
     return TRUE;
 }
 
+/* This function receives a string and the file's data, and validates the string by the assembler's rules
+    returns false if non valid, and true otherwise */
 int validate_string(char *str, file_data *fs)
 {
     if(str == NULL)
