@@ -46,6 +46,11 @@ void start_pass(file_data *am_file)
         {
             symbol = argument; 
             validate_symbol(symbol, am_file); /* if there is an error the flag will be raised, continuing to read file anyway */
+            if(is_empty_line(line))
+            {
+                error(am_file, "Empty line after symbol definition");
+                continue;
+            }
             get_next_word(&line, &argument);
         }
     
@@ -60,37 +65,25 @@ void start_pass(file_data *am_file)
                 add_symbol(symbol, &head, DC, data); /* If symbol is null, it will return without anything added */
                 if (validate_data(operands, am_file))
                     encode_data(operands);
-                continue;
             }
 
-            if(is_string(argument)) /* .string */
+            else if(is_string(argument)) /* .string */
             {
                 add_symbol(symbol, &head, DC, data); /* If symbol is null, it will return without anything added */
                 if (validate_string(*operands, am_file))
                     encode_string(*operands);      
-                continue;
             }
 
-            if(is_extern(argument)) /* .extern */
+            else if(is_extern(argument)) /* .extern */
             {   
-                symbol = *operands;
-                if(op_count > 1)
-                    error(am_file, "Extraneous text after extern symbol");
-                validate_symbol(symbol, am_file);
-                add_symbol(symbol, &head, ZERO, external);
-                continue;
+                validate_symbol(*operands, am_file);
+                add_symbol(*operands, &head, ZERO, external);
             }
 
-            if(is_entry(argument)) /* .entry */
-            {
-                if (!op_count) /* op_count is 0 */
-                    error(am_file, "No symbol after entry directive");
-                else if(op_count > 1)
-                    error(am_file, "Extraneous text after entry symbol");
-                continue;
-            }
+            else if(is_entry(argument)) {/* Nothing happens in the first pass */}
                 
-            error(am_file, "Invalid directive");
+            else
+                error(am_file, "Invalid directive");
             continue;
         }
 
@@ -109,10 +102,10 @@ void start_pass(file_data *am_file)
     /* finished reading file */
     
     am_file->symbol_list = head;
-
+    head = NULL;
     if(am_file->error_flag) 
     {
-        abort_file(am_file);
+        free_data(am_file);
         return;
     }
 

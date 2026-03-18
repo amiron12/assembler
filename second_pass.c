@@ -20,8 +20,13 @@ void second_pass(file_data *am_file)
     IC = MEM_START;
     am_file->current_line = ZERO;
     rewind(am_file->ptr);
-    init_output_files(am_file->name); /* making the output files to write in */
     create_ent = create_ext = FALSE; /* flags that indicate if a entry/external value exists */
+    init_output_files(am_file); /* making the output files to write in */
+    if(am_file->error_flag) 
+    {
+        abort_file(am_file); /* Error opening one of the output files */
+        return;
+    }
 
     while (fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
     {
@@ -51,7 +56,8 @@ void second_pass(file_data *am_file)
                 else
                 {
                     set_attribute(temp, entry); /* adding the entry attribute */
-                    append_entry(temp, am_file->name); /* writing it to the .ent file */
+                    if(!append_entry(temp, am_file)) /* writing it to the .ent file */
+                        break; /* file handling fail */
                     create_ent = TRUE; 
                 }
             }
@@ -73,7 +79,8 @@ void second_pass(file_data *am_file)
                         {
                             code_image[IC_INDEX].word = ZERO;
                             code_image[IC_INDEX].type = EXTERNAL;
-                            append_external(temp, am_file->name); /* writing it to the .ext file */
+                            if(!append_external(temp, am_file)) /* writing it to the .ext file */
+                                break; /* file handling fail */
                             create_ext = TRUE;
                         }
                         else
@@ -110,18 +117,16 @@ void second_pass(file_data *am_file)
 
     }
     
-    if(am_file->error_flag)
-    {
-        abort_file(am_file);
-        return;
-    }
+    create_obj_file(am_file);
+
     if(!create_ent)
-        delete_ent_file(am_file->name);
+    delete_ent_file(am_file->name); /* no entry symbols */
+
     if(!create_ext)
-        delete_ext_file(am_file->name);
+    delete_ext_file(am_file->name); /* no external symbols */
 
-    create_obj_file(am_file->name, am_file->symbol_list);
-    
+    if(am_file->error_flag)
+       delete_output_files(am_file->name);
 
-    
+    free_data(am_file);
 }

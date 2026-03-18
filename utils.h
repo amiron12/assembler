@@ -32,15 +32,13 @@ void clean_string(char **str, char c);
 
 void memory_check(void *ptr);
 
-void file_check(FILE *fp);
-
 void error(file_data *state, char *str);
 
 void extention(file_data *fs, char *ext);
 
 int is_macro_call(char *str, macro *head); /* defined in pre-proccess.c */
-void free_macros(macro *head);
 
+void free_macros(macro *head);
 void abort_file(file_data *f);
 void free_data(file_data *f);
 

@@ -67,11 +67,11 @@ void set_attribute(symbol *sym, attribute attr)
 /* This function goes through the whole symbol list and frees its memory */
 void free_symbols(symbol *head)
 {
-    if(head != NULL)
-    {
-        void *temp = head;
+    symbol *temp;
+    while(head != NULL)
+    {   
+        temp = head;
         head = head->next;
         free(temp);
     }
-    fprintf(stderr,"[INFO] Symbol list free'd\n");
 }

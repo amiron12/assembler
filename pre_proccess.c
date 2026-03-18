@@ -24,9 +24,6 @@ void expand_macros(file_data *as_file, file_data *am_file)
     int inside_macro = FALSE;
     head = NULL;   
     
-
-    fprintf(stderr,"[INFO] starting pre-proccess\n");
-    
     while(fgets(buffer, LINE_LENGTH, as_file->ptr) != NULL)
     {
         char *first_arg, *line;
@@ -80,20 +77,15 @@ void expand_macros(file_data *as_file, file_data *am_file)
 
     /* finished file */
     fclose(am_file->ptr);
-    fprintf(stderr,"[INFO] finished pre-proccess\n");
-    
+    fclose(as_file->ptr);
+
     if(as_file->error_flag)
-    {
-        free_macros(head);
-        remove(am_file->extended_name);
-        fprintf(stderr,"[INFO] %s deleted\n", am_file->extended_name);
-    }
-    else
-    {
-        am_file->ptr = fopen(am_file->extended_name, "r");
-        memory_check(am_file->ptr);
-        am_file->macro_list = head;
-    }
+        remove(am_file->extended_name); /* error in the source file, .am file not created */
+
+    am_file->macro_list = head;
+    am_file->ptr = fopen(am_file->extended_name, "r"); /* opening in reading mode for first pass */
+    if(!(am_file->ptr))
+        error(am_file, "Error opening file");
 }
 
 static void new_macro(char *name, macro **head)
@@ -181,8 +173,6 @@ void free_macros(macro *head)
         free_lines(temp->content);
         free(temp);
     }
-    fprintf(stderr,"[INFO] Macro list free'd\n");
-
 }
 
 static void free_lines(macro_line *head)

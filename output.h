@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 
-void init_output_files(char *file_name);
+void init_output_files(file_data *fs);
 
 void delete_output_files(char *file_name);
 
@@ -15,12 +15,12 @@ void delete_ext_file(char *file_name);
 
 void delete_obj_file(char *file_name);
 
-void append_entry(symbol *entry, char *file_name);
+int append_entry(symbol *entry, file_data *fs);
 
-void append_external(symbol *external, char *file_name);
+int append_external(symbol *external, file_data *fs);
 
 void init_file_data(file_data *fs, char *fname, char *ext, char *mode);
 
-void create_obj_file(char *file_name, symbol *symbol_table);
+void create_obj_file(file_data *fs);
 
 #endif

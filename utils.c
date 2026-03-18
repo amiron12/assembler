@@ -11,10 +11,6 @@
 #include "structs.h" 
 #include "constants.h"
 
-
-
-/* pointer validations */
-
 void memory_check(void *ptr)
 {
     if(ptr) return;
@@ -22,18 +18,9 @@ void memory_check(void *ptr)
     exit(1);
 }
 
-void file_check(FILE *fp) /* TODO: delete */
-{
-    if(fp) return;
-    printf("Fatal Error: File opening failed\n");  
-    exit(1);
-}
-
-
 void error(file_data *fs, char *str)
 {
     printf("File: %s Line: %d - %s\n", fs->extended_name, fs->current_line, str);
-    fprintf(stderr,"[ERROR] File: %s Line: %d - %s\n", fs->extended_name, fs->current_line, str);
     fs->error_flag = TRUE;
 }
 
@@ -68,11 +55,11 @@ int reserved(char *str)
 void validate_symbol(char *str, file_data *fs)
 {
     int i, len;
-    len = strlen(str);
-    
     if(str == NULL)
         error(fs, "Symbol not specified");
-
+    
+    len = strlen(str);
+    
     if(str[len-1]==':') /* if its a symbol defenition in the start of a line */
     {
         clean_string(&str, ':');
@@ -160,6 +147,7 @@ int validate_number(char *str)
 int validate_data(char *integers[], file_data *fs)
 {
     int i = 0;
+    if(integers == NULL) return FALSE;
     while (integers[i] != NULL)
     {
         if(!validate_number(integers[i++]))
@@ -173,8 +161,15 @@ int validate_data(char *integers[], file_data *fs)
 
 int validate_string(char *str, file_data *fs)
 {
+    if(str == NULL)
+    {
+        error(fs, "String not specified");
+        return FALSE;
+    }
+
     if(str[0] == '\"' && str[strlen(str)-1] == '\"')
         return TRUE;
+
     error(fs, "Invalid string value");
     return FALSE;
 }
@@ -184,7 +179,6 @@ int validate_string(char *str, file_data *fs)
 as free_data function, but is referenced when an error occurs */
 void abort_file(file_data *f)
 {
-    fprintf(stderr,"[ERROR] Aborting file\n");
     delete_output_files(f->name); /* will delete if created */
     free_data(f);
 }
@@ -196,7 +190,6 @@ void free_data(file_data *f)
     free_symbols(f->symbol_list);
     free_macros(f->macro_list);
     fclose(f->ptr);
-    fprintf(stderr,"[INFO] Data free'd\n");
 }
 
 /* this function receives a pointer to a line of text, extracts the first word (ends with the first whitespace)
