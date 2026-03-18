@@ -10,6 +10,9 @@
 machine_word data_image[MEMORY];
 machine_word code_image[MEMORY];
 
+extern machine_word code_image[MEMORY];
+extern machine_word data_image[MEMORY];
+
 void encode_instruction(char *str, char* src, char* dest, file_data *fs);
 
 void encode_data(char *args[]);

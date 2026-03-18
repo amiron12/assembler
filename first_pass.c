@@ -20,9 +20,7 @@ void start_pass(file_data *am_file)
 {
     char buffer[LINE_LENGTH];
     char *operands[LINE_LENGTH];
-    int symbol_flag;
-    symbol *head;
-    head = NULL;
+    symbol *head = NULL;
 
     while(fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
     {
@@ -31,6 +29,7 @@ void start_pass(file_data *am_file)
         symbol = NULL;
         am_file->current_line++;
         line = buffer;
+        am_file->symbol_list = head;
         
         if(IC+DC >= MEMORY) 
         {

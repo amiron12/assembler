@@ -47,8 +47,7 @@ typedef enum op_mode {IMM, DIR, REL, REG} op_mode;
 
 extern int IC, DC, ICF, DCF;
 
-extern machine_word code_image[MEMORY];
-extern machine_word data_image[MEMORY];
+
 
 
 #endif

@@ -9,6 +9,12 @@ void init_output_files(char *file_name);
 
 void delete_output_files(char *file_name);
 
+void delete_ent_file(char *file_name);
+
+void delete_ext_file(char *file_name);
+
+void delete_obj_file(char *file_name);
+
 void append_entry(symbol *entry, char *file_name);
 
 void append_external(symbol *external, char *file_name);

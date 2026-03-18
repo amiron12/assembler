@@ -60,6 +60,7 @@ int is_relative(char *str) {return (*str=='%')?TRUE:FALSE;}
 int reserved(char *str)
 {
     if(is_instruction(str) || is_register(str) || is_data(str) || is_entry(str) || is_extern(str) || is_string(str)) return TRUE;
+    if(!strcmp(str, MACRO_START) || !strcmp(str, MACRO_END)) return TRUE;
     return FALSE;
 }
 
@@ -94,7 +95,7 @@ void validate_symbol(char *str, file_data *fs)
         error(fs, "Symbol cannot be a reserved word");
 
     for(i=0;i<len;i++)
-        if(!isalnum(str[i]))
+        if(!isalnum(str[i]) && str[i]!='_')
             error(fs, "Invalid symbol name"); /* symbol contains a non alpha-numeric character */
     
 }
@@ -148,7 +149,7 @@ int get_mode(char *str)
 int validate_number(char *str)
 {
     char *ptr;
-    int result;
+    long result;
     result = strtol(str, &ptr, DEC);
     if(ptr == str) return FALSE;
     if(*ptr != '\0') return FALSE;
@@ -161,7 +162,7 @@ int validate_data(char *integers[], file_data *fs)
     int i = 0;
     while (integers[i] != NULL)
     {
-        if(validate_number(integers[i++]))
+        if(!validate_number(integers[i++]))
         {
             error(fs, "Invalid data value");
             return FALSE;

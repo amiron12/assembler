@@ -102,19 +102,31 @@ void append_external(symbol *external, char *file_name)
 
 void delete_output_files(char *file_name)
 {
+    delete_ent_file(file_name);
+    delete_ext_file(file_name);
+    delete_obj_file(file_name);
+}
+
+void delete_ent_file(char *file_name)
+{
     char name[MAX_FILE_NAME];
-
-    strcpy(name, file_name);
-    strcat(name, OBJ);
-    remove(name);
-
-    strcpy(name, file_name);
-    strcat(name, EXT);
-    remove(name);
-
     strcpy(name, file_name);
     strcat(name, ENT);
     remove(name);
+}
 
-    fprintf(stderr,"[INFO] output files deleted\n");
+void delete_ext_file(char *file_name)
+{
+    char name[MAX_FILE_NAME];
+    strcpy(name, file_name);
+    strcat(name, EXT);
+    remove(name);
+}
+
+void delete_obj_file(char *file_name)
+{
+    char name[MAX_FILE_NAME];
+    strcpy(name, file_name);
+    strcat(name, OBJ);
+    remove(name);
 }

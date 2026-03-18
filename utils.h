@@ -45,7 +45,4 @@ void abort_file(file_data *f);
 void free_data(file_data *f);
 
 
-/* TODO: delete: */
- /* TODO: refactor the way we use */
-
 #endif
