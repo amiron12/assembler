@@ -7,7 +7,7 @@
 
 #include "symbols.h"
 #include "machine_image.h"
-#include "text_parsing.h"
+#include "string_utils.h"
 #include "const_tables.h"
 #include "second_pass.h"
 #include "constants.h"
@@ -31,11 +31,11 @@ void start_pass(file_data *am_file)
         line = buffer;
         am_file->symbol_list = head;
         
-        if(IC+DC >= MEMORY) 
+        if(IC+DC >= MEMORY)
         {
             error(am_file, "Memory overflow");
-            abort_file(am_file);
-            return;
+            free_data(am_file); /* freeing the symbol and macro list */
+            return; /* stop proccessing this file */
         }
 
         if(strlen(buffer) > MAX_LINE_LENGTH) error(am_file, "Line is too long");
@@ -62,50 +62,56 @@ void start_pass(file_data *am_file)
         {
             if (is_data(argument)) /* .data */
             {
-                add_symbol(symbol, &head, DC, data); /* If symbol is null, it will return without anything added */
+                add_symbol(symbol, &head, DC, data); /* If symbol is null, meaning no symbol was found, it will return without anything added */
                 if (validate_data(operands, am_file))
                     encode_data(operands);
             }
 
             else if(is_string(argument)) /* .string */
             {
-                add_symbol(symbol, &head, DC, data); /* If symbol is null, it will return without anything added */
+                add_symbol(symbol, &head, DC, data); /* If symbol is null, meaning no symbol was found, it will return without anything added */
                 if (validate_string(*operands, am_file))
                     encode_string(*operands);      
             }
 
             else if(is_extern(argument)) /* .extern */
             {   
-                validate_symbol(*operands, am_file);
+                if(op_count > ONE) 
+                    error(am_file, "Extraneous text after symbol");
+                symbol = *operands; /* first argument after .extern */
+                validate_symbol(symbol, am_file);
                 add_symbol(*operands, &head, ZERO, external);
             }
 
-            else if(is_entry(argument)) {/* Nothing happens in the first pass */}
+            else if(is_entry(argument)) 
+            {
+                if(op_count > ONE) 
+                    error(am_file, "Extraneous text after symbol");
+            }
                 
             else
                 error(am_file, "Invalid directive");
-            continue;
         }
 
-        if(is_instruction(argument))
+        else if(is_instruction(argument))
         {
             add_symbol(symbol, &head, IC, code); /* If symbol is null, it will return without anything added */
             if (op_count == get_instruction_operands(argument))
                 encode_instruction(argument, operands[0], operands[1], am_file);
             else
                 error(am_file, "Invalid number of operands");
-            continue;
         }
 
-        error(am_file, "Invalid operation");
+        else
+            error(am_file, "Invalid operation");
     }
     /* finished reading file */
     
     am_file->symbol_list = head;
     head = NULL;
     if(am_file->error_flag) 
-    {
-        free_data(am_file);
+    {   /* error found during the first pass, stoping the proccess and continuing to the next file */
+        free_data(am_file); /* freeing the symbol and macro list */
         return;
     }
 

@@ -1,4 +1,4 @@
-#include "text_parsing.h"
+#include "string_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,11 +8,17 @@
 #include "constants.h"
 #include "utils.h"
 
-/* TODO: fix comments */
-
 static char* trim_space(char *str);
 static int validate_commas(char *input, file_data *fs);
 
+
+/* this function receives a pointer to a line of text, extracts the first word (ends with the first whitespace)
+ and leaves the original pointer as the remaining of the line */
+void get_next_word(char **line, char **word)
+{
+    *word = strtok(*line, " \t\n\r");
+    *line = strtok(NULL, "");
+}
 
 int tokenize(char *line, char *args[], file_data *fs)
 {
@@ -22,7 +28,7 @@ int tokenize(char *line, char *args[], file_data *fs)
     memset(args, 0, MAX_OPERANDS*sizeof(char *)); /* reseting the array */
 
     /* checking if the input is empty */
-    if(line == NULL)
+    if(line == NULL || is_empty_line(line))
         return ZERO; 
 
     
@@ -34,10 +40,10 @@ int tokenize(char *line, char *args[], file_data *fs)
     
     token = strtok(line, ","); 
     while(token != NULL)
-        {
-            args[i++] = trim_space(token); 
-            token = strtok(NULL, ",");
-        }
+    {
+        args[i++] = trim_space(token); 
+        token = strtok(NULL, ",");
+    }
     args[i]=NULL; /* end of arguments */
     return i;
 }
@@ -110,7 +116,6 @@ static int validate_commas(char *input, file_data *fs)
     return TRUE;
 }
 
-
 int is_empty_line(char *buff) {
     if (buff == NULL) return TRUE;
     while (*buff) 
@@ -128,4 +133,36 @@ int is_comment(char *line)
        line++;
     if(*line == ';') return TRUE;
     return FALSE;
+}
+
+/* This function receives a file data pointer, and an extention
+ it sets the pointer's extended name with the extension */
+void extention(file_data *fs, char *ext)
+{
+    char fname[MAX_FILE_NAME];
+    strcpy(fname, (fs)->name);
+    strcat(fname, ext);
+    strncpy((fs)->extended_name, fname, MAX_FILE_NAME);
+}
+
+/* this functions removes the non alpha-numeric symbols from a string, depending on the symbol given as a parameter
+it is built like this so error correction can be successful on the string returning */
+void clean_string(char **str, char c)
+{
+    switch (c)
+    {
+    case (':'):
+        (*str)[strlen(*str)-1] = '\0';
+        break;
+    case ('#'):
+        (*str)++;
+        break;
+    case ('%'):
+        (*str)++;
+        break;
+    case ('"'):
+        (*str)++;
+        (*str)[strlen(*str)-1] = '\0';
+        break;
+    }
 }

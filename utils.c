@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "string_utils.h"
 #include "output.h"
 #include "symbols.h"
 #include "const_tables.h"
@@ -25,16 +26,6 @@ void error(file_data *fs, char *str)
 {
     printf("[%s:%d] -> %s\n", fs->extended_name, fs->current_line, str);
     fs->error_flag = TRUE;
-}
-
-/* This function receives a file data pointer, and an extention
- it sets the pointer's extended name with the extension */
-void extention(file_data *fs, char *ext)
-{
-    char fname[MAX_FILE_NAME];
-    strcpy(fname, (fs)->name);
-    strcat(fname, ext);
-    strncpy((fs)->extended_name, fname, MAX_FILE_NAME);
 }
 
 int is_directive(char *str)
@@ -132,28 +123,6 @@ void validate_symbol(char *str, file_data *fs)
     
 }
 
-/* this functions removes the non alpha-numeric symbols from a string, depending on the symbol given as a parameter
-it is built like this so error correction can be successful on the string returning */
-void clean_string(char **str, char c)
-{
-    switch (c)
-    {
-    case (':'):
-        (*str)[strlen(*str)-1] = '\0';
-        break;
-    case ('#'):
-        (*str)++;
-        break;
-    case ('%'):
-        (*str)++;
-        break;
-    case ('"'):
-        (*str)++;
-        (*str)[strlen(*str)-1] = '\0';
-        break;
-    }
-}
-
 /* This function returns the addressing mode of a given string */
 int get_mode(char *str)
 {
@@ -210,15 +179,6 @@ int validate_string(char *str, file_data *fs)
     return FALSE;
 }
 
-
-/* function for aborting the proccess of a file, mainly is the same functionality
-as free_data function, but is referenced when an error occurs */
-void abort_file(file_data *f)
-{
-    delete_output_files(f->name); /* will delete if created */
-    free_data(f);
-}
-
 /* function that wraps different memory freeing functions
 all free functions are called, those that receive NULL pointers return immidietly */
 void free_data(file_data *f)
@@ -227,15 +187,5 @@ void free_data(file_data *f)
     free_macros(f->macro_list);
     fclose(f->ptr);
 }
-
-/* this function receives a pointer to a line of text, extracts the first word (ends with the first whitespace)
- and leaves the original pointer as the remaining of the line */
-void get_next_word(char **line, char **word)
-{
-    *word = strtok(*line, " \t\n\r");
-    *line = strtok(NULL, "");
-}
-
-
 
    

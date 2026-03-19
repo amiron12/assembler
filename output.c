@@ -10,8 +10,10 @@
 #include "utils.h"
 #include "machine_image.h"
 
-
-void init_output_files(file_data *fs)
+/* This function is used once in the begining of the second pass,
+opens the output files, so they are ready to append to.
+if opening fails, the error is already handled inside the function */
+int init_output_files(file_data *fs)
 {
     FILE *f;
     char name[MAX_FILE_NAME];
@@ -30,6 +32,13 @@ void init_output_files(file_data *fs)
     if(!f)
         error(fs, "Error opening .ext file");
     fclose(f);
+
+    if(!(fs->error_flag))
+        return ZERO;
+
+    delete_output_files(file_name);
+    free_data(fs);
+    return ERR;
 }
 
 void init_file_data(file_data *fs, char *fname, char *ext, char *mode)

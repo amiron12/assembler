@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "text_parsing.h"
+#include "string_utils.h"
 #include "constants.h"
 #include "structs.h"
 #include "utils.h"

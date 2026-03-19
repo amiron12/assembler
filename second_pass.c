@@ -7,7 +7,7 @@
 
 #include "symbols.h"
 #include "output.h"
-#include "text_parsing.h"
+#include "string_utils.h"
 #include "machine_image.h"
 #include "structs.h"
 #include "constants.h"
@@ -16,28 +16,24 @@
 void second_pass(file_data *am_file)
 {
     int create_ent, create_ext;
-    char buffer[LINE_LENGTH];
+    char buffer[MAX_LINE_LENGTH]; /* Set to 81, validation is already done in first pass */
     IC = MEM_START;
     am_file->current_line = ZERO;
     rewind(am_file->ptr);
     create_ent = create_ext = FALSE; /* flags that indicate if a entry/external value exists */
-    init_output_files(am_file); /* making the output files to write in */
-    if(am_file->error_flag) 
-    {
-        abort_file(am_file); /* Error opening one of the output files */
+    
+    if(init_output_files(am_file) == ERR) /* making the output files to write in, file errors are handled inside, and memory is freed in case of failure*/
         return;
-    }
 
-    while (fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
+    while (fgets(buffer, MAX_LINE_LENGTH, am_file->ptr) != NULL)
     {
         char *operands[MAX_OPERANDS], *argument, *line;
         int op_count;
         symbol *temp;
-
-        am_file->current_line++;
         line = buffer;
+        am_file->current_line++;
 
-        get_next_word(&line, &argument);
+        get_next_word(&line, &argument); /* assigning the first word to argument, line is set with the remaining text */
         
         if(argument[strlen(argument)-1] == ':') /* skiping symbols */
             get_next_word(&line, &argument);
@@ -45,7 +41,7 @@ void second_pass(file_data *am_file)
         if (is_data(argument) || is_string(argument) || is_extern(argument))
             continue;
 
-        op_count = tokenize(line, operands, am_file);
+        op_count = tokenize(line, operands, am_file); /* parsing through the line and inserting each word into the operands array, returns the number of words found */
 
         if (is_entry(argument))
         {

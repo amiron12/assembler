@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include "structs.h"
 
-void get_next_word(char **line, char **word);
-
 int reserved(char *str);
 
 int get_mode(char *str);
@@ -28,18 +26,13 @@ int is_data(char *str);
 int is_extern(char *str);
 int is_entry(char *str);
 
-void clean_string(char **str, char c);
-
 void memory_check(void *ptr);
 
 void error(file_data *state, char *str);
 
-void extention(file_data *fs, char *ext);
-
 int is_macro_call(char *str, macro *head); /* defined in pre-proccess.c */
 
 void free_macros(macro *head);
-void abort_file(file_data *f);
 void free_data(file_data *f);
 
 

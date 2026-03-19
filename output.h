@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 
-void init_output_files(file_data *fs);
+int init_output_files(file_data *fs);
 
 void delete_output_files(char *file_name);
 
