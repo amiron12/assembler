@@ -15,8 +15,25 @@
 
 int IC, DC, ICF, DCF;
 
-static void reset_state();
+/**
+ * This helper function resets the global assembler state variables, 
+ * such as instruction and data counters, and clears the memory images.
+ * It is called before processing each new file.
+ */
+static void reset_state()
+{
+    DC = ZERO;
+    IC = MEM_START;
+    ICF = DCF = ZERO; 
+    memset(code_image, ZERO, sizeof(code_image));
+    memset(data_image, ZERO, sizeof(data_image));
+}
 
+/**
+ * The main entry point of the assembler program. It loops through all 
+ * provided assembly files, initializes their state, expands macros, 
+ * and starts the assembling passes.
+ */
 int main(int argc, char *argv[])
 {
     char *fname;    
@@ -35,14 +52,4 @@ int main(int argc, char *argv[])
         start_pass(&am_file); 
     }
     return 0;
-}
-
-
-static void reset_state()
-{
-    DC = ZERO;
-    IC = MEM_START;
-    ICF = DCF = ZERO; 
-    memset(code_image, ZERO, sizeof(code_image));
-    memset(data_image, ZERO, sizeof(data_image));
 }

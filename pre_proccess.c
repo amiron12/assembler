@@ -17,6 +17,12 @@ static char *validate_macro_start(char *macro_name, char *line);
 static void add_macro_line(char *line, macro *curr);
 static void free_lines(macro_line *head);
 
+/**
+ * This function handles the macro expansion stage (pre-assembler).
+ * It reads the source file (.as), identifies macro definitions, and 
+ * stores them. When a macro is called, it expands the macro by writing
+ * its content to the expanded source file (.am).
+ */
 void expand_macros(file_data *as_file, file_data *am_file)
 {
     macro *head;
@@ -88,6 +94,10 @@ void expand_macros(file_data *as_file, file_data *am_file)
         error(am_file, "Error opening file");
 }
 
+/**
+ * This helper function allocates memory for a new macro and inserts it 
+ * at the beginning of the macro linked list.
+ */
 static void new_macro(char *name, macro **head)
 {
     {
@@ -100,6 +110,11 @@ static void new_macro(char *name, macro **head)
     }    
 }
 
+/**
+ * This helper function validates the macro name and checks for any extraneous
+ * text after the macro definition. Returns an error message string if invalid, 
+ * or NULL if valid.
+ */
 static char *validate_macro_start(char *macro_name, char *line)
 {
     if(macro_name == NULL)
@@ -111,7 +126,10 @@ static char *validate_macro_start(char *macro_name, char *line)
     return NULL;
 }
 
-
+/**
+ * This helper function expands a macro by finding it in the macro list
+ * and writing its stored content to the output file (.am).
+ */
 static void expand(char *macro_name, macro *head ,FILE *am_file)
 {
     macro *ptr = head;
@@ -129,6 +147,10 @@ static void expand(char *macro_name, macro *head ,FILE *am_file)
     }
 }
 
+/**
+ * This function checks if a given string matches any of the stored macro names.
+ * Returns TRUE if it is a macro call, FALSE otherwise.
+ */
 int is_macro_call(char *str, macro *head)
 {
     macro *temp = head;
@@ -141,6 +163,10 @@ int is_macro_call(char *str, macro *head)
     return FALSE;
 }
 
+/**
+ * This helper function creates a new line of text for a macro and appends 
+ * it to the content list of the current macro.
+ */
 static void add_macro_line(char *line, macro *head)
 {
     macro_line *new_line = (macro_line *)malloc(sizeof(macro_line));
@@ -154,6 +180,10 @@ static void add_macro_line(char *line, macro *head)
         append_content(head->content, new_line);
 }
 
+/**
+ * This helper function traverses the macro's content linked list and appends 
+ * a newly created line to the end.
+ */
 static void append_content(macro_line *head, macro_line *new_line)
 {
     macro_line *temp;
@@ -163,6 +193,10 @@ static void append_content(macro_line *head, macro_line *new_line)
     temp->next = new_line;
 }
 
+/**
+ * This function frees all memory associated with the macro linked list, 
+ * including their content lines.
+ */
 void free_macros(macro *head)
 {
     macro *temp = head;
@@ -175,6 +209,10 @@ void free_macros(macro *head)
     }
 }
 
+/**
+ * This helper function frees the memory allocated for the macro lines
+ * within a macro's content list.
+ */
 static void free_lines(macro_line *head)
 {
     macro_line *temp = head;

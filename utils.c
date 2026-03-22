@@ -12,7 +12,28 @@
 #include "structs.h" 
 #include "constants.h"
 
-/* This function is called to check a pointer after memory allocation, and exits with a fatal error if allocation failed */
+/**
+ * This function initializes a file_data structure with the given file name, 
+ * extension, and mode. It opens the file and resets all relevant flags 
+ * and pointers.
+ */
+void init_file_data(file_data *fs, char *fname, char *ext, char *mode)
+{
+    strncpy(fs->name, fname, MAX_FILE_NAME);
+    extention(fs, ext);
+    fs->ptr = fopen(fs->extended_name, mode);
+    fs->error_flag = FALSE;
+    fs->current_line = ZERO;
+    fs->macro_list = NULL;
+    fs->symbol_list = NULL;
+    if((fs->ptr)) return;
+    error(fs, "Error opening file");
+}
+
+/**
+ * This function checks a pointer after memory allocation, 
+ * and exits the program with a fatal error if the allocation failed.
+ */
 void memory_check(void *ptr)
 {
     if(ptr) return;
@@ -20,49 +41,84 @@ void memory_check(void *ptr)
     exit(1);
 }
 
-/* This function receives a file data pointer and a string, 
-    prints the error string to the standard output and turns on the file's error flag */
+/**
+ * This function receives a file_data pointer and an error message string.
+ * It prints the error message to the standard output along with the file name
+ * and line number, and turns on the file's error flag.
+ */
 void error(file_data *fs, char *str)
 {
     printf("[%s:%d] -> %s\n", fs->extended_name, fs->current_line, str);
     fs->error_flag = TRUE;
 }
 
+/**
+ * This function checks if a given string starts with a dot ('.'),
+ * indicating it might be a directive. Returns TRUE if it is, FALSE otherwise.
+ */
 int is_directive(char *str)
 {
     return (*str=='.')?TRUE:FALSE;
 }
 
+/**
+ * This function checks if a given string is the ".data" directive.
+ * Returns TRUE if it matches, FALSE otherwise.
+ */
 int is_data(char *str)
 {
     return !strcmp(str, ".data")?TRUE:FALSE;
 }
 
+/**
+ * This function checks if a given string is the ".entry" directive.
+ * Returns TRUE if it matches, FALSE otherwise.
+ */
 int is_entry(char *str)
 {
     return !strcmp(str, ".entry")?TRUE:FALSE;
 }
 
+/**
+ * This function checks if a given string is the ".extern" directive.
+ * Returns TRUE if it matches, FALSE otherwise.
+ */
 int is_extern(char *str)
 {
     return !strcmp(str, ".extern")?TRUE:FALSE;
 }
 
+/**
+ * This function checks if a given string is the ".string" directive.
+ * Returns TRUE if it matches, FALSE otherwise.
+ */
 int is_string(char *str) 
 {
     return !strcmp(str, ".string")?TRUE:FALSE;
 }
 
+/**
+ * This function checks if an operand string represents an immediate value
+ * (starts with '#'). Returns TRUE if it does, FALSE otherwise.
+ */
 int is_immediate(char *str)
 {
     return (*str=='#')?TRUE:FALSE;
 }
 
+/**
+ * This function checks if an operand string represents a relative addressing
+ * (starts with '%'). Returns TRUE if it does, FALSE otherwise.
+ */
 int is_relative(char *str)
 {
     return (*str=='%')?TRUE:FALSE;
 }
 
+/**
+ * This function checks if a given string is a valid machine instruction.
+ * Returns TRUE if it matches an instruction name, FALSE otherwise.
+ */
 int is_instruction(char *str) 
 {
     char *temp;
@@ -73,13 +129,21 @@ int is_instruction(char *str)
     return FALSE;
 }
 
+/**
+ * This function checks if a given string represents a valid register (r0-r7).
+ * Returns TRUE if it is a register, FALSE otherwise.
+ */
 int is_register(char *str)
 {
     if(strlen(str)!=2) return FALSE;
     return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE; /* TODO: change nums */
 }
 
-/* general use function to check if a given string is a reserved word of the machine */
+/**
+ * This general use function checks if a given string is a reserved word
+ * of the assembler (instruction, register, directive, or macro keyword).
+ * Returns TRUE if it is reserved, FALSE otherwise.
+ */
 int reserved(char *str)
 {
     if(is_instruction(str) || is_register(str) || is_data(str) || is_entry(str) || is_extern(str) || is_string(str)) return TRUE;
@@ -87,7 +151,11 @@ int reserved(char *str)
     return FALSE;
 }
 
-/* general use function to make sure that a symbol is defined by the correct rules */
+/**
+ * This general use function makes sure that a symbol is defined according 
+ * to the correct rules (length, starting with a letter, alphanumeric characters,
+ * not reserved, etc.). It reports an error if the symbol is invalid.
+ */
 void validate_symbol(char *str, file_data *fs)
 {
     int i, len;
@@ -123,7 +191,10 @@ void validate_symbol(char *str, file_data *fs)
     
 }
 
-/* This function returns the addressing mode of a given string */
+/**
+ * This function returns the addressing mode of a given operand string.
+ * (Immediate, Relative, Register, or Direct).
+ */
 int get_mode(char *str)
 {
     if(is_immediate(str)) return IMM;
@@ -132,8 +203,11 @@ int get_mode(char *str)
     return DIR;
 }
 
-/* This function receives a string and checks if it is a valid number, with no extra characters, that fits in a 12 bit word
-    returns false if there the number is not valid, and true otherwise */
+/**
+ * This function receives a string and checks if it is a valid integer number
+ * that fits within the limits of a 12-bit word. 
+ * Returns TRUE if the number is valid, FALSE otherwise.
+ */
 int validate_number(char *str)
 {
     char *ptr;
@@ -145,8 +219,11 @@ int validate_number(char *str)
     return TRUE;
 }
 
-/* This function receives an array of strings, goes through all and check that it is a valid number
-    returns false if there is a value that is not valid or if the array is empty, and true otherwise */
+/**
+ * This function receives an array of strings representing data integers,
+ * and validates that each one is a valid number.
+ * Returns TRUE if all are valid, FALSE otherwise.
+ */
 int validate_data(char *integers[], file_data *fs)
 {
     int i = 0;
@@ -162,8 +239,11 @@ int validate_data(char *integers[], file_data *fs)
     return TRUE;
 }
 
-/* This function receives a string and the file's data, and validates the string by the assembler's rules
-    returns false if non valid, and true otherwise */
+/**
+ * This function receives a string and validates that it represents a correct
+ * string literal (enclosed in double quotes).
+ * Returns TRUE if valid, FALSE otherwise.
+ */
 int validate_string(char *str, file_data *fs)
 {
     if(str == NULL)
@@ -179,8 +259,10 @@ int validate_string(char *str, file_data *fs)
     return FALSE;
 }
 
-/* function that wraps different memory freeing functions
-all free functions are called, those that receive NULL pointers return immidietly */
+/**
+ * This function wraps different memory freeing functions.
+ * It frees all symbol lists, macro lists, and closes the file pointer.
+ */
 void free_data(file_data *f)
 {
     free_symbols(f->symbol_list);

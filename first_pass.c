@@ -14,8 +14,28 @@
 #include "structs.h"
 #include "utils.h"
 
-static void update_symbols(symbol *head);
+/**
+ * This helper function loops through all data symbols and adds the final 
+ * instruction counter (ICF) to their addresses, so they follow the instruction block in memory.
+ */
+static void update_symbols(symbol *head)
+{
+    symbol *temp = head;
+    while(temp != NULL)
+    {
+        if(is_attribute(temp, data))
+            temp->address += ICF;
+        temp = temp->next;
+    }
+}
 
+/**
+ * This function performs the first pass of the assembler on a given file.
+ * It reads the file line by line, handles symbol definitions, validates 
+ * operands and directives, encodes data and string directives, and encodes
+ * instructions without resolving forward references.
+ * Finally, it updates data symbol addresses and calls the second pass.
+ */
 void start_pass(file_data *am_file)
 {
     char buffer[LINE_LENGTH];
@@ -120,17 +140,4 @@ void start_pass(file_data *am_file)
 
     update_symbols(am_file->symbol_list);
     second_pass(am_file);
-}
-
-/* looping through all data symbols, 
-appending them to the code symbols and updating the address as so */
-static void update_symbols(symbol *head)
-{
-    symbol *temp = head;
-    while(temp != NULL)
-    {
-        if(is_attribute(temp, data))
-            temp->address += ICF;
-        temp = temp->next;
-    }
 }

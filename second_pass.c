@@ -13,6 +13,12 @@
 #include "constants.h"
 #include "utils.h"
 
+/**
+ * This function performs the second pass of the assembler on a given file.
+ * It reads the file line by line, resolves symbolic addresses, encodes 
+ * entry and external symbols, and builds the final machine code image.
+ * Finally, it generates the output files (.ob, .ent, .ext) or deletes them on error.
+ */
 void second_pass(file_data *am_file)
 {
     int create_ent, create_ext;

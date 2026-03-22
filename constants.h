@@ -40,7 +40,6 @@
 #define MAX_NUM 2047
 #define MIN_NUM -2048
 
-/* TODO: add PC? */
 
 typedef enum attribute {data, code, external, entry} attribute;
 typedef enum op_mode {IMM, DIR, REL, REG} op_mode;

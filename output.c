@@ -10,9 +10,11 @@
 #include "utils.h"
 #include "machine_image.h"
 
-/* This function is used once in the begining of the second pass,
-opens the output files, so they are ready to append to.
-if opening fails, the error is already handled inside the function */
+/**
+ * This function is used at the beginning of the second pass to open 
+ * the output files (.ent, .ext) in write mode to clear their contents.
+ * Returns ZERO on success, or ERR if opening fails.
+ */
 int init_output_files(file_data *fs)
 {
     FILE *f;
@@ -41,19 +43,11 @@ int init_output_files(file_data *fs)
     return ERR;
 }
 
-void init_file_data(file_data *fs, char *fname, char *ext, char *mode)
-{
-    strncpy(fs->name, fname, MAX_FILE_NAME);
-    extention(fs, ext);
-    fs->ptr = fopen(fs->extended_name, mode);
-    fs->error_flag = FALSE;
-    fs->current_line = ZERO;
-    fs->macro_list = NULL;
-    fs->symbol_list = NULL;
-    if((fs->ptr)) return;
-    error(fs, "Error opening file");
-}
-
+/**
+ * This function generates the final object (.ob) file. It writes the 
+ * instruction and data counters, followed by the memory image 
+ * (instructions and data) formatted as required.
+ */
 void create_obj_file(file_data *fs)
 {
     FILE *ob_file;
@@ -93,6 +87,10 @@ void create_obj_file(file_data *fs)
     fclose(ob_file);
 }
 
+/**
+ * This function appends an entry symbol and its resolved address to 
+ * the entries (.ent) output file. Returns TRUE on success, FALSE on failure.
+ */
 int append_entry(symbol *entry, file_data *fs)
 {
     FILE *ent_file;
@@ -111,6 +109,11 @@ int append_entry(symbol *entry, file_data *fs)
     return TRUE;
 }
 
+/**
+ * This function appends an external symbol and the address where it is 
+ * used to the externals (.ext) output file. Returns TRUE on success, 
+ * FALSE on failure.
+ */
 int append_external(symbol *external, file_data *fs)
 {
     FILE *ext_file;
@@ -129,6 +132,10 @@ int append_external(symbol *external, file_data *fs)
     return TRUE;
 }
 
+/**
+ * This function deletes all generated output files (.ent, .ext, .ob) 
+ * for a given base file name, typically used when an error is encountered.
+ */
 void delete_output_files(char *file_name)
 {
     delete_ent_file(file_name);
@@ -136,6 +143,9 @@ void delete_output_files(char *file_name)
     delete_obj_file(file_name);
 }
 
+/**
+ * This function deletes the entries (.ent) file for a given base file name.
+ */
 void delete_ent_file(char *file_name)
 {
     char name[MAX_FILE_NAME];
@@ -144,6 +154,9 @@ void delete_ent_file(char *file_name)
     remove(name);
 }
 
+/**
+ * This function deletes the externals (.ext) file for a given base file name.
+ */
 void delete_ext_file(char *file_name)
 {
     char name[MAX_FILE_NAME];
@@ -152,6 +165,9 @@ void delete_ext_file(char *file_name)
     remove(name);
 }
 
+/**
+ * This function deletes the object (.ob) file for a given base file name.
+ */
 void delete_obj_file(char *file_name)
 {
     char name[MAX_FILE_NAME];

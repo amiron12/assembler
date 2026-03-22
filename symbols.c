@@ -8,8 +8,11 @@
 #include "constants.h"
 #include "utils.h"
 
-/* This functions receives a symbol list and all information for a new symbol
- it pushes a new symbol node with this information, and sets it as the head of the list */
+/**
+ * This function receives a symbol list and all information for a new symbol.
+ * It allocates a new symbol node, sets its information, and pushes it 
+ * to the head of the list.
+ */
 void add_symbol(char *symbol_name, symbol **head, int address, attribute attr)
 {
     symbol *new_node;
@@ -23,9 +26,11 @@ void add_symbol(char *symbol_name, symbol **head, int address, attribute attr)
     *head = new_node;
 }
 
-/* This functions receives a string and a symbol list
- it checks if there is a symbol with the string as its name
- returns the symbol if it exists, otherwise returns NULL */
+/**
+ * This function receives a string and a symbol list.
+ * It checks if there is a symbol with the given string as its name.
+ * Returns the symbol pointer if it exists, otherwise returns NULL.
+ */
 symbol* get_symbol(char *name, symbol *head)
 {
     symbol *curr = head;
@@ -38,9 +43,11 @@ symbol* get_symbol(char *name, symbol *head)
     return NULL;
 }
 
-/* This functions receives a string and a symbol list
- it checks if there is a symbol with the string as its name
- returns a non-zero value if it does not exists, otherwise returns zero */
+/**
+ * This function receives a string and a symbol list.
+ * It checks if there is a symbol with the given string as its name.
+ * Returns TRUE if it exists, FALSE otherwise.
+ */
 int symbol_exists(char *name, symbol *head)
 {
     if(get_symbol(name, head) == NULL)
@@ -48,8 +55,11 @@ int symbol_exists(char *name, symbol *head)
     return TRUE;
 }
 
-/* This function receives a symbol and an attribute and checks if the symbol holds this attribute
- if the attribute bit flag is turned on, it returns a non zero value, otherwise returns zero */
+/**
+ * This function receives a symbol and an attribute and checks if the symbol 
+ * holds this attribute. Returns a non-zero value if the attribute is present, 
+ * otherwise returns zero.
+ */
 int is_attribute(symbol *sym, attribute attr)
 {
     int val = 0;
@@ -57,14 +67,20 @@ int is_attribute(symbol *sym, attribute attr)
     return (sym->attr) & val;
 }
 
-/* This function gets a symbol node, and an attribute
- it turns on the bit that is identified with this attribute without deleting other attributes*/
+/**
+ * This function gets a symbol node and an attribute.
+ * It turns on the bit corresponding to this attribute without deleting 
+ * other attributes.
+ */
 void set_attribute(symbol *sym, attribute attr)
 {
     (sym->attr) |= (1<<attr);
 }
 
-/* This function goes through the whole symbol list and frees its memory */
+/**
+ * This function traverses the given symbol list and frees the memory 
+ * allocated for each symbol node.
+ */
 void free_symbols(symbol *head)
 {
     symbol *temp;
