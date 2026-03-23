@@ -1,3 +1,4 @@
+
 #include "first_pass.h"
 
 #include <stdio.h>
@@ -36,7 +37,7 @@ static void update_symbols(symbol *head)
  * instructions without resolving forward references.
  * Finally, it updates data symbol addresses and calls the second pass.
  */
-void start_pass(file_data *am_file)
+void first_pass(file_data *am_file)
 {
     char buffer[LINE_LENGTH];
     char *operands[LINE_LENGTH];
@@ -58,7 +59,17 @@ void start_pass(file_data *am_file)
             return; /* stop proccessing this file */
         }
 
-        if(strlen(buffer) > MAX_LINE_LENGTH) error(am_file, "Line is too long");
+        if (strlen(buffer) > MAX_LINE_LENGTH) 
+        {
+            error(am_file, "Line is too long");
+            /* If the buffer doesn't contain a newline, the line was cut off */
+            if (buffer[strlen(buffer) - 1] != '\n') 
+            {
+                int c;
+                while ((c = fgetc(am_file->ptr)) != '\n' && c != EOF); /* consuming the rest of the line from the buffer */
+            }
+            continue; /* skipping this line */
+        }
         
         get_next_word(&line, &argument); /* assigning the first word to argument, line is set with the remaining text*/
 
@@ -126,7 +137,6 @@ void start_pass(file_data *am_file)
             error(am_file, "Invalid operation");
     }
     /* finished reading file */
-    
     am_file->symbol_list = head;
     head = NULL;
     if(am_file->error_flag) 
@@ -136,8 +146,8 @@ void start_pass(file_data *am_file)
     }
 
     ICF = IC;   
-    DCF = DC; /* TODO: need these? */
+    DCF = DC;
 
     update_symbols(am_file->symbol_list);
-    second_pass(am_file);
+    return;
 }

@@ -28,10 +28,14 @@ static const inst instructions[] = {
     {"stop", 15, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0, 0}};
 
+/**
+ * This function receives an instruction name as a string and searches for it
+ * in the instructions table. It returns the index of the instruction if found.
+ * it is called after checking that the string is really an existing instruction
+ */
 static int get_index(char *str)
 {
     int i = 0;
-    if(!is_instruction(str)) exit(1); /* TODO: error */
     while(instructions[i].name != NULL)
        {
         if(!strcmp(str, instructions[i].name))
@@ -42,34 +46,60 @@ static int get_index(char *str)
 }
 
 
+/**
+ * This function returns the name of the instruction at the specified index
+ * in the instructions table.
+ */
 char *get_instruction_name(int index)
 {
     return instructions[index].name;
 }
 
+/**
+ * This function receives an instruction name and returns its corresponding
+ * opcode by searching the instructions table.
+ */
 int get_instruction_opcode(char *name)
 {
     int index = get_index(name);
     return instructions[index].opcode;
 }
 
+/**
+ * This function receives an instruction name and returns its corresponding
+ * funct value by searching the instructions table.
+ */
 int get_instruction_funct(char *name)
 {
     int index = get_index(name);
     return instructions[index].funct;
 }
 
+/**
+ * This function receives an instruction name and returns the number of
+ * operands it expects by searching the instructions table.
+ */
 int get_instruction_operands(char *name)
 {
     int index = get_index(name);
     return instructions[index].operands;
 }
 
+/**
+ * This function receives an instruction name and an addressing mode,
+ * and validates whether the mode is legal for the instruction's destination operand.
+ * Returns non-zero if valid, zero otherwise.
+ */
 int validate_dest_mode(char *name, int mode) 
 {
     unsigned int mask = instructions[get_index(name)].dest_modes;
     return (mask & (1 << mode)) != ZERO;
 }
+/**
+ * This function receives an instruction name and an addressing mode,
+ * and validates whether the mode is legal for the instruction's source operand.
+ * Returns non-zero if valid, zero otherwise.
+ */
 int validate_src_mode(char *name, int mode) 
 {
     unsigned int mask = instructions[get_index(name)].src_modes;

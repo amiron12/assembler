@@ -9,6 +9,12 @@
 #include "structs.h"
 #include "utils.h"
 
+/**
+ * This function receives a string representing an operand and a file_data pointer.
+ * It determines the addressing mode of the operand, parses its value, and
+ * encodes the resulting machine word into the code image array, updating the type
+ * and instruction counter (IC).
+ */
 static void encode_operand(char *str, file_data *fs)
 {
 
@@ -54,6 +60,12 @@ static void encode_operand(char *str, file_data *fs)
     IC++;
 }
 
+/**
+ * This function receives an instruction name, its two optional arguments, and a
+ * file_data pointer. It validates the addressing modes for the operands, encodes
+ * the main instruction word with the opcode, funct, and operand modes, and then
+ * calls encode_operand to encode any subsequent operand words.
+ */
 void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
 {
     int opcode, funct, val;
@@ -94,6 +106,11 @@ void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
 } 
 
 
+/**
+ * This function receives an array of string arguments representing integers
+ * for the .data directive. It parses each integer, masks it to fit within a machine
+ * word, and encodes it into the data image array, updating the data counter (DC).
+ */
 void encode_data(char *args[])
 {
 
@@ -105,6 +122,11 @@ void encode_data(char *args[])
         }
 }
 
+/**
+ * This function receives a string literal for the .string directive.
+ * It strips the quotation marks, iterates through each character, and encodes
+ * the ASCII values into the data image array, ending with a null terminator.
+ */
 void encode_string(char *str)
 {
     clean_string(&str, '"');
