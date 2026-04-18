@@ -1,4 +1,12 @@
 
+/*
+ * second_pass.c
+ * This file implements the second pass of the assembler.
+ * It reads the file line by line, resolves symbolic addresses, encodes 
+ * entry and external symbols, and builds the final machine code image.
+ * Finally, it generates the output files (.ob, .ent, .ext) or deletes them on error.
+ */
+
 #include "second_pass.h"
 
 #include <stdio.h>
@@ -32,8 +40,8 @@ void second_pass(file_data *am_file)
     if(init_output_files(am_file) == ERR) /* making the output files to write in, file errors are handled inside, and memory is freed in case of failure*/
         return;
 
-    while (fgets(buffer, MAX_LINE_LENGTH, am_file->ptr) != NULL)
-    {
+    while (fgets(buffer, MAX_LINE_LENGTH, am_file->ptr) != NULL) /* line length is already handled in the first pass */
+    { 
         char *operands[MAX_OPERANDS], *argument, *line;
         int op_count;
         symbol *temp;

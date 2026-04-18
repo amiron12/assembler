@@ -1,3 +1,11 @@
+/*
+ * const_tables.c
+ * This file contains constant tables and functions to retrieve information 
+ * about the assembly language instructions. It defines the instruction 
+ * set, including their names, opcodes, funct values, number of operands, 
+ * and valid addressing modes for source and destination operands.
+ */
+
 #include "const_tables.h"
 
 #include <stdio.h>

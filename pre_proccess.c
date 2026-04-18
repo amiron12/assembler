@@ -1,3 +1,11 @@
+/*
+ * pre_proccess.c
+ * This file handles the pre-processing stage (macro expansion) of the assembler. 
+ * It reads the source code, identifies and stores macro definitions, and expands 
+ * macro calls by replacing them with their stored content, resulting in an 
+ * expanded source file (.am) for the first pass.
+ */
+
 #include "pre_proccess.h"
 
 #include <stdio.h>

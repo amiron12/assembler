@@ -19,7 +19,7 @@ typedef struct macro_line
     char text[LINE_LENGTH];
 } macro_line;
 
-/* Represents a symbol (label) and its properties in the symbol table */
+/* Represents a symbol and its properties in the symbol table */
 typedef struct symbol
 {
     char name[SYMBOL_LENGTH];

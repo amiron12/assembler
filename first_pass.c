@@ -1,3 +1,10 @@
+/*
+ * first_pass.c
+ * This file implements the first pass of the assembler.
+ * It reads the source code line by line, identifies macro definitions and symbol definitions,
+ * validates operands and directives, encodes data and strings, and partially encodes instructions.
+ * Finally, it updates the symbol table addresses.
+ */
 
 #include "first_pass.h"
 

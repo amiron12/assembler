@@ -1,3 +1,11 @@
+/*
+ * symbols.c
+ * This file handles symbol table management for the assembler. It provides 
+ * functions to add new symbols, search for existing symbols, verify symbol 
+ * attributes (such as data, code, entry, external), and manage memory for 
+ * the symbol linked list.
+ */
+
 #include "symbols.h"
 
 #include <stdio.h>

@@ -22,3 +22,5 @@ clean:
 	rm -f $(TARGET) $(OBJS) *~
 
 .PHONY: all clean
+
+TODO: refactor

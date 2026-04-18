@@ -1,3 +1,11 @@
+/*
+ * string_utils.c
+ * This file contains utility functions for string manipulation and parsing. 
+ * It includes functions for trimming whitespace, validating argument formats 
+ * (like comma placement), tokenizing lines into operands, identifying comments 
+ * and empty lines, and modifying strings for processing.
+ */
+
 #include "string_utils.h"
 #include <stdio.h>
 #include <stdlib.h>

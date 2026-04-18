@@ -1,3 +1,12 @@
+/*
+ * utils.c
+ * This file contains general utility functions used throughout the assembler. 
+ * It provides functions for file initialization, error handling, memory 
+ * management (allocation checks, freeing data structures), validation of 
+ * symbols, numbers, and strings, as well as functions to identify directives, 
+ * instructions, registers, and operand addressing modes.
+ */
+
 #include "utils.h"
 
 #include <stdio.h>

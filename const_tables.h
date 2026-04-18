@@ -5,7 +5,6 @@
 #define M2 4
 #define M3 8
 
-
 typedef struct inst
 {
     char *name;
@@ -15,8 +14,6 @@ typedef struct inst
     unsigned int src_modes;
     unsigned int dest_modes;
 } inst;
-
-
 
 /* Retrieves the name of an instruction by its index in the instructions table */
 char *get_instruction_name(int index);

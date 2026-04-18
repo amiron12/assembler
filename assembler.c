@@ -1,3 +1,9 @@
+/*
+ * assembler.c
+ * This program is the main entry point for the assembler. It coordinates the 
+ * assembly process for each provided file, handling initialization, macro 
+ * expansion (pre-processing), and the two main assembly passes.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

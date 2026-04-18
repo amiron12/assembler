@@ -1,3 +1,11 @@
+/*
+ * machine_image.c
+ * This file contains functions that translate instructions, data, and strings 
+ * into machine code words. It manages the encoding of operands based on their 
+ * addressing modes and populates the code and data images that form the 
+ * final executable representation.
+ */
+
 #include "machine_image.h"
 
 #include <stdio.h>
@@ -8,6 +16,7 @@
 #include "constants.h"
 #include "structs.h"
 #include "utils.h"
+#include "string_utils.h"
 
 /**
  * This function receives a string representing an operand and a file_data pointer.

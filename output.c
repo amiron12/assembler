@@ -1,3 +1,11 @@
+/*
+ * output.c
+ * This file handles the generation of the output files (.ob, .ent, .ext) 
+ * after the assembler passes are complete. It creates the object file 
+ * representing the machine image and writes symbol information to the 
+ * entry and external files as needed.
+ */
+
 #include "output.h"
 
 #include <stdio.h>
