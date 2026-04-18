@@ -19,7 +19,11 @@ typedef struct macro_line
     char text[LINE_LENGTH];
 } macro_line;
 
-/* Represents a symbol and its properties in the symbol table */
+
+/* 
+ * A node in the Symbol Table linked list.
+ * Stores the symbol's name, resolved memory address, and a bitmask of its attributes.
+ */
 typedef struct symbol
 {
     char name[SYMBOL_LENGTH];
@@ -28,7 +32,13 @@ typedef struct symbol
     struct symbol *next;
 } symbol;
 
-/* Represents a single machine word (instruction or data) in the memory image */
+
+/* 
+ * Represents a single 12-bit machine word in the memory image.
+ * The bit-field guarantees the logical structure is exactly 12 bits.
+ * The 'type' field holds 'A', 'R', 'E' (Absolute, Relocatable, External), 
+ * or '?' for unresolved addresses during Pass 1.
+ */
 typedef struct machine_word
 { 
     unsigned int word:WORD_SIZE;
@@ -39,7 +49,7 @@ typedef struct machine_word
 typedef struct file_data
 {
     char name[MAX_FILE_NAME];
-    char extended_name[MAX_FILE_NAME];
+    char extended_name[MAX_FILE_NAME]; /* Name with .as, .am, etc. attached */
     int current_line;
     int error_flag;
     FILE *ptr;

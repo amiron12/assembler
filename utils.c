@@ -21,6 +21,7 @@
 #include "structs.h" 
 #include "constants.h"
 
+
 /**
  * This function initializes a file_data structure with the given file name, 
  * extension, and mode. It opens the file and resets all relevant flags 
@@ -145,7 +146,7 @@ int is_instruction(char *str)
 int is_register(char *str)
 {
     if(strlen(str)!=2) return FALSE;
-    return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE; /* TODO: change nums */
+    return(str[0]=='r' && (str[1] >= '0' && str[1] <= '7'))?TRUE:FALSE;
 }
 
 /**

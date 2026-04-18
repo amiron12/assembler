@@ -19,8 +19,6 @@
 #include "structs.h"
 #include "utils.h"
 
-int IC, DC, ICF, DCF;
-
 /**
  * This helper function resets the global assembler state variables, 
  * such as instruction and data counters, and clears the memory images.
