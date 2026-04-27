@@ -26,7 +26,7 @@
 #define MAX_FILE_NAME 50
 #define MAX_ARG_LENGTH 50
 #define SYMBOL_LENGTH 35 
-#define MAX_SYMBOL_LENGTH 32
+#define MAX_SYMBOL_LENGTH 31
 #define MEMORY 4096
 #define WORD_SIZE 12
 
