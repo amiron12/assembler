@@ -35,7 +35,7 @@
 #define RELOCATABLE 'R'
 #define EXTERNAL 'E'
 
-#define IC_INDEX (IC)-100
+#define IC_INDEX(file) (file->IC-100)
 #define MASK 0xFFF
 #define MAX_NUM 2047
 #define MIN_NUM -2048
@@ -43,10 +43,5 @@
 
 typedef enum attribute {data, code, external, entry} attribute;
 typedef enum op_mode {IMM, DIR, REL, REG} op_mode;
-
-extern int IC, DC, ICF, DCF;
-
-
-
 
 #endif

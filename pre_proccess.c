@@ -31,19 +31,34 @@ static void free_lines(macro_line *head);
  * stores them. When a macro is called, it expands the macro by writing
  * its content to the expanded source file (.am).
  */
-void expand_macros(file_data *as_file, file_data *am_file)
+void expand_macros(file_data *file, char* as_extended_name, char* am_extended_name)
 {
     macro *head;
     char buffer[LINE_LENGTH];
     int inside_macro = FALSE;
+    FILE* as_file, * am_file;
     head = NULL;   
-    
-    while(fgets(buffer, LINE_LENGTH, as_file->ptr) != NULL)
+    as_file = fopen(as_extended_name, "r");
+    if (as_file == NULL)
+    {
+        /* Amir : add error */
+        file->error_flag = 1;
+        return;
+    }
+    am_file = fopen(am_extended_name, "w");
+    if (am_file == NULL)
+    {
+        /* Amir : add error */
+        file->error_flag = 1;
+        fclose(as_file);
+        return;
+    }
+    while(fgets(buffer, LINE_LENGTH, as_file) != NULL)
     {
         char *first_arg, *line;
         char buff_copy[LINE_LENGTH];
         strcpy(buff_copy, buffer);
-        as_file->current_line++;
+        file->current_line++;
         line = buff_copy;
         
         if(is_empty_line(line) || is_comment(line)) continue; /* avoiding empty and comment lines */
@@ -58,7 +73,7 @@ void expand_macros(file_data *as_file, file_data *am_file)
             err = validate_macro_start(macro_name, line);
             if(err != NULL)
             {
-                error(as_file, err);
+                error(file, as_extended_name, err);
                 break;
             }
             inside_macro = TRUE;
@@ -74,7 +89,7 @@ void expand_macros(file_data *as_file, file_data *am_file)
                 inside_macro = FALSE;
                 continue;
             }
-            error(as_file, "Extraneous text after macro end statement");
+            error(file, as_extended_name, "Extraneous text after macro end statement");
             break;
         }
 
@@ -82,24 +97,21 @@ void expand_macros(file_data *as_file, file_data *am_file)
             add_macro_line(buffer, head);
     
         else if(is_macro_call(first_arg, head))
-            expand(first_arg, head, am_file->ptr);
+            expand(first_arg, head, am_file);
     
         else
-            fputs(buffer, am_file->ptr);
+            fputs(buffer, am_file);
         
     }
 
     /* finished file */
-    fclose(am_file->ptr);
-    fclose(as_file->ptr);
+    fclose(am_file);
+    fclose(as_file);
 
-    if(as_file->error_flag)
-        remove(am_file->extended_name); /* error in the source file, .am file not created */
+    if(file->error_flag)
+        remove(am_extended_name); /* error in the source file, .am file not created */
 
-    am_file->macro_list = head;
-    am_file->ptr = fopen(am_file->extended_name, "r"); /* opening in reading mode for first pass */
-    if(!(am_file->ptr))
-        error(am_file, "Error opening file");
+    file->macro_list = head;
 }
 
 /**

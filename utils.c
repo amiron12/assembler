@@ -27,17 +27,9 @@
  * extension, and mode. It opens the file and resets all relevant flags 
  * and pointers.
  */
-void init_file_data(file_data *fs, char *fname, char *ext, char *mode)
+void init_file_data(char* name, char *fname, char *ext)
 {
-    strncpy(fs->name, fname, MAX_FILE_NAME);
-    extention(fs, ext);
-    fs->ptr = fopen(fs->extended_name, mode);
-    fs->error_flag = FALSE;
-    fs->current_line = ZERO;
-    fs->macro_list = NULL;
-    fs->symbol_list = NULL;
-    if((fs->ptr)) return;
-    error(fs, "Error opening file");
+    extention(fname, ext, name);
 }
 
 /**
@@ -56,9 +48,9 @@ void memory_check(void *ptr)
  * It prints the error message to the standard output along with the file name
  * and line number, and turns on the file's error flag.
  */
-void error(file_data *fs, char *str)
+void error(file_data* fs, char* fname, char* str)
 {
-    printf("[%s:%d] -> %s\n", fs->extended_name, fs->current_line, str);
+    printf("[%s:%d] -> %s\n", fname, fs->current_line, str);
     fs->error_flag = TRUE;
 }
 
@@ -166,13 +158,13 @@ int reserved(char *str)
  * to the correct rules (length, starting with a letter, alphanumeric characters,
  * not reserved, etc.). It reports an error if the symbol is invalid.
  */
-void validate_symbol(char *str, file_data *fs)
+void validate_symbol(char *str, file_data *fs, char* file_name)
 {
     int i, len;
     if(str == NULL)
-        error(fs, "Symbol not specified");
+        error(fs, file_name, "Symbol not specified");
     
-    len = strlen(str);
+    len = (int)strlen(str);
     
     if(str[len-1]==':') /* if its a symbol defenition in the start of a line */
     {
@@ -181,23 +173,23 @@ void validate_symbol(char *str, file_data *fs)
     }
 
     if(len > MAX_SYMBOL_LENGTH)
-        error(fs, "Symbol name is too long"); /* symbol too long */
+        error(fs, file_name, "Symbol name is too long"); /* symbol too long */
 
     if (!isalpha(*str))
-        error(fs, "Invalid symbol name"); /* first character is non alphabetical */
+        error(fs, file_name, "Invalid symbol name"); /* first character is non alphabetical */
     
     if(is_macro_call(str, fs->macro_list))
-        error(fs, "Symbol cannot be a macro name");
+        error(fs, file_name, "Symbol cannot be a macro name");
     
     if(symbol_exists(str, fs->symbol_list))
-        error(fs, "Symbol already exists");
+        error(fs, file_name, "Symbol already exists");
     
     if(reserved(str))
-        error(fs, "Symbol cannot be a reserved word");
+        error(fs, file_name, "Symbol cannot be a reserved word");
 
     for(i=0;i<len;i++)
         if(!isalnum(str[i]) && str[i]!='_')
-            error(fs, "Invalid symbol name"); /* symbol contains a non alpha-numeric character */
+            error(fs, file_name, "Invalid symbol name"); /* symbol contains a non alpha-numeric character */
     
 }
 
@@ -234,7 +226,7 @@ int validate_number(char *str)
  * and validates that each one is a valid number.
  * Returns TRUE if all are valid, FALSE otherwise.
  */
-int validate_data(char *integers[], file_data *fs)
+int validate_data(char *integers[], file_data *fs, char* file_name)
 {
     int i = 0;
     if(integers == NULL) return FALSE;
@@ -242,7 +234,7 @@ int validate_data(char *integers[], file_data *fs)
     {
         if(!validate_number(integers[i++]))
         {
-            error(fs, "Invalid data value");
+            error(fs, file_name, "Invalid data value");
             return FALSE;
         }
     }
@@ -254,18 +246,18 @@ int validate_data(char *integers[], file_data *fs)
  * string literal (enclosed in double quotes).
  * Returns TRUE if valid, FALSE otherwise.
  */
-int validate_string(char *str, file_data *fs)
+int validate_string(char *str, file_data *fs, char* file_name)
 {
     if(str == NULL)
     {
-        error(fs, "String not specified");
+        error(fs, file_name, "String not specified");
         return FALSE;
     }
 
     if(str[0] == '\"' && str[strlen(str)-1] == '\"')
         return TRUE;
 
-    error(fs, "Invalid string value");
+    error(fs, file_name, "Invalid string value");
     return FALSE;
 }
 
@@ -277,7 +269,4 @@ void free_data(file_data *f)
 {
     free_symbols(f->symbol_list);
     free_macros(f->macro_list);
-    fclose(f->ptr);
 }
-
-   

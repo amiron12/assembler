@@ -24,7 +24,7 @@
  * encodes the resulting machine word into the code image array, updating the type
  * and instruction counter (IC).
  */
-static void encode_operand(char *str, file_data *fs)
+static void encode_operand(char *str, file_data *fs, char* file_name)
 {
 
     int num;
@@ -36,12 +36,12 @@ static void encode_operand(char *str, file_data *fs)
             clean_string(&str, '#');
             if(!validate_number(str))
             {
-                error(fs, "Invalid immediate value");
+                error(fs, file_name, "Invalid immediate value");
                 return;
             }
             num = atoi(str);
-            code_image[IC_INDEX].word = (num & MASK);
-            code_image[IC_INDEX].type = ABSOLUTE;
+            fs->code_image[IC_INDEX(fs)].word = (num & MASK);
+            fs->code_image[IC_INDEX(fs)].type = ABSOLUTE;
             break;
 
         case REG:
@@ -50,23 +50,23 @@ static void encode_operand(char *str, file_data *fs)
             c = &str[1];
             num = atoi(c);
             val = (1<<num);
-            code_image[IC_INDEX].word = (val & MASK);
-            code_image[IC_INDEX].type = ABSOLUTE;
+            fs->code_image[IC_INDEX(fs)].word = (val & MASK);
+            fs->code_image[IC_INDEX(fs)].type = ABSOLUTE;
             break;
         }
 
         case DIR:
-            code_image[IC_INDEX].word = val;
-            code_image[IC_INDEX].type = UNKNOWN;
+            fs->code_image[IC_INDEX(fs)].word = val;
+            fs->code_image[IC_INDEX(fs)].type = UNKNOWN;
             break;
         
 
         case REL:
-            code_image[IC_INDEX].word = val;
-            code_image[IC_INDEX].type = ABSOLUTE;
+            fs->code_image[IC_INDEX(fs)].word = val;
+            fs->code_image[IC_INDEX(fs)].type = ABSOLUTE;
             break;
         }
-    IC++;
+    fs->IC++;
 }
 
 /**
@@ -75,7 +75,7 @@ static void encode_operand(char *str, file_data *fs)
  * the main instruction word with the opcode, funct, and operand modes, and then
  * calls encode_operand to encode any subsequent operand words.
  */
-void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
+void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs, char* file_name)
 {
     int opcode, funct, val;
     int src_mode, dest_mode;
@@ -98,19 +98,19 @@ void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
 
     if(mode_err)
     {
-        error(fs, "Invalid addressing mode");
+        error(fs, file_name, "Invalid addressing mode");
         return;
     }
     
     opcode = get_instruction_opcode(str);
     funct = get_instruction_funct(str);
     val = ((opcode<<OP_SHIFT) | (funct<<FUNCT_SHIFT) | (src_mode<<SRC_SHIFT) | (dest_mode)); 
-    code_image[IC_INDEX].word = val & MASK;
-    code_image[IC_INDEX].type = ABSOLUTE;
-    IC++;
+    fs->code_image[IC_INDEX(fs)].word = val & MASK;
+    fs->code_image[IC_INDEX(fs)].type = ABSOLUTE;
+    fs->IC++;
 
-    encode_operand(arg1,fs);
-    encode_operand(arg2,fs);
+    encode_operand(arg1,fs, file_name);
+    encode_operand(arg2,fs, file_name);
 
 } 
 
@@ -120,14 +120,14 @@ void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs)
  * for the .data directive. It parses each integer, masks it to fit within a machine
  * word, and encodes it into the data image array, updating the data counter (DC).
  */
-void encode_data(char *args[])
+void encode_data(char *args[], file_data* file)
 {
 
     int i = 0; 
     while(args[i] != NULL)
         {
-            data_image[DC].word = (strtol(args[i++], NULL, DEC) & MASK);
-            data_image[DC++].type = ABSOLUTE;
+            file->data_image[file->DC].word = (strtol(args[i++], NULL, DEC) & MASK);
+            file->data_image[file->DC++].type = ABSOLUTE;
         }
 }
 
@@ -136,16 +136,16 @@ void encode_data(char *args[])
  * It strips the quotation marks, iterates through each character, and encodes
  * the ASCII values into the data image array, ending with a null terminator.
  */
-void encode_string(char *str)
+void encode_string(char *str, file_data* file)
 {
     clean_string(&str, '"');
     while(*str != '\0')
     {
-        data_image[DC].word = (*str++ & MASK);
-        data_image[DC++].type = ABSOLUTE;
+        file->data_image[file->DC].word = (*str++ & MASK);
+        file->data_image[file->DC++].type = ABSOLUTE;
     }
-    data_image[DC].word = ZERO;
-    data_image[DC++].type = ABSOLUTE;
+    file->data_image[file->DC].word = ZERO;
+    file->data_image[file->DC++].type = ABSOLUTE;
 }
 
 

@@ -6,7 +6,7 @@
 void get_next_word(char **line, char **word);
 
 /* Splits a line into comma-separated arguments and validates commas */
-int tokenize(char *line, char *args[], file_data *fs);
+int tokenize(char *line, char *args[], file_data *fs, char* file_name);
 
 /* Checks if a line contains only whitespace characters */
 int is_empty_line(char *line);
@@ -15,7 +15,7 @@ int is_empty_line(char *line);
 int is_comment(char *line);
 
 /* Appends an extension to the file name inside the file_data structure */
-void extention(file_data *fs, char *ext);
+void extention(char* name, char* ext, char* extended_name);
 
 /* Strips specific characters (like ':', '#', '%', '"') from a string */
 void clean_string(char **str, char c);

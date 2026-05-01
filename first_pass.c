@@ -26,7 +26,7 @@
  * This helper function loops through all data symbols and adds the final 
  * instruction counter (ICF) to their addresses, so they follow the instruction block in memory.
  */
-static void update_symbols(symbol *head)
+static void update_symbols(symbol *head, int ICF)
 {
     symbol *temp = head;
     while(temp != NULL)
@@ -44,36 +44,44 @@ static void update_symbols(symbol *head)
  * instructions without resolving forward references.
  * Finally, it updates data symbol addresses and calls the second pass.
  */
-void first_pass(file_data *am_file)
+void first_pass(file_data *file, char* am_extended_name)
 {
     char buffer[LINE_LENGTH];
     char *operands[LINE_LENGTH];
+    FILE* am_file;
     symbol *head = NULL;
 
-    while(fgets(buffer, LINE_LENGTH, am_file->ptr) != NULL)
+    am_file = fopen(am_extended_name, "r");
+    if (am_file == NULL)
+    {
+        /* Amir : add error */
+        file->error_flag = 1;
+        return;
+    }
+    while(fgets(buffer, LINE_LENGTH, am_file) != NULL)
     {
         char *argument, *symbol, *line;
         int op_count;
         symbol = NULL;
-        am_file->current_line++;
+        file->current_line++;
         line = buffer;
-        am_file->symbol_list = head;
+        file->symbol_list = head;
         
-        if(IC+DC >= MEMORY)
+        if(file->IC+ file->DC >= MEMORY)
         {
-            error(am_file, "Memory overflow");
-            free_data(am_file); /* freeing the symbol and macro list */
+            error(file, am_extended_name, "Memory overflow");
+            free_data(file); /* freeing the symbol and macro list */
             return; /* stop proccessing this file */
         }
 
         if (strlen(buffer) > MAX_LINE_LENGTH) 
         {
-            error(am_file, "Line is too long");
+            error(file, am_extended_name, "Line is too long");
             /* If the buffer doesn't contain a newline, the line was cut off */
             if (buffer[strlen(buffer) - 1] != '\n') 
             {
                 int c;
-                while ((c = fgetc(am_file->ptr)) != '\n' && c != EOF); /* consuming the rest of the line from the buffer */
+                while ((c = fgetc(am_file)) != '\n' && c != EOF); /* consuming the rest of the line from the buffer */
             }
             continue; /* skipping this line */
         }
@@ -83,16 +91,16 @@ void first_pass(file_data *am_file)
         if(argument[strlen(argument)-1] == ':')
         {
             symbol = argument; 
-            validate_symbol(symbol, am_file); /* if there is an error the flag will be raised, continuing to read file anyway */
+            validate_symbol(symbol, file, am_extended_name); /* if there is an error the flag will be raised, continuing to read file anyway */
             if(is_empty_line(line))
             {
-                error(am_file, "Empty line after symbol definition");
+                error(file, am_extended_name, "Empty line after symbol definition");
                 continue;
             }
             get_next_word(&line, &argument);
         }
     
-        op_count = tokenize(line, operands, am_file); /* parsing through the line and inserting each word into the operands array, returns the number of words found */
+        op_count = tokenize(line, operands, file, am_extended_name); /* parsing through the line and inserting each word into the operands array, returns the number of words found */
         
         if(op_count == ERR) continue; /* skipping a line with syntax errors, operands cannot be parsed */
             
@@ -100,61 +108,61 @@ void first_pass(file_data *am_file)
         {
             if (is_data(argument)) /* .data */
             {
-                add_symbol(symbol, &head, DC, data); /* If symbol is null, meaning no symbol was found, it will return without anything added */
-                if (validate_data(operands, am_file))
-                    encode_data(operands);
+                add_symbol(symbol, &head, file->DC, data); /* If symbol is null, meaning no symbol was found, it will return without anything added */
+                if (validate_data(operands, file, am_extended_name))
+                    encode_data(operands, file);
             }
 
             else if(is_string(argument)) /* .string */
             {
-                add_symbol(symbol, &head, DC, data); /* If symbol is null, meaning no symbol was found, it will return without anything added */
-                if (validate_string(*operands, am_file))
-                    encode_string(*operands);      
+                add_symbol(symbol, &head, file->DC, data); /* If symbol is null, meaning no symbol was found, it will return without anything added */
+                if (validate_string(*operands, file, am_extended_name))
+                    encode_string(*operands, file);      
             }
 
             else if(is_extern(argument)) /* .extern */
             {   
                 if(op_count > ONE) 
-                    error(am_file, "Extraneous text after symbol");
+                    error(file, am_extended_name, "Extraneous text after symbol");
                 symbol = *operands; /* first argument after .extern */
-                validate_symbol(symbol, am_file);
+                validate_symbol(symbol, file, am_extended_name);
                 add_symbol(*operands, &head, ZERO, external);
             }
 
             else if(is_entry(argument)) 
             {
                 if(op_count > ONE) 
-                    error(am_file, "Extraneous text after symbol");
+                    error(file, am_extended_name, "Extraneous text after symbol");
             }
                 
             else
-                error(am_file, "Invalid directive");
+                error(file, am_extended_name, "Invalid directive");
         }
 
         else if(is_instruction(argument))
         {
-            add_symbol(symbol, &head, IC, code); /* If symbol is null, it will return without anything added */
+            add_symbol(symbol, &head, file->IC, code); /* If symbol is null, it will return without anything added */
             if (op_count == get_instruction_operands(argument))
-                encode_instruction(argument, operands[0], operands[1], am_file);
+                encode_instruction(argument, operands[0], operands[1], file, am_extended_name);
             else
-                error(am_file, "Invalid number of operands");
+                error(file, am_extended_name, "Invalid number of operands");
         }
 
         else
-            error(am_file, "Invalid operation");
+            error(file, am_extended_name, "Invalid operation");
     }
+    fclose(am_file);
     /* finished reading file */
-    am_file->symbol_list = head;
+    file->symbol_list = head;
     head = NULL;
-    if(am_file->error_flag) 
+    if(file->error_flag) 
     {   /* error found during the first pass, stoping the proccess and continuing to the next file */
-        free_data(am_file); /* freeing the symbol and macro list */
+        free_data(file); /* freeing the symbol and macro list */
         return;
     }
 
-    ICF = IC;   
-    DCF = DC;
+    file->ICF = file->IC;
+    file->DCF = file->DC;
 
-    update_symbols(am_file->symbol_list);
-    return;
+    update_symbols(file->symbol_list, file->ICF);
 }

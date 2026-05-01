@@ -28,25 +28,33 @@
  * entry and external symbols, and builds the final machine code image.
  * Finally, it generates the output files (.ob, .ent, .ext) or deletes them on error.
  */
-void second_pass(file_data *am_file)
+void second_pass(file_data *file, char* fname, char* am_extended_name)
 {
     int create_ent, create_ext;
     char buffer[MAX_LINE_LENGTH]; /* Set to 81, validation is already done in first pass */
-    IC = MEM_START;
-    am_file->current_line = ZERO;
-    rewind(am_file->ptr);
+    FILE* am_file;
+
+    am_file = fopen(am_extended_name, "r");
+    if (am_file == NULL)
+    {
+        /* Amir : add error */
+        file->error_flag = 1;
+        return;
+    }
+    file->IC = MEM_START;
+    file->current_line = ZERO;
     create_ent = create_ext = FALSE; /* flags that indicate if a entry/external value exists */
     
-    if(init_output_files(am_file) == ERR) /* making the output files to write in, file errors are handled inside, and memory is freed in case of failure*/
+    if(init_output_files(file, fname) == ERR) /* making the output files to write in, file errors are handled inside, and memory is freed in case of failure*/
         return;
 
-    while (fgets(buffer, MAX_LINE_LENGTH, am_file->ptr) != NULL) /* line length is already handled in the first pass */
+    while (fgets(buffer, MAX_LINE_LENGTH, am_file) != NULL) /* line length is already handled in the first pass */
     { 
         char *operands[MAX_OPERANDS], *argument, *line;
         int op_count;
         symbol *temp;
         line = buffer;
-        am_file->current_line++;
+        file->current_line++;
 
         get_next_word(&line, &argument); /* assigning the first word to argument, line is set with the remaining text */
         
@@ -56,88 +64,84 @@ void second_pass(file_data *am_file)
         if (is_data(argument) || is_string(argument) || is_extern(argument))
             continue;
 
-        op_count = tokenize(line, operands, am_file); /* parsing through the line and inserting each word into the operands array, returns the number of words found */
+        op_count = tokenize(line, operands, file, am_extended_name); /* parsing through the line and inserting each word into the operands array, returns the number of words found */
 
         if (is_entry(argument))
         {
-            if ((temp = get_symbol(*operands, am_file->symbol_list)))
+            if ((temp = get_symbol(*operands, file->symbol_list)))
             {
                 if(is_attribute(temp, external))
-                    error(am_file, "Symbol cannot be defined as both entry and external");
+                    error(file, am_extended_name, "Symbol cannot be defined as both entry and external");
                 else
                 {
                     set_attribute(temp, entry); /* adding the entry attribute */
-                    if(!append_entry(temp, am_file)) /* writing it to the .ent file */
+                    if(!append_entry(temp, file, fname)) /* writing it to the .ent file */
                         break; /* file handling fail */
                     create_ent = TRUE; 
                 }
             }
             else
-                error(am_file, "symbol not found");
+                error(file, am_extended_name, "symbol not found");
         }
 
         else 
         {
             int i = 0;
-            IC++;
+            file->IC++;
             while (i < op_count) /* parsing through the operands */
             {
-                if(code_image[IC_INDEX].type == UNKNOWN) /* address not set */
+                if(file->code_image[IC_INDEX(file)].type == UNKNOWN) /* address not set */
                 {    
-                    if((temp = get_symbol(operands[i], am_file->symbol_list)))
+                    if((temp = get_symbol(operands[i], file->symbol_list)))
                     {
                         if (is_attribute(temp, external))
                         {
-                            code_image[IC_INDEX].word = ZERO;
-                            code_image[IC_INDEX].type = EXTERNAL;
-                            if(!append_external(temp, am_file)) /* writing it to the .ext file */
+                            file->code_image[IC_INDEX(file)].word = ZERO;
+                            file->code_image[IC_INDEX(file)].type = EXTERNAL;
+                            if(!append_external(temp, file, fname)) /* writing it to the .ext file */
                                 break; /* file handling fail */
                             create_ext = TRUE;
                         }
                         else
                         {
-                            code_image[IC_INDEX].word = temp->address; 
-                            code_image[IC_INDEX].type = RELOCATABLE;
+                            file->code_image[IC_INDEX(file)].word = temp->address;
+                            file->code_image[IC_INDEX(file)].type = RELOCATABLE;
                         }
                     }
                     else
-                        error(am_file, "symbol not found");
+                        error(file, am_extended_name, "symbol not found");
                 }
 
                 if(is_relative(operands[i]))
                 {
                     clean_string(&operands[i], '%');
-                    if((temp = get_symbol(operands[i], am_file->symbol_list)))
+                    if((temp = get_symbol(operands[i], file->symbol_list)))
                     {
                         if(is_attribute(temp, external))
                         {
-                            error(am_file, "Relative symbol cannot be external");
+                            error(file, am_extended_name, "Relative symbol cannot be external");
                             continue;
                         }
-                        code_image[IC_INDEX].word = ((temp->address)-IC);
-                        code_image[IC_INDEX].type = ABSOLUTE;
-
+                        file->code_image[IC_INDEX(file)].word = ((temp->address)- file->IC);
+                        file->code_image[IC_INDEX(file)].type = ABSOLUTE;
                     }
                     else
-                        error(am_file, "symbol not found");
+                        error(file, am_extended_name, "symbol not found");
                 }
-                IC++;
+                file->IC++;
                 i++;
             }   
         }
-
     }
-    
-    create_obj_file(am_file);
-
+    if (!file->error_flag)
+    create_obj_file(file, fname);
     if(!create_ent)
-    delete_ent_file(am_file->name); /* no entry symbols */
+    delete_ent_file(fname); /* no entry symbols */
 
     if(!create_ext)
-    delete_ext_file(am_file->name); /* no external symbols */
+    delete_ext_file(fname); /* no external symbols */
+    if(file->error_flag)
+       delete_output_files(fname);
 
-    if(am_file->error_flag)
-       delete_output_files(am_file->name);
-
-    free_data(am_file);
+    free_data(file);
 }

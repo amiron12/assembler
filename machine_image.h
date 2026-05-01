@@ -7,19 +7,13 @@
 #define FUNCT_SHIFT 4
 #define SRC_SHIFT 2
 
-machine_word data_image[MEMORY];
-machine_word code_image[MEMORY];
-
-extern machine_word code_image[MEMORY];
-extern machine_word data_image[MEMORY];
-
 /* Encodes an instruction and its operands into the machine image */
-void encode_instruction(char *str, char* src, char* dest, file_data *fs);
+void encode_instruction(char *str, char* src, char* dest, file_data *fs, char* file_name);
 
 /* Encodes an array of numeric data arguments into the machine image */
-void encode_data(char *args[]);
+void encode_data(char *args[], file_data* file);
 
 /* Encodes a string literal into the machine image */
-void encode_string(char *str);
+void encode_string(char *str, file_data* file);
 
 #endif

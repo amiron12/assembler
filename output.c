@@ -23,24 +23,23 @@
  * the output files (.ent, .ext) in write mode to clear their contents.
  * Returns ZERO on success, or ERR if opening fails.
  */
-int init_output_files(file_data *fs)
+int init_output_files(file_data *fs, char* file_name)
 {
     FILE *f;
     char name[MAX_FILE_NAME];
-    char *file_name = fs->name;
 
     strcpy(name, file_name);
     strcat(name, ENT);
     f = fopen(name, "w"); 
     if(!f)
-        error(fs, "Error opening .ent file");
+        error(fs, name, "Error opening .ent file");
     fclose(f);
 
     strcpy(name, file_name);
     strcat(name, EXT);
     f = fopen(name, "w"); 
     if(!f)
-        error(fs, "Error opening .ext file");
+        error(fs, name, "Error opening .ext file");
     fclose(f);
 
     if(!(fs->error_flag))
@@ -48,6 +47,7 @@ int init_output_files(file_data *fs)
 
     delete_output_files(file_name);
     free_data(fs);
+
     return ERR;
 }
 
@@ -56,41 +56,40 @@ int init_output_files(file_data *fs)
  * instruction and data counters, followed by the memory image 
  * (instructions and data) formatted as required.
  */
-void create_obj_file(file_data *fs)
+void create_obj_file(file_data *fs, char* file_name)
 {
     FILE *ob_file;
     int i;
     char fname[MAX_FILE_NAME];
-    char *file_name = fs->name;
 
     strcpy(fname, file_name);
     strcat(fname, OBJ);
     ob_file = fopen(fname, "w+");
     if(!ob_file)
     {
-        error(fs, "Error opening .ob file");
+        error(fs, file_name, "Error opening .ob file");
         return;
     }
 
-    IC = ICF;
+    fs->IC = fs->ICF;
 
-    fprintf(ob_file,"%d %d",IC_INDEX, DCF);
-    for(i=0;i<IC_INDEX;i++)
+    fprintf(ob_file,"%d %d",IC_INDEX(fs), fs->DCF);
+    for(i=0;i<IC_INDEX(fs);i++)
     {
         short w;
         char c;
-        w = code_image[i].word;
-        c = code_image[i].type;
+        w = fs->code_image[i].word;
+        c = fs->code_image[i].type;
         fprintf(ob_file,"\n%04d %03X %c", i+MEM_START, w, c);
     }
 
-    for(i=0;i<DCF;i++)
+    for(i=0;i< fs->DCF;i++)
     {
         short w;
         char c;
-        w = data_image[i].word;
-        c = data_image[i].type;
-        fprintf(ob_file,"\n%04d %03X %c", i+ICF, w, c);
+        w = fs->data_image[i].word;
+        c = fs->data_image[i].type;
+        fprintf(ob_file,"\n%04d %03X %c", i+fs->ICF, w, c);
     }
     fclose(ob_file);
 }
@@ -99,17 +98,17 @@ void create_obj_file(file_data *fs)
  * This function appends an entry symbol and its resolved address to 
  * the entries (.ent) output file. Returns TRUE on success, FALSE on failure.
  */
-int append_entry(symbol *entry, file_data *fs)
+int append_entry(symbol *entry, file_data *fs, char* fname)
 {
     FILE *ent_file;
     char name[MAX_FILE_NAME];
-    char *file_name = fs->name;
+    char *file_name = fname;
     strcpy(name, file_name);
     strcat(name, ENT);
     ent_file = fopen(name, "a");
     if(!ent_file)
     {
-        error(fs, "Error opening .ent file");
+        error(fs, name, "Error opening .ent file");
         return FALSE;
     }
     fprintf(ent_file, "%s %04d\n", entry->name, entry->address);
@@ -122,20 +121,20 @@ int append_entry(symbol *entry, file_data *fs)
  * used to the externals (.ext) output file. Returns TRUE on success, 
  * FALSE on failure.
  */
-int append_external(symbol *external, file_data *fs)
+int append_external(symbol *external, file_data *fs, char* fname)
 {
     FILE *ext_file;
     char name[MAX_FILE_NAME];
-    char *file_name = fs->name;
+    char *file_name = fname;
     strcpy(name, file_name);
     strcat(name, EXT);
     ext_file = fopen(name, "a");
     if(!ext_file)
     {
-        error(fs, "Error opening .ext file");
+        error(fs, file_name, "Error opening .ext file");
         return FALSE;
     }
-    fprintf(ext_file, "%s %04d\n", external->name, IC);
+    fprintf(ext_file, "%s %04d\n", external->name, fs->IC);
     fclose(ext_file);
     return TRUE;
 }

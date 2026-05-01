@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include "structs.h"
 
-/* Initializes the file_data structure with the given file name, extension, and mode */
-void init_file_data(file_data *fs, char *fname, char *ext, char *mode);
+/* Initializes the file_data structure with the given file name, extension */
+void init_file_data(char * extended_name, char *fname, char *ext);
 
 /* Checks if a given string is a reserved keyword */
 int reserved(char *str);
@@ -17,13 +17,13 @@ int get_mode(char *str);
 int validate_number(char *str);
 
 /* Validates an array of data integers */
-int validate_data(char *args[], file_data *fs);
+int validate_data(char *args[], file_data *fs, char* file_name);
 
 /* Validates that a string is properly formatted */
-int validate_string(char *str, file_data *fs);
+int validate_string(char *str, file_data *fs, char* file_name);
 
 /* Validates the naming rules and constraints for a symbol */
-void validate_symbol(char *str, file_data *fs);
+void validate_symbol(char *str, file_data *fs, char* file_name);
 
 /* Checks if a string represents a directive (starts with a dot) */
 int is_directive(char *str);
@@ -56,7 +56,7 @@ int is_entry(char *str);
 void memory_check(void *ptr);
 
 /* prints an error message and flags the current file with an error */
-void error(file_data *state, char *str);
+void error(file_data* fs, char *fname, char *str);
 
 /* Checks if a string matches a defined macro name */
 int is_macro_call(char *str, macro *head); /* defined in pre-proccess.c */

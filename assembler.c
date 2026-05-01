@@ -24,13 +24,14 @@
  * such as instruction and data counters, and clears the memory images.
  * It is called before processing each new file.
  */
-static void reset_state()
+static void reset_state(file_data* file)
 {
-    DC = ZERO;
-    IC = MEM_START;
-    ICF = DCF = ZERO; 
-    memset(code_image, ZERO, sizeof(code_image));
-    memset(data_image, ZERO, sizeof(data_image));
+    file->DC = ZERO;
+    file->IC = MEM_START;
+    file->ICF = file->DCF = ZERO;
+    memset(file->code_image, ZERO, sizeof(file->code_image));
+    memset(file->data_image, ZERO, sizeof(file->data_image));
+    file->error_flag = FALSE;
 }
 
 /**
@@ -40,25 +41,29 @@ static void reset_state()
  */
 int main(int argc, char *argv[])
 {
-    char *fname;    
-    file_data am_file;
-    file_data as_file;
+    char *fname;
+    file_data file;
     int i = 0;
+    char as_extended_name[MAX_FILE_NAME];
+    char am_extended_name[MAX_FILE_NAME]; /* Name with .as, .am, etc. attached */
     while(++i<argc)
     {
-        reset_state();
+        reset_state(&file);
         fname = argv[i];
-        init_file_data(&as_file, fname, AS, "r");
-        init_file_data(&am_file, fname, AM, "w+");
+        init_file_data(as_extended_name, fname, AS);
+        init_file_data(am_extended_name, fname, AM);
 
-        if(as_file.error_flag || am_file.error_flag) continue; /* error initializing */
-        expand_macros(&as_file, &am_file); /* pre-assembler stage */
+        if (file.error_flag)
+        {
+            continue; /* error initializing */
+        }
+        expand_macros(&file, as_extended_name, am_extended_name); /* pre-assembler stage */
         
-        if(as_file.error_flag || am_file.error_flag) continue; /* error occurred during macro expansion, continuing to the next file */
-        first_pass(&am_file); 
+        if(file.error_flag) continue; /* error occurred during macro expansion, continuing to the next file */
+        first_pass(&file, am_extended_name);
 
-        if(am_file.error_flag) continue; /* error occurred during first pass, continuing to the next file */
-        second_pass(&am_file);
+        if(file.error_flag) continue; /* error occurred during first pass, continuing to the next file */
+        second_pass(&file, fname, am_extended_name);
     }
     return 0;
 }

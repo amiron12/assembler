@@ -46,7 +46,7 @@ static char* trim_space(char *str)
  * Returns TRUE if the comma placement is valid, and FALSE otherwise, while 
  * printing the appropriate error message using the file_data structure.
  */
-static int validate_commas(char *input, file_data *fs) 
+static int validate_commas(char *input, file_data *fs, char* file_name) 
 {
     int expecting_operand = 1; /* expecting an operand */
     char *ptr = input;
@@ -56,7 +56,7 @@ static int validate_commas(char *input, file_data *fs)
 
     if (*ptr == ',') 
     {
-        error(fs, "Illegal comma before operand");
+        error(fs, file_name, "Illegal comma before operand");
         return FALSE;
     }
 
@@ -66,7 +66,7 @@ static int validate_commas(char *input, file_data *fs)
         {
             if (expecting_operand) 
             {
-                error(fs, "Multiple consecutive commas or misplaced comma");
+                error(fs, file_name, "Multiple consecutive commas or misplaced comma");
                 return FALSE;
             }
             expecting_operand = 1;
@@ -76,7 +76,7 @@ static int validate_commas(char *input, file_data *fs)
             /* found a non-space character  */
             if (!expecting_operand) 
             {
-                error(fs, "Missing comma between operands");
+                error(fs, file_name, "Missing comma between operands");
                 return FALSE;
             }
             /* skip rest of this operand */
@@ -89,7 +89,7 @@ static int validate_commas(char *input, file_data *fs)
     }
 
     if (expecting_operand && ptr != input) 
-        error(fs, "Extraneous comma at end of command");
+        error(fs, file_name, "Extraneous comma at end of command");
 
     return TRUE;
 }
@@ -112,7 +112,7 @@ void get_next_word(char **line, char **word)
  * Each token is trimmed of leading and trailing whitespaces.
  * It returns the number of tokens found, or ERR if the comma validation fails.
  */
-int tokenize(char *line, char *args[], file_data *fs)
+int tokenize(char *line, char *args[], file_data *fs, char* file_name)
 {
     char *token; /* Pointer to the current token */
     int i = ZERO;
@@ -124,7 +124,7 @@ int tokenize(char *line, char *args[], file_data *fs)
         return ZERO; 
 
     
-    if(!validate_commas(line, fs)) 
+    if(!validate_commas(line, fs, file_name))
     {
         args[i] = NULL;
         return ERR;
@@ -174,12 +174,10 @@ int is_comment(char *line)
  * It combines the base file name from the file_data structure with the given
  * extension and stores the result in the extended_name field of the structure.
  */
-void extention(file_data *fs, char *ext)
+void extention(char *name, char *ext, char* extended_name)
 {
-    char fname[MAX_FILE_NAME];
-    strcpy(fname, (fs)->name);
-    strcat(fname, ext);
-    strncpy((fs)->extended_name, fname, MAX_FILE_NAME);
+    strcpy(extended_name, name);
+    strcat(extended_name, ext);
 }
 
 /**

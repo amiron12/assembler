@@ -17,15 +17,15 @@ void delete_ext_file(char *file_name);
 void delete_obj_file(char *file_name);
 
 /* Appends an entry symbol and its resolved address to the entries (.ent) output file */
-int append_entry(symbol *entry, file_data *fs);
+int append_entry(symbol *entry, file_data *fs, char* fname);
 
 /* Appends an external symbol and the address where it is used to the externals (.ext) output file */
-int append_external(symbol *external, file_data *fs);
+int append_external(symbol *external, file_data *fs, char* fname);
 
 /* Initializes the output files for the second pass */
-int init_output_files(file_data *fs);
+int init_output_files(file_data *fs, char* file_name);
 
 /* Generates the final object (.ob) file, containing the instruction and data counters, and the memory image */
-void create_obj_file(file_data *fs);
+void create_obj_file(file_data *fs, char* fname);
 
 #endif

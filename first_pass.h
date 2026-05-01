@@ -3,6 +3,6 @@
 #include "structs.h"
 
 /* This function performs the first pass of the assembler on a given file, then calls the second padd */
-void first_pass(file_data *fs);
+void first_pass(file_data *fs, char* am_extended_name);
 
 #endif

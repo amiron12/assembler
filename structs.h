@@ -48,13 +48,13 @@ typedef struct machine_word
 /* Holds data related to the current file being processed, including state and data structures */
 typedef struct file_data
 {
-    char name[MAX_FILE_NAME];
-    char extended_name[MAX_FILE_NAME]; /* Name with .as, .am, etc. attached */
     int current_line;
     int error_flag;
-    FILE *ptr;
     macro *macro_list;
     symbol *symbol_list;
+    int DC, IC, DCF, ICF;
+    machine_word data_image[MEMORY];
+    machine_word code_image[MEMORY];
 } file_data;
 
 #endif
