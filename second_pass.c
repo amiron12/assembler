@@ -46,11 +46,14 @@ void second_pass(file_data *file, char* fname, char* am_extended_name)
     create_ent = create_ext = FALSE; /* flags that indicate if a entry/external value exists */
     
     if(init_output_files(file, fname) == ERR) /* making the output files to write in, file errors are handled inside, and memory is freed in case of failure*/
+    {
+        fclose(am_file);
         return;
+    }
 
     while (fgets(buffer, MAX_LINE_LENGTH, am_file) != NULL) /* line length is already handled in the first pass */
     { 
-        char *operands[MAX_OPERANDS], *argument, *line;
+        char *operands[LINE_LENGTH], *argument, *line;
         int op_count;
         symbol *temp;
         line = buffer;
@@ -133,7 +136,9 @@ void second_pass(file_data *file, char* fname, char* am_extended_name)
             }   
         }
     }
-    if (!file->error_flag) /* No errors means we ca craete the object files */
+    fclose(am_file);
+
+    if (!file->error_flag) /* No errors means we can create the object files */
         create_obj_file(file, fname);
 
     if(!create_ent)

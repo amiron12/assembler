@@ -71,6 +71,7 @@ void first_pass(file_data *file, char* am_extended_name)
         {
             error(file, am_extended_name, "Memory overflow");
             free_data(file); /* freeing the symbol and macro list */
+            fclose(am_file);
             return; /* stop proccessing this file */
         }
 

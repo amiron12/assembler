@@ -161,8 +161,11 @@ void validate_symbol(char *str, file_data *fs, char* file_name)
 {
     int i, len;
     if(str == NULL)
+    {
         error(fs, file_name, "Symbol not specified");
-    
+        return;
+    }
+
     len = (int)strlen(str);
     
     if(str[len-1]==':') /* if its a symbol defenition in the start of a line */

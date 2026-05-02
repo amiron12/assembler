@@ -48,24 +48,19 @@ int main(int argc, char *argv[])
     char am_extended_name[MAX_FILE_NAME]; /* Name with .as, .am, etc. attached */
     while(++i<argc)
     {
-        reset_state(&file);
+        reset_state(&file); /* resetting the file state's variables */
         fname = argv[i];
+        /* initializing the file names with the extended names */
         init_file_data(as_extended_name, fname, AS);
         init_file_data(am_extended_name, fname, AM);
 
-        if (file.error_flag)
-        {
-            continue; /* error initializing */
-        }
-        expand_macros(&file, as_extended_name, am_extended_name); /* pre-assembler stage */
+        expand_macros(&file, as_extended_name, am_extended_name); /* pre-assembler stage - removing comments, empty lines, and expanding macros */
         
         if(file.error_flag) continue; /* error occurred during macro expansion, continuing to the next file */
-        first_pass(&file, am_extended_name);
+        first_pass(&file, am_extended_name); /* first pass - validating symbols, instructions, and operands */
 
         if(file.error_flag) continue; /* error occurred during first pass, continuing to the next file */
-        second_pass(&file, fname, am_extended_name);
-        
-        free_data(&file); /* ensure memory is freed on successful compilation */
+        second_pass(&file, fname, am_extended_name); /* second pass - generating the machine image */
     }
     return 0;
 }

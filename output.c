@@ -33,14 +33,16 @@ int init_output_files(file_data *fs, char* file_name)
     f = fopen(name, "w"); 
     if(!f)
         error(fs, name, "Error opening .ent file");
-    fclose(f);
+    else
+        fclose(f);
 
     strcpy(name, file_name);
     strcat(name, EXT);
     f = fopen(name, "w"); 
     if(!f)
         error(fs, name, "Error opening .ext file");
-    fclose(f);
+    else
+        fclose(f);
 
     if(!(fs->error_flag))
         return ZERO;

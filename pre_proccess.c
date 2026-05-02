@@ -104,6 +104,9 @@ void expand_macros(file_data *file, char* as_extended_name, char* am_extended_na
         
     }
 
+    if(inside_macro)
+        error(file, as_extended_name, "Macro definition not closed before end of file");
+
     /* finished file */
     fclose(am_file);
     fclose(as_file);

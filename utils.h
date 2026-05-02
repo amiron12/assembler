@@ -64,7 +64,7 @@ int is_macro_call(char *str, macro *head); /* defined in pre-proccess.c */
 /* Frees memory associated with the macro linked list */
 void free_macros(macro *head);
 
-/* Frees memory for symbols, macros, and closes the file pointer */
+/* Frees symbol and macro lists owned by the file_data */
 void free_data(file_data *f);
 
 
