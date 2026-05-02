@@ -174,10 +174,26 @@ int is_comment(char *line)
  * It combines the base file name with the given extension and stores 
  * the result in the extended_name string.
  */
-void extention(char *name, char *ext, char* extended_name)
+int extention(char *name, char *ext, char* extended_name)
 {
+    size_t name_len;
+    size_t ext_len;
+
+    if (name == NULL || ext == NULL || extended_name == NULL)
+        return FALSE;
+
+    name_len = strlen(name);
+    ext_len = strlen(ext);
+
+    if (name_len + ext_len >= MAX_FILE_NAME)
+    {
+        extended_name[0] = '\0';
+        return FALSE;
+    }
+
     strcpy(extended_name, name);
     strcat(extended_name, ext);
+    return TRUE;
 }
 
 /**

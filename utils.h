@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include "structs.h"
 
-/* Initializes the file_data structure with the given file name, extension */
-void init_file_data(char * extended_name, char *fname, char *ext);
+/* Builds an extended file name from base name and extension */
+int init_file_data(char *extended_name, char *fname, char *ext);
 
 /* Checks if a given string is a reserved keyword */
 int reserved(char *str);

@@ -14,8 +14,8 @@ int is_empty_line(char *line);
 /* Determines if a line starts with a semicolon, indicating a comment */
 int is_comment(char *line);
 
-/* Appends an extension to the file name inside the file_data structure */
-void extention(char* name, char* ext, char* extended_name);
+/* Appends an extension to a base file name safely */
+int extention(char* name, char* ext, char* extended_name);
 
 /* Strips specific characters (like ':', '#', '%', '"') from a string */
 void clean_string(char **str, char c);

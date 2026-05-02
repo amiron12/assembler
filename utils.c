@@ -26,9 +26,9 @@
  * This function creates an extended file name by appending the given 
  * extension to the base file name.
  */
-void init_file_data(char* name, char *fname, char *ext)
+int init_file_data(char *name, char *fname, char *ext)
 {
-    extention(fname, ext, name);
+    return extention(fname, ext, name);
 }
 
 /**

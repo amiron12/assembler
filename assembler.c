@@ -26,9 +26,12 @@
  */
 static void reset_state(file_data* file)
 {
+    file->current_line = ZERO;
     file->DC = ZERO;
     file->IC = MEM_START;
     file->ICF = file->DCF = ZERO;
+    file->macro_list = NULL;
+    file->symbol_list = NULL;
     memset(file->code_image, ZERO, sizeof(file->code_image));
     memset(file->data_image, ZERO, sizeof(file->data_image));
     file->error_flag = FALSE;
@@ -51,8 +54,11 @@ int main(int argc, char *argv[])
         reset_state(&file); /* resetting the file state's variables */
         fname = argv[i];
         /* initializing the file names with the extended names */
-        init_file_data(as_extended_name, fname, AS);
-        init_file_data(am_extended_name, fname, AM);
+        if (!init_file_data(as_extended_name, fname, AS) || !init_file_data(am_extended_name, fname, AM))
+        {
+            error(&file, fname, "File name is too long");
+            continue;
+        }
 
         expand_macros(&file, as_extended_name, am_extended_name); /* pre-assembler stage - removing comments, empty lines, and expanding macros */
         

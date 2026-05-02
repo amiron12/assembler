@@ -41,13 +41,13 @@ void second_pass(file_data *file, char* fname, char* am_extended_name)
         free_data(file);
         return;
     }
-    file->IC = MEM_START;
-    file->current_line = ZERO;
+    file->IC = MEM_START; /* resetting the file's instruction counter */
+    file->current_line = ZERO; /* resetting the file's current line counter */
     create_ent = create_ext = FALSE; /* flags that indicate if a entry/external value exists */
     
     if(init_output_files(file, fname) == ERR) /* making the output files to write in, file errors are handled inside, and memory is freed in case of failure*/
     {
-        fclose(am_file);
+        fclose(am_file); 
         return;
     }
 
@@ -60,9 +60,15 @@ void second_pass(file_data *file, char* fname, char* am_extended_name)
         file->current_line++;
 
         get_next_word(&line, &argument); /* assigning the first word to argument, line is set with the remaining text */
+        if(argument == NULL)
+            continue;
         
         if(argument[strlen(argument)-1] == ':') /* skiping symbols */
+        {
             get_next_word(&line, &argument);
+            if(argument == NULL)
+                continue;
+        }
 
         if (is_data(argument) || is_string(argument) || is_extern(argument))
             continue;

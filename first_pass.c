@@ -50,7 +50,6 @@ void first_pass(file_data *file, char* am_extended_name)
     char *operands[LINE_LENGTH];
     FILE* am_file;
     symbol *head = NULL;
-
     am_file = fopen(am_extended_name, "r");
     if (am_file == NULL)
     {
@@ -58,6 +57,7 @@ void first_pass(file_data *file, char* am_extended_name)
         free_data(file);
         return;
     }
+    file->current_line = ZERO; /* resetting the file's current line counter */
     while(fgets(buffer, LINE_LENGTH, am_file) != NULL)
     {
         char *argument, *symbol, *line;
@@ -88,6 +88,8 @@ void first_pass(file_data *file, char* am_extended_name)
         }
         
         get_next_word(&line, &argument); /* assigning the first word to argument, line is set with the remaining text*/
+        if(argument == NULL)
+            continue;
 
         if(argument[strlen(argument)-1] == ':')
         {
@@ -99,6 +101,11 @@ void first_pass(file_data *file, char* am_extended_name)
                 continue;
             }
             get_next_word(&line, &argument);
+            if(argument == NULL)
+            {
+                error(file, am_extended_name, "Missing operation after symbol definition");
+                continue;
+            }
         }
     
         op_count = tokenize(line, operands, file, am_extended_name); /* parsing through the line and inserting each word into the operands array, returns the number of words found */

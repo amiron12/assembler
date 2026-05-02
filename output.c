@@ -18,6 +18,32 @@
 #include "utils.h"
 #include "machine_image.h"
 
+/*
+ * This helper builds the output file name (base name + extension).
+ * It also checks that the final name fits in MAX_FILE_NAME so we dont overflow the buffer.
+ */
+static int build_output_name(char *name,  char *file_name, const char *ext)
+{
+    size_t file_len;
+    size_t ext_len;
+
+    if (name == NULL || file_name == NULL || ext == NULL)
+        return FALSE;
+
+    file_len = strlen(file_name);
+    ext_len = strlen(ext);
+
+    if (file_len + ext_len >= MAX_FILE_NAME)
+    {
+        name[0] = '\0';
+        return FALSE;
+    }
+
+    strcpy(name, file_name);
+    strcat(name, ext);
+    return TRUE;
+}
+
 /**
  * This function is used at the beginning of the second pass to open 
  * the output files (.ent, .ext) in write mode to clear their contents.
@@ -28,16 +54,24 @@ int init_output_files(file_data *fs, char* file_name)
     FILE *f;
     char name[MAX_FILE_NAME];
 
-    strcpy(name, file_name);
-    strcat(name, ENT);
+    if(!build_output_name(name, file_name, ENT))
+    {
+        error(fs, file_name, "Output file name is too long");
+        return ERR;
+    }
     f = fopen(name, "w"); 
     if(!f)
         error(fs, name, "Error opening .ent file");
     else
         fclose(f);
 
-    strcpy(name, file_name);
-    strcat(name, EXT);
+    if(!build_output_name(name, file_name, EXT))
+    {
+        error(fs, file_name, "Output file name is too long");
+        delete_output_files(file_name);
+        free_data(fs);
+        return ERR;
+    }
     f = fopen(name, "w"); 
     if(!f)
         error(fs, name, "Error opening .ext file");
@@ -64,8 +98,11 @@ void create_obj_file(file_data *fs, char* file_name)
     int i;
     char fname[MAX_FILE_NAME];
 
-    strcpy(fname, file_name);
-    strcat(fname, OBJ);
+    if(!build_output_name(fname, file_name, OBJ))
+    {
+        error(fs, file_name, "Output file name is too long");
+        return;
+    }
     ob_file = fopen(fname, "w+");
     if(!ob_file)
     {
@@ -104,9 +141,11 @@ int append_entry(symbol *entry, file_data *fs, char* fname)
 {
     FILE *ent_file;
     char name[MAX_FILE_NAME];
-    char *file_name = fname;
-    strcpy(name, file_name);
-    strcat(name, ENT);
+    if(!build_output_name(name, fname, ENT))
+    {
+        error(fs, fname, "Output file name is too long");
+        return FALSE;
+    }
     ent_file = fopen(name, "a");
     if(!ent_file)
     {
@@ -127,13 +166,15 @@ int append_external(symbol *external, file_data *fs, char* fname)
 {
     FILE *ext_file;
     char name[MAX_FILE_NAME];
-    char *file_name = fname;
-    strcpy(name, file_name);
-    strcat(name, EXT);
+    if(!build_output_name(name, fname, EXT))
+    {
+        error(fs, fname, "Output file name is too long");
+        return FALSE;
+    }
     ext_file = fopen(name, "a");
     if(!ext_file)
     {
-        error(fs, file_name, "Error opening .ext file");
+        error(fs, fname, "Error opening .ext file");
         return FALSE;
     }
     fprintf(ext_file, "%s %04d\n", external->name, fs->IC);
@@ -158,9 +199,8 @@ void delete_output_files(char *file_name)
 void delete_ent_file(char *file_name)
 {
     char name[MAX_FILE_NAME];
-    strcpy(name, file_name);
-    strcat(name, ENT);
-    remove(name);
+    if(build_output_name(name, file_name, ENT))
+        remove(name);
 }
 
 /**
@@ -169,9 +209,8 @@ void delete_ent_file(char *file_name)
 void delete_ext_file(char *file_name)
 {
     char name[MAX_FILE_NAME];
-    strcpy(name, file_name);
-    strcat(name, EXT);
-    remove(name);
+    if(build_output_name(name, file_name, EXT))
+        remove(name);
 }
 
 /**
@@ -180,7 +219,6 @@ void delete_ext_file(char *file_name)
 void delete_obj_file(char *file_name)
 {
     char name[MAX_FILE_NAME];
-    strcpy(name, file_name);
-    strcat(name, OBJ);
-    remove(name);
+    if(build_output_name(name, file_name, OBJ))
+        remove(name);
 }

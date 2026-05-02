@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -g -ansi -pedantic -Wall
+# Ubuntu 24.04 target: strict ANSI C build and 64-bit executable output.
+CFLAGS = -O2 -m64 -ansi -pedantic -Wall
 
 
 SRCS = $(wildcard *.c)
