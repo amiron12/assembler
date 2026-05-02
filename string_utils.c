@@ -117,7 +117,7 @@ int tokenize(char *line, char *args[], file_data *fs, char* file_name)
     char *token; /* Pointer to the current token */
     int i = ZERO;
     token = NULL;
-    memset(args, 0, MAX_OPERANDS*sizeof(char *)); /* reseting the array */
+    memset(args, 0, LINE_LENGTH*sizeof(char *)); /* reseting the array */
 
     /* checking if the input is empty */
     if(line == NULL || is_empty_line(line))
@@ -170,9 +170,9 @@ int is_comment(char *line)
 }
 
 /**
- * This function receives a file_data pointer and a file extension string.
- * It combines the base file name from the file_data structure with the given
- * extension and stores the result in the extended_name field of the structure.
+ * This function receives a base file name and a file extension string.
+ * It combines the base file name with the given extension and stores 
+ * the result in the extended_name string.
  */
 void extention(char *name, char *ext, char* extended_name)
 {

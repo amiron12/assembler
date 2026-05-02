@@ -41,15 +41,15 @@ void expand_macros(file_data *file, char* as_extended_name, char* am_extended_na
     as_file = fopen(as_extended_name, "r");
     if (as_file == NULL)
     {
-        /* Amir : add error */
-        file->error_flag = 1;
+        error(file, as_extended_name, "Error opening file");
+        free_data(file);
         return;
     }
     am_file = fopen(am_extended_name, "w");
     if (am_file == NULL)
     {
-        /* Amir : add error */
-        file->error_flag = 1;
+        error(file, as_extended_name, "Error creating file");
+        free_data(file);
         fclose(as_file);
         return;
     }
@@ -123,7 +123,8 @@ static void new_macro(char *name, macro **head)
     {
         macro *new_node = (macro *)malloc(sizeof(macro));
         memory_check(new_node);          
-        strncpy(new_node->name, name, LINE_LENGTH);
+        strncpy(new_node->name, name, LINE_LENGTH - 1); /* TODO: check reliabitily of all strncpy heppenings */
+        new_node->name[LINE_LENGTH - 1] = '\0';
         new_node->content = NULL;
         new_node->next = *head;
         *head = new_node;
@@ -191,7 +192,8 @@ static void add_macro_line(char *line, macro *head)
 {
     macro_line *new_line = (macro_line *)malloc(sizeof(macro_line));
     memory_check(new_line);
-    strncpy(new_line->text, line, LINE_LENGTH);
+    strncpy(new_line->text, line, LINE_LENGTH - 1);
+    new_line->text[LINE_LENGTH - 1] = '\0';
     new_line->next=NULL;
 
     if(head->content == NULL)

@@ -37,8 +37,8 @@ void second_pass(file_data *file, char* fname, char* am_extended_name)
     am_file = fopen(am_extended_name, "r");
     if (am_file == NULL)
     {
-        /* Amir : add error */
-        file->error_flag = 1;
+        error(file, am_extended_name, "Error opening file");
+        free_data(file);
         return;
     }
     file->IC = MEM_START;
@@ -133,15 +133,17 @@ void second_pass(file_data *file, char* fname, char* am_extended_name)
             }   
         }
     }
-    if (!file->error_flag)
-    create_obj_file(file, fname);
+    if (!file->error_flag) /* No errors means we ca craete the object files */
+        create_obj_file(file, fname);
+
     if(!create_ent)
-    delete_ent_file(fname); /* no entry symbols */
+        delete_ent_file(fname); /* no entry symbols, we dont need this output file */
 
     if(!create_ext)
-    delete_ext_file(fname); /* no external symbols */
+        delete_ext_file(fname); /* no external symbols, we dont need this output file */
+
     if(file->error_flag)
        delete_output_files(fname);
 
-    free_data(file);
+    free_data(file); /* at the end of each process - freeing all allocated memory related to this file (macro & symbol list) */
 }

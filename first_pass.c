@@ -42,7 +42,7 @@ static void update_symbols(symbol *head, int ICF)
  * It reads the file line by line, handles symbol definitions, validates 
  * operands and directives, encodes data and string directives, and encodes
  * instructions without resolving forward references.
- * Finally, it updates data symbol addresses and calls the second pass.
+ * Finally, it updates data symbol addresses.
  */
 void first_pass(file_data *file, char* am_extended_name)
 {
@@ -54,8 +54,8 @@ void first_pass(file_data *file, char* am_extended_name)
     am_file = fopen(am_extended_name, "r");
     if (am_file == NULL)
     {
-        /* Amir : add error */
-        file->error_flag = 1;
+        error(file, am_extended_name, "Error opening file");
+        free_data(file);
         return;
     }
     while(fgets(buffer, LINE_LENGTH, am_file) != NULL)
@@ -131,7 +131,9 @@ void first_pass(file_data *file, char* am_extended_name)
 
             else if(is_entry(argument)) 
             {
-                if(op_count > ONE) 
+                if(op_count == ZERO)
+                    error(file, am_extended_name, "Symbol not specified");
+                else if(op_count > ONE) 
                     error(file, am_extended_name, "Extraneous text after symbol");
             }
                 

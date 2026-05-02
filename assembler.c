@@ -20,8 +20,8 @@
 #include "utils.h"
 
 /**
- * This helper function resets the global assembler state variables, 
- * such as instruction and data counters, and clears the memory images.
+ * This helper function resets the file's state variables, such as 
+ * instruction and data counters, and clears the memory images.
  * It is called before processing each new file.
  */
 static void reset_state(file_data* file)
@@ -64,6 +64,8 @@ int main(int argc, char *argv[])
 
         if(file.error_flag) continue; /* error occurred during first pass, continuing to the next file */
         second_pass(&file, fname, am_extended_name);
+        
+        free_data(&file); /* ensure memory is freed on successful compilation */
     }
     return 0;
 }

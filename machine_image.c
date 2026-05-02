@@ -19,10 +19,10 @@
 #include "string_utils.h"
 
 /**
- * This function receives a string representing an operand and a file_data pointer.
- * It determines the addressing mode of the operand, parses its value, and
- * encodes the resulting machine word into the code image array, updating the type
- * and instruction counter (IC).
+ * This function receives a string representing an operand, a file_data pointer,
+ * and a file name. It determines the addressing mode of the operand, parses its 
+ * value, and encodes the resulting machine word into the code image array, 
+ * updating the type and instruction counter (IC).
  */
 static void encode_operand(char *str, file_data *fs, char* file_name)
 {
@@ -70,10 +70,11 @@ static void encode_operand(char *str, file_data *fs, char* file_name)
 }
 
 /**
- * This function receives an instruction name, its two optional arguments, and a
- * file_data pointer. It validates the addressing modes for the operands, encodes
- * the main instruction word with the opcode, funct, and operand modes, and then
- * calls encode_operand to encode any subsequent operand words.
+ * This function receives an instruction name, its two optional arguments, a
+ * file_data pointer, and a file name. It validates the addressing modes for 
+ * the operands, encodes the main instruction word with the opcode, funct, 
+ * and operand modes, and then calls encode_operand to encode any subsequent 
+ * operand words.
  */
 void encode_instruction(char *str, char *arg1, char *arg2, file_data *fs, char* file_name)
 {
@@ -147,6 +148,3 @@ void encode_string(char *str, file_data* file)
     file->data_image[file->DC].word = ZERO;
     file->data_image[file->DC++].type = ABSOLUTE;
 }
-
-
-

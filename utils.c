@@ -23,9 +23,8 @@
 
 
 /**
- * This function initializes a file_data structure with the given file name, 
- * extension, and mode. It opens the file and resets all relevant flags 
- * and pointers.
+ * This function creates an extended file name by appending the given 
+ * extension to the base file name.
  */
 void init_file_data(char* name, char *fname, char *ext)
 {
@@ -263,7 +262,7 @@ int validate_string(char *str, file_data *fs, char* file_name)
 
 /**
  * This function wraps different memory freeing functions.
- * It frees all symbol lists, macro lists, and closes the file pointer.
+ * It frees all symbol lists and macro lists.
  */
 void free_data(file_data *f)
 {
