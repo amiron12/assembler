@@ -122,12 +122,7 @@ int is_relative(char *str)
  */
 int is_instruction(char *str) 
 {
-    char *temp;
-    int i = 0;
-    while((temp = get_instruction_name(i++)) != NULL)
-        if(!strcmp(str, temp))
-            return TRUE;
-    return FALSE;
+    return get_instruction(str) != NULL;
 }
 
 /**
@@ -250,13 +245,19 @@ int validate_data(char *integers[], file_data *fs, char* file_name)
  */
 int validate_string(char *str, file_data *fs, char* file_name)
 {
+    int len;
     if(str == NULL)
     {
         error(fs, file_name, "String not specified");
         return FALSE;
     }
-
-    if(str[0] == '\"' && str[strlen(str)-1] == '\"')
+    len = (int)strlen(str);
+    if (len < MIN_STRING_LENGTH)
+    {
+        error(fs, file_name, "String syntax error");
+        return FALSE;
+    }
+    if(str[0] == '\"' && str[len - 1] == '\"')
         return TRUE;
 
     error(fs, file_name, "Invalid string value");

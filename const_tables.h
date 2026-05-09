@@ -15,8 +15,8 @@ typedef struct inst
     unsigned int dest_modes;
 } inst;
 
-/* Retrieves the name of an instruction by its index in the instructions table */
-char *get_instruction_name(int index);
+/* Retrieves the instruction from the instructions table by its name */
+inst* get_instruction(char* str);
 
 /* Retrieves the expected number of operands for a given instruction name */
 int get_instruction_operands(char *name);

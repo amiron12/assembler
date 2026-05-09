@@ -8,7 +8,7 @@
 #define MAX_OPERANDS 80
 #define DEC 10
 #define MEM_START 100
-#define LINE_LENGTH 85
+#define LINE_LENGTH 300
 #define MAX_LINE_LENGTH 81
 #define ZERO 0
 #define ONE 1
@@ -29,6 +29,8 @@
 #define MAX_SYMBOL_LENGTH 31
 #define MEMORY 4096
 #define WORD_SIZE 12
+
+#define MIN_STRING_LENGTH 2
 
 #define UNKNOWN '?'
 #define ABSOLUTE 'A'

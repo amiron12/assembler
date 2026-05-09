@@ -27,8 +27,7 @@ void add_symbol(char *symbol_name, symbol **head, int address, attribute attr)
     if(symbol_name == NULL) return;
     new_node = (symbol *)malloc(sizeof(symbol));
     memory_check(new_node);
-    strncpy(new_node->name, symbol_name, SYMBOL_LENGTH - 1);
-    new_node->name[SYMBOL_LENGTH - 1] = '\0';
+    strcpy(new_node->name, symbol_name);
     new_node->address = address;
     (new_node->attr) = (1<<attr); /* turns on the required bit */
     new_node->next = *head;

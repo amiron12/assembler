@@ -125,9 +125,8 @@ static void new_macro(char *name, macro **head)
 {
     {
         macro *new_node = (macro *)malloc(sizeof(macro));
-        memory_check(new_node);          
-        strncpy(new_node->name, name, LINE_LENGTH - 1); /* TODO: check reliabitily of all strncpy heppenings */
-        new_node->name[LINE_LENGTH - 1] = '\0';
+        memory_check(new_node);
+        strcpy(new_node->name, name);
         new_node->content = NULL;
         new_node->next = *head;
         *head = new_node;
@@ -195,8 +194,7 @@ static void add_macro_line(char *line, macro *head)
 {
     macro_line *new_line = (macro_line *)malloc(sizeof(macro_line));
     memory_check(new_line);
-    strncpy(new_line->text, line, LINE_LENGTH - 1);
-    new_line->text[LINE_LENGTH - 1] = '\0';
+    strcpy(new_line->text, line);
     new_line->next=NULL;
 
     if(head->content == NULL)
